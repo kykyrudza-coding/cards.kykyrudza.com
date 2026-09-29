@@ -3,11 +3,11 @@
 # and D:\kykyrudza.com\server\docker-compose.yml for the pattern this follows).
 #
 # Everything shares one origin — no CORS needed:
-#   cards.kykyrudza.com/               -> frontend (Vite preview)
-#   cards.kykyrudza.com/api/*          -> backend (Laravel API)
-#   cards.kykyrudza.com/broadcasting/* -> backend (WS auth)
-#   cards.kykyrudza.com/sanctum/*      -> backend
-#   cards.kykyrudza.com/app/*          -> reverb (WebSocket)
+#   poker.kykyrudza.com/               -> frontend (Vite preview)
+#   poker.kykyrudza.com/api/*          -> backend (Laravel API)
+#   poker.kykyrudza.com/broadcasting/* -> backend (WS auth)
+#   poker.kykyrudza.com/sanctum/*      -> backend
+#   poker.kykyrudza.com/app/*          -> reverb (WebSocket)
 
 services:
   backend:
@@ -36,12 +36,12 @@ services:
       - traefik.docker.network=traefik-network
       - traefik.http.services.cards-backend.loadbalancer.server.port=8000
 
-      - traefik.http.routers.cards-backend.rule=Host(`cards.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
+      - traefik.http.routers.cards-backend.rule=Host(`poker.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
       - traefik.http.routers.cards-backend.entrypoints=websecure
       - traefik.http.routers.cards-backend.tls.certresolver=myresolver
       - traefik.http.routers.cards-backend.priority=10
 
-      - traefik.http.routers.cards-backend-http.rule=Host(`cards.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
+      - traefik.http.routers.cards-backend-http.rule=Host(`poker.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
       - traefik.http.routers.cards-backend-http.entrypoints=web
       - traefik.http.routers.cards-backend-http.priority=10
       - traefik.http.routers.cards-backend-http.middlewares=cards-https-redirect
@@ -70,7 +70,7 @@ services:
       - traefik.docker.network=traefik-network
       - traefik.http.services.cards-reverb.loadbalancer.server.port=8080
 
-      - traefik.http.routers.cards-reverb.rule=Host(`cards.kykyrudza.com`) && PathPrefix(`/app`)
+      - traefik.http.routers.cards-reverb.rule=Host(`poker.kykyrudza.com`) && PathPrefix(`/app`)
       - traefik.http.routers.cards-reverb.entrypoints=websecure
       - traefik.http.routers.cards-reverb.tls.certresolver=myresolver
       - traefik.http.routers.cards-reverb.priority=10
@@ -80,8 +80,8 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE_API_URL: https://cards.kykyrudza.com
-        VITE_WS_HOST: cards.kykyrudza.com
+        VITE_API_URL: https://poker.kykyrudza.com
+        VITE_WS_HOST: poker.kykyrudza.com
         VITE_WS_PORT: 443
         VITE_WS_SCHEME: https
         VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
@@ -93,12 +93,12 @@ services:
       - traefik.docker.network=traefik-network
       - traefik.http.services.cards-frontend.loadbalancer.server.port=4173
 
-      - traefik.http.routers.cards-frontend.rule=Host(`cards.kykyrudza.com`)
+      - traefik.http.routers.cards-frontend.rule=Host(`poker.kykyrudza.com`)
       - traefik.http.routers.cards-frontend.entrypoints=websecure
       - traefik.http.routers.cards-frontend.tls.certresolver=myresolver
       - traefik.http.routers.cards-frontend.priority=1
 
-      - traefik.http.routers.cards-frontend-http.rule=Host(`cards.kykyrudza.com`)
+      - traefik.http.routers.cards-frontend-http.rule=Host(`poker.kykyrudza.com`)
       - traefik.http.routers.cards-frontend-http.entrypoints=web
       - traefik.http.routers.cards-frontend-http.priority=1
       - traefik.http.routers.cards-frontend-http.middlewares=cards-https-redirect
