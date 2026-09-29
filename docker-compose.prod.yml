@@ -1,0 +1,127 @@
+# Production deployment behind the Traefik that already runs on this server
+# (same network/resolver as crm and server — see D:\kykyrudza.com\crm\docker-compose.prod.yml
+# and D:\kykyrudza.com\server\docker-compose.yml for the pattern this follows).
+#
+# Everything shares one origin — no CORS needed:
+#   cards.kykyrudza.com/               -> frontend (Vite preview)
+#   cards.kykyrudza.com/api/*          -> backend (Laravel API)
+#   cards.kykyrudza.com/broadcasting/* -> backend (WS auth)
+#   cards.kykyrudza.com/sanctum/*      -> backend
+#   cards.kykyrudza.com/app/*          -> reverb (WebSocket)
+
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      REVERB_HOST: reverb
+      REVERB_PORT: 8080
+      REVERB_SCHEME: http
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - traefik-network
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
+      - traefik.http.services.cards-backend.loadbalancer.server.port=8000
+
+      - traefik.http.routers.cards-backend.rule=Host(`cards.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
+      - traefik.http.routers.cards-backend.entrypoints=websecure
+      - traefik.http.routers.cards-backend.tls.certresolver=myresolver
+      - traefik.http.routers.cards-backend.priority=10
+
+      - traefik.http.routers.cards-backend-http.rule=Host(`cards.kykyrudza.com`) && (PathPrefix(`/api`) || PathPrefix(`/broadcasting`) || PathPrefix(`/sanctum`))
+      - traefik.http.routers.cards-backend-http.entrypoints=web
+      - traefik.http.routers.cards-backend-http.priority=10
+      - traefik.http.routers.cards-backend-http.middlewares=cards-https-redirect
+
+  reverb:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - traefik-network
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
+      - traefik.http.services.cards-reverb.loadbalancer.server.port=8080
+
+      - traefik.http.routers.cards-reverb.rule=Host(`cards.kykyrudza.com`) && PathPrefix(`/app`)
+      - traefik.http.routers.cards-reverb.entrypoints=websecure
+      - traefik.http.routers.cards-reverb.tls.certresolver=myresolver
+      - traefik.http.routers.cards-reverb.priority=10
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: https://cards.kykyrudza.com
+        VITE_WS_HOST: cards.kykyrudza.com
+        VITE_WS_PORT: 443
+        VITE_WS_SCHEME: https
+        VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
+      - traefik.http.services.cards-frontend.loadbalancer.server.port=4173
+
+      - traefik.http.routers.cards-frontend.rule=Host(`cards.kykyrudza.com`)
+      - traefik.http.routers.cards-frontend.entrypoints=websecure
+      - traefik.http.routers.cards-frontend.tls.certresolver=myresolver
+      - traefik.http.routers.cards-frontend.priority=1
+
+      - traefik.http.routers.cards-frontend-http.rule=Host(`cards.kykyrudza.com`)
+      - traefik.http.routers.cards-frontend-http.entrypoints=web
+      - traefik.http.routers.cards-frontend-http.priority=1
+      - traefik.http.routers.cards-frontend-http.middlewares=cards-https-redirect
+
+      - traefik.http.middlewares.cards-https-redirect.redirectscheme.scheme=https
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: poker
+      POSTGRES_USER: poker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-poker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - internal
+
+networks:
+  traefik-network:
+    external: true
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:

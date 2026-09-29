@@ -29,8 +29,6 @@ export default {
     settings: 'Настройки',
     brandSub: 'КОМНАТА ДЛЯ КАРТ',
     yourNextHand: 'ТВОЯ СЛЕДУЮЩАЯ РАЗДАЧА',
-    footerLine1: 'Хорошая компания.',
-    footerLine2: 'Лучший игровой вечер.',
     personalProfile: 'Личный профиль',
     logOut: 'Выйти',
     yourSpace: 'Твоё пространство',

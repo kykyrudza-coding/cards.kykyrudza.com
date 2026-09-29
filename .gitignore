@@ -4,7 +4,10 @@ vendor/
 
 # Environment
 .env
+.env.docker
 .env.*.local
+!.env.example
+!.env.docker.example
 
 # Backend (Laravel)
 backend/storage/*.key

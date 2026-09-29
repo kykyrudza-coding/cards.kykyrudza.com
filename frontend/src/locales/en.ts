@@ -27,8 +27,6 @@ export default {
     settings: 'Settings',
     brandSub: 'THE CARD ROOM',
     yourNextHand: 'YOUR NEXT HAND',
-    footerLine1: 'Good company.',
-    footerLine2: 'A better game night.',
     personalProfile: 'Personal profile',
     logOut: 'Log out',
     yourSpace: 'Your space',
