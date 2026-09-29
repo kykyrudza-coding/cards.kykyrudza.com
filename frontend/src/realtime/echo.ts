@@ -31,7 +31,7 @@ export function connectEcho(): Echo<'reverb'> {
     wsPort: WS_PORT,
     wssPort: WS_PORT,
     forceTLS: FORCE_TLS,
-    enabledTransports: FORCE_TLS ? ['wss'] : ['ws', 'wss'],
+    enabledTransports: ['ws', 'wss'],
     authEndpoint: `${API_URL}/broadcasting/auth`,
     bearerToken: getToken(),
   })
