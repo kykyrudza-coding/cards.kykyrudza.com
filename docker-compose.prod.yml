@@ -74,11 +74,6 @@ services:
       - traefik.http.routers.cards-reverb.entrypoints=websecure
       - traefik.http.routers.cards-reverb.tls.certresolver=myresolver
       - traefik.http.routers.cards-reverb.priority=10
-      # WebSocket upgrade (Connection/Upgrade headers) is only valid on
-      # HTTP/1.1 — force ALPN to skip h2 for this router so the handshake
-      # never gets negotiated as HTTP/2 (which rejects those headers).
-      - traefik.http.routers.cards-reverb.tls.options=poker-ws@docker
-      - traefik.tls.options.poker-ws.alpnProtocols=http/1.1
 
   frontend:
     build:
