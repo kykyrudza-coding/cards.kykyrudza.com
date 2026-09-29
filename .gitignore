@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+.env.*.local
+
+# Backend (Laravel)
+backend/storage/*.key
+backend/storage/app/*
+!backend/storage/app/.gitkeep
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitkeep
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitkeep
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitkeep
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+backend/database/*.sqlite
+
+# Frontend (Vite build artifacts)
+frontend/dist/
+frontend/.vite/
+
+# Large source art (Git LFS candidates, see README)
+*.blend
+*.blend1
+*.psd
+*.wav
+!assets/audio/sfx/*.wav
+*.fbx
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/test-results/
+/frontend/test-results-live/

@@ -1,0 +1,194 @@
+[
+  {
+    "id": "cards/deal-01",
+    "source": "card-slide-1.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.187,
+    "files": {
+      "ogg": "audio/cards/deal-01.ogg",
+      "mp3": "audio/cards/deal-01.mp3"
+    },
+    "bytes": {
+      "ogg": 5972,
+      "mp3": 4222
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "cards/deal-02",
+    "source": "card-slide-2.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.584,
+    "files": {
+      "ogg": "audio/cards/deal-02.ogg",
+      "mp3": "audio/cards/deal-02.mp3"
+    },
+    "bytes": {
+      "ogg": 9595,
+      "mp3": 10492
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "cards/deal-03",
+    "source": "card-slide-4.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.45,
+    "files": {
+      "ogg": "audio/cards/deal-03.ogg",
+      "mp3": "audio/cards/deal-03.mp3"
+    },
+    "bytes": {
+      "ogg": 8143,
+      "mp3": 8402
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "cards/flip",
+    "source": "card-place-1.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.247,
+    "files": {
+      "ogg": "audio/cards/flip.ogg",
+      "mp3": "audio/cards/flip.mp3"
+    },
+    "bytes": {
+      "ogg": 6615,
+      "mp3": 5058
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "cards/collect",
+    "source": "card-shove-1.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.766,
+    "files": {
+      "ogg": "audio/cards/collect.ogg",
+      "mp3": "audio/cards/collect.mp3"
+    },
+    "bytes": {
+      "ogg": 11349,
+      "mp3": 13417
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "cards/shuffle",
+    "source": "card-shuffle.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.8,
+    "files": {
+      "ogg": "audio/cards/shuffle.ogg",
+      "mp3": "audio/cards/shuffle.mp3"
+    },
+    "bytes": {
+      "ogg": 11609,
+      "mp3": 13835
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "chips/single",
+    "source": "chip-lay-1.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.122,
+    "files": {
+      "ogg": "audio/chips/single.ogg",
+      "mp3": "audio/chips/single.mp3"
+    },
+    "bytes": {
+      "ogg": 5285,
+      "mp3": 2968
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "chips/bet",
+    "source": "chips-stack-3.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.355,
+    "files": {
+      "ogg": "audio/chips/bet.ogg",
+      "mp3": "audio/chips/bet.mp3"
+    },
+    "bytes": {
+      "ogg": 7432,
+      "mp3": 6730
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "chips/payout",
+    "source": "chips-collide-2.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.128,
+    "files": {
+      "ogg": "audio/chips/payout.ogg",
+      "mp3": "audio/chips/payout.mp3"
+    },
+    "bytes": {
+      "ogg": 5461,
+      "mp3": 2968
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "ui/click",
+    "source": "chip-lay-2.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.098,
+    "files": {
+      "ogg": "audio/ui/click.ogg",
+      "mp3": "audio/ui/click.mp3"
+    },
+    "bytes": {
+      "ogg": 5134,
+      "mp3": 2550
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "ui/win",
+    "source": "chips-stack-1.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.119,
+    "files": {
+      "ogg": "audio/ui/win.ogg",
+      "mp3": "audio/ui/win.mp3"
+    },
+    "bytes": {
+      "ogg": 5383,
+      "mp3": 2968
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "ui/lose",
+    "source": "card-place-4.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.601,
+    "files": {
+      "ogg": "audio/ui/lose.ogg",
+      "mp3": "audio/ui/lose.mp3"
+    },
+    "bytes": {
+      "ogg": 9880,
+      "mp3": 10492
+    },
+    "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "twenty",
+    "text": "У вас двадцять",
+    "path": "audio/voices/uk/twenty.mp3",
+    "locale": "uk-UA",
+    "voice": "uk-UA-OstapNeural"
+  },
+  {
+    "id": "bust",
+    "text": "Перебір",
+    "path": "audio/voices/uk/bust.mp3",
+    "locale": "uk-UA",
+    "voice": "uk-UA-OstapNeural"
+  },
+  {
+    "id": "you-win",
+    "text": "Ви виграли",
+    "path": "audio/voices/uk/you-win.mp3",
+    "locale": "uk-UA",
+    "voice": "uk-UA-OstapNeural"
+  }
+]

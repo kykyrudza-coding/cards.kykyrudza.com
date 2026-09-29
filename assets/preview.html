@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackjack — Classic assets</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1919;color:#f4eedf;font:16px/1.5 system-ui,sans-serif}main{max-width:1240px;margin:auto;padding:40px 28px 64px}header{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:24px}h1{font:42px Georgia,serif;margin:5px 0}h2{font:28px Georgia,serif;margin:32px 0 14px}p{color:#a9bdb3;margin:4px 0}.eyebrow{color:#ceb77f;font-size:11px;letter-spacing:3px;text-transform:uppercase}.tag{border:1px solid #456157;padding:8px 14px;border-radius:30px;color:#ceb77f;font-size:12px}.table{position:relative;aspect-ratio:16/9;background:center/100% 100% url('tables/classic/table.svg');border-radius:20px;box-shadow:0 24px 70px #0005;overflow:hidden}.label{position:absolute;left:0;right:0;text-align:center;color:#e4d7b4;font-size:10px;letter-spacing:3px}.dealer-label{top:9%}.player-label{top:53%}.hand{position:absolute;display:flex;justify-content:center;gap:12px;left:0;right:0}.dealer{top:15%}.player{top:60%}.hand img{width:10%;filter:drop-shadow(0 8px 5px #0005);border-radius:8px}.hand img:first-child{transform:rotate(-5deg)}.hand img:last-child{transform:rotate(5deg)}.title{position:absolute;top:43%;width:100%;text-align:center;color:#cbb77f;font:clamp(10px,2.4vw,26px) Georgia,serif;letter-spacing:7px}.stack{position:absolute;bottom:12%;right:20%;width:9%}.stack img{position:absolute;width:100%;bottom:0;filter:drop-shadow(0 4px 3px #0007)}.stack img:nth-child(2){bottom:6px}.stack img:nth-child(3){bottom:12px}.collection{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:12px}.collection figure{margin:0}.collection img{width:100%;display:block;border-radius:5px}.collection figcaption{text-align:center;color:#a9bdb3;font-size:11px;margin:5px 0 12px}.chip-list{display:flex;gap:22px;align-items:center}.chip-list img{width:90px}.audio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}button{font:inherit;cursor:pointer;text-align:left;color:#eee8d8;background:#18302e;border:1px solid #355049;border-radius:8px;padding:14px 18px}button:hover,button:focus-visible{background:#25423c;border-color:#ceb77f}button small{display:block;color:#9db5aa;font-size:11px;margin-top:4px}#status{min-height:24px;font-size:13px;margin-top:10px}footer{border-top:1px solid #294039;margin-top:36px;padding-top:18px;font-size:13px;color:#91a69c}@media(max-width:700px){main{padding:24px 14px}header{align-items:start}.tag{display:none}h1{font-size:34px}.collection{grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.audio{grid-template-columns:repeat(2,1fr)}.hand{gap:5px}.label{font-size:7px}.title{letter-spacing:3px}}
+</style>
+<main>
+<header><div><div class="eyebrow">Asset collection / 01</div><h1>Blackjack Classic</h1><p>Мінімальний набір для першого ігрового екрана.</p></div><span class="tag">52 + 1 карти · 3 фішки · 9 аудіо</span></header>
+<section class="table" aria-label="Приклад розкладки на столі">
+<div class="label dealer-label">ДИЛЕР</div><div class="hand dealer"><img src="cards/classic/faces/9C.svg" alt="Дев'ятка треф"><img src="cards/classic/back/back.svg" alt="Закрита карта"></div>
+<div class="title">BLACKJACK</div><div class="label player-label">ВАША РУКА · 20</div><div class="hand player"><img src="cards/classic/faces/AS.svg" alt="Туз пік"><img src="cards/classic/faces/9H.svg" alt="Дев'ятка черв"></div>
+<div class="stack"><img src="chips/classic/chip-25.svg" alt=""><img src="chips/classic/chip-25.svg" alt=""><img src="chips/classic/chip-25.svg" alt="Ставка фішками 25"></div>
+</section>
+<h2>Повна колода</h2><div class="collection" id="deck"></div>
+<h2>Фішки</h2><div class="chip-list"><img src="chips/classic/chip-5.svg" alt="5"><img src="chips/classic/chip-25.svg" alt="25"><img src="chips/classic/chip-100.svg" alt="100"></div>
+<h2>Звуки та голос дилера</h2><p>Натисніть, щоб прослухати. Голос — синтетичний, український.</p><div class="audio" id="audio"></div><div id="status" role="status"></div>
+<footer>SVG · recorded CC0 OGG + MP3 / mono · MP3 voice<br>Це перегляд асетів; приклад руки не підключений до ігрового рушія.</footer>
+</main>
+<script>
+const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+for(const [code,name] of [['C','треф'],['D','бубни'],['H','черв'],['S','пік']]) for(const rank of ranks){const figure=document.createElement('figure');const img=document.createElement('img');img.src=`cards/classic/faces/${rank}${code}.svg`;img.alt=`${rank} ${name}`;img.loading='lazy';const caption=document.createElement('figcaption');caption.textContent=rank+code;figure.append(img,caption);document.querySelector('#deck').append(figure);}
+let active;
+const sounds=[['Роздача карти','cards/deal-01.mp3'],['Перевертання','cards/flip.mp3'],['Ставка фішкою','chips/bet.mp3'],['Кнопка','ui/click.mp3'],['Перемога','ui/win.mp3'],['Програш','ui/lose.mp3'],['У вас двадцять','voices/uk/twenty.mp3'],['Перебір','voices/uk/bust.mp3'],['Ви виграли','voices/uk/you-win.mp3']];
+for(const [label,path] of sounds){const button=document.createElement('button');button.type='button';button.textContent='▶ '+label;const small=document.createElement('small');small.textContent=path;button.append(small);button.onclick=async()=>{if(active)active.pause();active=new Audio('audio/'+path);active.volume=.65;try{await active.play();document.querySelector('#status').textContent=label;}catch{document.querySelector('#status').textContent='Не вдалося відтворити '+path;}};document.querySelector('#audio').append(button);}
+</script>
+</html>

@@ -1,0 +1,1731 @@
+/* Table scene: room, upholstered rail, felt, seats, then interactive HUD. */
+.match-screen {
+  position: relative;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #090e10;
+  color: #e7eee9;
+}
+.game-stage {
+  position: absolute;
+  inset: 0;
+  z-index: var(--layer-stage);
+  pointer-events: none;
+}
+.stage-light {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 36%, #33544655, transparent 65%),
+    repeating-linear-gradient(90deg, #ffffff01 0 1px, transparent 1px 110px);
+}
+.stage-table {
+  position: absolute;
+  inset: 96px 3.5% 96px;
+  border-radius: 44% / 34%;
+  padding: 23px;
+  background: linear-gradient(165deg, #34423c, #17241e 24%, #111914 75%, #39443a);
+  border: 1px solid #82917d35;
+  box-shadow:
+    0 14px 0 #060b09,
+    0 16px 0 #57614950,
+    0 36px 48px #0009,
+    inset 0 2px 2px #d3d9b52b,
+    inset 0 -10px 14px #0007;
+}
+.table-felt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 35%,
+    #286047 0,
+    #1b4e39 40%,
+    #123b2d 77%,
+    #0c2d23 100%
+  );
+  border: 2px solid #aa986557;
+  box-shadow:
+    inset 0 5px 22px #0009,
+    inset 0 0 85px #06180d77;
+}
+.table-felt:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background:
+    repeating-linear-gradient(35deg, #ffffff0a 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(125deg, #00000017 0 1px, transparent 1px 4px);
+}
+.felt-stitch {
+  position: absolute;
+  inset: 14px;
+  border: 1px dashed #d5c69129;
+  border-radius: inherit;
+}
+.table-wordmark {
+  position: absolute;
+  top: 39%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #c6bc8580;
+  font:
+    500 clamp(22px, 2.8vw, 40px) Georgia,
+    serif;
+  letter-spacing: 8px;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px #0005;
+}
+.table-emblem {
+  display: block;
+  font-size: 24px;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+  color: #d2c99670;
+}
+.table-rule {
+  display: block;
+  font:
+    500 10px Inter,
+    sans-serif;
+  letter-spacing: 5px;
+  margin-top: 9px;
+}
+.table-house {
+  display: block;
+  font:
+    500 7px Inter,
+    sans-serif;
+  letter-spacing: 3px;
+  margin-top: 22px;
+  color: #c6c7a84d;
+}
+.game-stage .game-playfield {
+  position: absolute;
+  top: 104px;
+  bottom: 138px;
+  left: 0;
+  right: 0;
+  width: min(100%, 1540px);
+  margin: 0 auto;
+  min-height: 0;
+  pointer-events: auto;
+  z-index: var(--layer-seats);
+}
+.game-hud {
+  position: relative;
+  height: 100%;
+  z-index: var(--layer-hud);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+.game-spacer {
+  flex: 1;
+}
+.game-topbar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  height: 66px;
+  flex-shrink: 0;
+  margin: 16px 24px 0;
+  padding: 0 20px;
+  border: 1px solid #aab99d24;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #1b2520ef, #111a17ed);
+  box-shadow:
+    0 8px 24px #0003,
+    inset 0 1px #ffffff04;
+}
+.game-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 135px;
+}
+.game-brand > svg {
+  color: #c6b779;
+}
+.game-brand strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+}
+.game-brand span {
+  display: block;
+  font-size: 10px;
+  color: #8da196;
+  margin-top: 4px;
+}
+.game-topbar .connection {
+  font-size: 10px;
+  color: #88aa96;
+  white-space: nowrap;
+}
+.game-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 8px;
+}
+.game-topbar-actions .icon-button {
+  width: 36px;
+  height: 36px;
+  color: #9bad9e;
+}
+.game-topbar-actions .btn {
+  font-size: 11px;
+  color: #c1cabb;
+  padding: 8px;
+}
+.lobby-reference {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  padding: 0 10px;
+  border-left: 1px solid #ffffff15;
+}
+.table-info {
+  display: flex;
+  gap: 30px;
+  margin-left: auto;
+}
+.table-info > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 8px;
+  color: #859b8c;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.table-info strong {
+  font-size: 14px;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: #e4ecdc;
+  font-variant-numeric: tabular-nums;
+  text-transform: capitalize;
+}
+.dealer-area {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 42%;
+}
+.dealer-label {
+  font-size: 9px;
+  color: #d1c59c;
+  letter-spacing: 4px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.dealer-cards {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.dealer-cards .playing-card {
+  --card-width: clamp(64px, 8.8vh, 88px);
+}
+.dealer-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  color: #9eb7a7;
+}
+.dealer-score strong {
+  padding: 3px 8px;
+  background: #092a1edb;
+  border: 1px solid #b8cbb529;
+  border-radius: 20px;
+  color: #e5eadb;
+  font-size: 11px;
+}
+.playing-card {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: var(--card-width, 72px);
+  aspect-ratio: 5/7;
+  vertical-align: middle;
+  perspective: 850px;
+  transform-style: preserve-3d;
+}
+.card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.is-hidden .card-inner {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 7%;
+  box-shadow:
+    0 1px 0 #d1cfc1,
+    0 3px 0 #bbbcae,
+    0 7px 12px #00140977;
+}
+.card-front {
+  background: #f8f5ea;
+}
+.card-back {
+  background: #143e37;
+  transform: rotateY(180deg);
+}
+.playing-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.card-selected .card-face {
+  outline: 2px solid var(--accent);
+}
+.card-inactive {
+  opacity: 0.72;
+}
+.opponent-seats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.player-seat {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 250px;
+  max-width: 28%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: auto;
+  --card-width: 70px;
+}
+.seat-identity {
+  order: 2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 164px;
+  max-width: 100%;
+  margin-top: 10px;
+  padding: 7px 15px 7px 7px;
+  border: 1px solid #b2c0a42e;
+  border-radius: 40px;
+  background: linear-gradient(120deg, #172a21f5, #10271df0);
+  box-shadow:
+    0 5px 14px #00120a55,
+    inset 0 1px #ffffff07;
+  text-align: left;
+}
+.seat-identity .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 10px;
+  color: #d1c8a1;
+  background: radial-gradient(circle at 35% 25%, #4a5b40, #263d2d);
+  border: 1px solid #b5b99045;
+  flex-shrink: 0;
+}
+.seat-name {
+  min-width: 0;
+}
+.seat-name strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+.seat-name > span {
+  font-size: 11px;
+  color: #a7b9a5;
+  font-variant-numeric: tabular-nums;
+}
+.seat-name small {
+  font-size: 8px;
+  color: #768e7d;
+}
+.you-label {
+  font-size: 7px;
+  color: #b6d7b5;
+  letter-spacing: 1px;
+}
+.seat-active .seat-identity {
+  border-color: #86cba379;
+  background: linear-gradient(120deg, #254633, #103824);
+  box-shadow:
+    0 0 0 3px #90dda20a,
+    0 5px 18px #00170c77;
+}
+.seat-active .avatar {
+  border-color: #9bd4a0;
+}
+.turn-label {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #d1c38a;
+  color: #233320;
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.player-hands {
+  order: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+  position: relative;
+}
+.hand-view {
+  position: relative;
+  min-width: 0;
+  padding: 7px 9px 6px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.hand-view.split-hand {
+  flex: 1;
+  border-color: #ffffff15;
+}
+.hand-view.active-hand {
+  border-color: #92c69730;
+  background: radial-gradient(ellipse at 50% 90%, #91d79b10, transparent 70%);
+}
+.hand-view.inactive-hand {
+  opacity: 0.7;
+}
+.hand-view:has(.inline-result) {
+  opacity: 1;
+}
+.hand-cards {
+  display: flex;
+  justify-content: center;
+  min-width: max-content;
+  perspective: 800px;
+}
+.hand-cards .playing-card + .playing-card {
+  margin-left: calc(var(--card-width) * -0.43);
+}
+.hand-details {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+.score-badge {
+  min-width: 25px;
+  height: 23px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: #082d20;
+  border: 1px solid #abc89942;
+  color: #e8eedc;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 5px #0003;
+}
+.hand-bet {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 10px;
+  color: #c1cbb0;
+}
+.hand-bet img {
+  width: 17px;
+  height: 17px;
+  filter: drop-shadow(0 2px 1px #0005);
+}
+.hand-status {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.hand-index {
+  display: block;
+  font-size: 7px;
+  color: #c1cba8;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.inline-result {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.inline-result strong {
+  text-transform: uppercase;
+}
+.result-win,
+.result-blackjack {
+  color: #9fe2ae;
+}
+.result-lose,
+.result-bust {
+  color: #edab9f;
+}
+.result-push {
+  color: #e1d6ad;
+}
+.hand-result-win,
+.hand-result-blackjack {
+  border-color: #a0d39b70;
+  background: #81cb8510;
+  box-shadow: 0 0 22px #8bdd8a10;
+}
+.hand-result-lose {
+  border-color: #cc8a7944;
+  background: #a9564309;
+}
+.hand-result-push {
+  border-color: #d6ca9444;
+  background: #d6ca9407;
+}
+.own-seat {
+  width: 400px;
+  max-width: 42%;
+  --card-width: clamp(78px, 10.7vh, 112px);
+}
+.current-user-seat {
+  left: 50%;
+  bottom: 0;
+  top: auto;
+  transform: translateX(-50%);
+}
+.own-seat .seat-identity {
+  min-width: 190px;
+  margin-top: 12px;
+  padding: 8px 17px 8px 8px;
+}
+.own-seat .seat-name strong {
+  font-size: 13px;
+}
+.own-seat .avatar {
+  width: 38px;
+  height: 38px;
+  font-size: 11px;
+}
+.own-seat .hand-view {
+  padding: 10px 14px 8px;
+}
+.own-seat .hand-details {
+  gap: 10px;
+}
+.own-seat .score-badge {
+  font-size: 14px;
+  height: 27px;
+  min-width: 29px;
+}
+.own-seat .hand-bet {
+  font-size: 11px;
+}
+.own-seat .hand-bet img {
+  width: 21px;
+  height: 21px;
+}
+.own-seat .turn-label {
+  font-size: 7px;
+  bottom: -7px;
+}
+.out-label {
+  order: 3;
+  font-size: 9px;
+  color: #a79f86;
+  margin-top: 8px;
+}
+.seat-empty .seat-identity {
+  opacity: 0.8;
+}
+.table-bet {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+}
+.chip-stack {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+.chip-stack-art {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 42px;
+  filter: drop-shadow(0 4px 3px #001a0b88);
+}
+.chip-stack-art img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 34px;
+}
+.chip-stack-art img:nth-child(2) {
+  bottom: 4px;
+}
+.chip-stack-art img:nth-child(3) {
+  bottom: 8px;
+}
+.chip-stack small {
+  display: block;
+  color: #95ae91;
+  font-size: 6px;
+  letter-spacing: 2px;
+  margin-bottom: 3px;
+}
+.chip-stack strong {
+  color: #d7ddbf;
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.deck-stack {
+  position: absolute;
+  left: calc(50% + 136px);
+  top: 5%;
+  width: 45px;
+  height: 64px;
+  transform: rotate(7deg);
+}
+.deck-stack img {
+  position: absolute;
+  width: 45px;
+  box-shadow: 0 2px 2px #00160888;
+  border-radius: 4px;
+}
+.discard-pile {
+  position: absolute;
+  left: calc(50% - 192px);
+  top: 5%;
+  width: 47px;
+  height: 66px;
+  border: 1px solid #c6c69318;
+  border-radius: 6px;
+  color: #b3be8f44;
+  font-size: 6px;
+  letter-spacing: 1px;
+  display: grid;
+  place-items: center;
+}
+.action-bar,
+.bet-controls {
+  position: absolute;
+  left: 26px;
+  bottom: 22px;
+  pointer-events: auto;
+  border: 1px solid #b2c5a426;
+  border-radius: 18px;
+  background: linear-gradient(140deg, #1d2c23f5, #101b16fa);
+  box-shadow:
+    0 10px 28px #0005,
+    inset 0 1px #ffffff05;
+  padding: 14px 16px;
+  z-index: var(--layer-hud);
+}
+.action-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 16px;
+  color: #b7c9b5;
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 110px);
+  gap: 7px;
+}
+.action-buttons .btn {
+  height: 44px;
+  min-height: 44px;
+  font-size: 12px;
+  justify-content: space-between;
+  border-radius: 10px;
+}
+.action-buttons .btn-primary {
+  background: linear-gradient(#8fce9f, #6bbd87);
+  border-color: #acddb244;
+  color: #10351e;
+  box-shadow: 0 3px 0 #366d46;
+}
+.action-buttons .btn-secondary {
+  background: linear-gradient(#2c3c31, #213026);
+  border-color: #b0c09a24;
+  color: #d8dfca;
+  box-shadow: 0 3px 0 #101c14;
+}
+.action-buttons .btn:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+}
+.action-buttons kbd {
+  display: inline-grid;
+  place-items: center;
+  width: 19px;
+  height: 20px;
+  font:
+    9px Inter,
+    sans-serif;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  opacity: 0.65;
+  box-shadow: 0 1px 0 currentColor;
+}
+.action-footnote {
+  display: none;
+}
+.bet-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 98px;
+  max-width: calc(100% - 52px);
+}
+.bet-heading .eyebrow {
+  font-size: 7px;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+  color: #c8be90;
+}
+.bet-heading strong {
+  display: block;
+  font-size: 15px;
+  color: #e2e5cf;
+}
+.bet-heading p {
+  font-size: 10px;
+  color: #91ab95;
+  margin: 5px 0 0;
+}
+.bet-controls small {
+  font-size: 8px;
+  line-height: 1.8;
+  color: #849c85;
+}
+.bet-controls > .btn-primary {
+  background: #87c899;
+  border-color: #87c899;
+  color: #15361f;
+  min-height: 44px;
+}
+.bet-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid #c0c9a321;
+  border-radius: 12px;
+  background: #071b1055;
+}
+.bet-stepper .btn {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  min-width: 34px;
+  padding: 0;
+  font-size: 20px;
+  background: #2b3c2e;
+  border-color: #ffffff12;
+}
+.bet-stepper output {
+  min-width: 68px;
+  text-align: center;
+  font-size: 22px;
+  color: #e7e8d0;
+  font-variant-numeric: tabular-nums;
+}
+.bet-controls .error {
+  font-size: 10px;
+  max-width: 240px;
+}
+.game-notice {
+  position: absolute;
+  top: 86px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 90%;
+  width: max-content;
+  padding: 7px 12px;
+  background: #332e1ff5;
+  border: 1px solid #cbb57355;
+  border-radius: 9px;
+  color: #ead49d;
+  font-size: 10px;
+  z-index: var(--layer-dropdown);
+  pointer-events: auto;
+}
+.game-notice button {
+  background: none;
+  border: 0;
+  color: inherit;
+  text-decoration: underline;
+  padding: 4px;
+}
+.match-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 90%);
+  z-index: var(--layer-hud);
+}
+/* Shared lobby links. */
+.back-link {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+.lobby-banner .badge {
+  margin-bottom: 12px;
+}
+@media (min-width: 1600px) {
+  .stage-table {
+    inset: 98px 5% 96px;
+  }
+  .opponent-seats .player-seat {
+    --card-width: 82px;
+  }
+  .many-seats .opponent-seats .player-seat {
+    --card-width: 74px;
+  }
+  .action-buttons {
+    grid-template-columns: repeat(4, 124px);
+  }
+}
+@media (max-width: 1199px) {
+  .game-topbar {
+    margin: 12px 16px 0;
+    gap: 14px;
+    padding: 0 16px;
+  }
+  .table-info {
+    gap: 18px;
+  }
+  .lobby-reference {
+    display: none;
+  }
+  .stage-table {
+    inset: 92px 1% 92px;
+    padding: 18px;
+  }
+  .game-stage .game-playfield {
+    top: 96px;
+    bottom: 132px;
+  }
+  .opponent-seats .player-seat {
+    --card-width: 57px;
+  }
+  .seat-identity {
+    min-width: 146px;
+    padding: 5px 10px 5px 5px;
+    margin-top: 6px;
+  }
+  .seat-identity .avatar {
+    width: 29px;
+    height: 29px;
+    font-size: 9px;
+  }
+  .seat-name strong {
+    font-size: 11px;
+    max-width: 113px;
+  }
+  .seat-name > span {
+    font-size: 10px;
+  }
+  .hand-view {
+    padding: 4px 6px;
+  }
+  .hand-details {
+    margin-top: 6px;
+  }
+  .own-seat {
+    --card-width: 82px;
+  }
+  .own-seat .hand-view {
+    padding: 7px 10px;
+  }
+  .action-bar,
+  .bet-controls {
+    left: 16px;
+    bottom: 16px;
+  }
+  .action-buttons {
+    grid-template-columns: repeat(4, 98px);
+  }
+  .table-house {
+    margin-top: 14px;
+  }
+  .table-wordmark {
+    top: 40%;
+  }
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .game-topbar {
+    height: 92px;
+    margin: 8px 10px 0;
+    padding: 8px 11px;
+    gap: 6px 8px;
+    flex-wrap: wrap;
+    border-radius: 13px;
+  }
+  .game-brand {
+    flex: 1;
+    gap: 7px;
+    min-width: 100px;
+  }
+  .game-brand strong {
+    font-size: 14px;
+  }
+  .game-brand > svg {
+    width: 21px;
+  }
+  .game-brand span {
+    font-size: 8px;
+    margin-top: 1px;
+  }
+  .game-topbar .connection {
+    order: 2;
+    font-size: 8px;
+    gap: 4px;
+  }
+  .game-topbar-actions {
+    gap: 0;
+    margin: 0;
+  }
+  .game-topbar-actions .icon-button {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+  }
+  .game-topbar-actions .btn {
+    padding: 4px;
+    min-width: 30px;
+  }
+  .game-topbar-actions .btn span {
+    display: none;
+  }
+  .table-info {
+    order: 3;
+    width: 100%;
+    margin: 0;
+    justify-content: space-between;
+    border-top: 1px solid #ffffff10;
+    padding-top: 5px;
+    gap: 10px;
+  }
+  .table-info > span {
+    font-size: 7px;
+    gap: 2px;
+  }
+  .table-info strong {
+    font-size: 11px;
+  }
+  .stage-table {
+    inset: 113px -23% 128px;
+    border-radius: 46% / 17%;
+    padding: 13px;
+  }
+  .felt-stitch {
+    inset: 10px;
+  }
+  .table-wordmark {
+    top: 48%;
+    font-size: 22px;
+    letter-spacing: 5px;
+  }
+  .table-emblem {
+    font-size: 19px;
+    margin-bottom: 4px;
+  }
+  .table-rule {
+    font-size: 7px;
+    letter-spacing: 3px;
+  }
+  .table-house {
+    display: none;
+  }
+  .game-stage .game-playfield {
+    top: 115px;
+    bottom: 150px;
+    width: 100%;
+  }
+  .dealer-area {
+    max-width: 74%;
+    gap: 5px;
+  }
+  .dealer-label {
+    font-size: 7px;
+    letter-spacing: 3px;
+  }
+  .dealer-cards {
+    gap: 6px;
+  }
+  .dealer-cards .playing-card {
+    --card-width: clamp(43px, 7.4dvh, 66px);
+  }
+  .dealer-score {
+    font-size: 8px;
+  }
+  .dealer-score strong {
+    font-size: 10px;
+    padding: 1px 7px;
+  }
+  .deck-stack {
+    left: auto;
+    right: 22px;
+    top: 5%;
+    width: 30px;
+    height: 44px;
+  }
+  .deck-stack img {
+    width: 30px;
+  }
+  .discard-pile {
+    left: 20px;
+    top: 5%;
+    width: 30px;
+    height: 43px;
+    font-size: 5px;
+  }
+  .opponent-seats {
+    top: 27%;
+    bottom: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 8px 12px 12px;
+    pointer-events: auto;
+    scrollbar-width: none;
+  }
+  .opponent-seats .player-seat {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    transform: none;
+    width: 126px;
+    max-width: none;
+    flex: 0 0 126px;
+    --card-width: 34px;
+  }
+  .opponent-seats .seat-identity {
+    min-width: 118px;
+    max-width: 126px;
+    padding: 4px 8px 4px 4px;
+    margin-top: 4px;
+    gap: 5px;
+  }
+  .opponent-seats .avatar {
+    width: 23px;
+    height: 23px;
+    font-size: 7px;
+  }
+  .opponent-seats .seat-name strong {
+    font-size: 9px;
+    max-width: 85px;
+  }
+  .opponent-seats .seat-name > span {
+    font-size: 8px;
+  }
+  .opponent-seats .seat-name small {
+    font-size: 6px;
+  }
+  .opponent-seats .hand-view {
+    padding: 0 2px;
+  }
+  .opponent-seats .hand-details {
+    margin-top: 3px;
+    gap: 3px;
+  }
+  .opponent-seats .score-badge {
+    font-size: 8px;
+    height: 16px;
+    min-width: 19px;
+    padding: 0 4px;
+  }
+  .opponent-seats .hand-bet,
+  .opponent-seats .hand-index,
+  .opponent-seats .hand-status {
+    display: none;
+  }
+  .opponent-seats .player-hands {
+    gap: 3px;
+  }
+  .opponent-seats .inline-result {
+    font-size: 7px;
+    gap: 3px;
+    padding-top: 2px;
+  }
+  .table-bet {
+    top: 56%;
+    left: 50%;
+  }
+  .chip-stack {
+    gap: 6px;
+  }
+  .chip-stack-art {
+    width: 24px;
+    height: 29px;
+  }
+  .chip-stack-art img {
+    width: 24px;
+  }
+  .chip-stack small {
+    font-size: 5px;
+    letter-spacing: 1px;
+  }
+  .chip-stack strong {
+    font-size: 13px;
+  }
+  .own-seat {
+    max-width: 96%;
+    width: 360px;
+    --card-width: clamp(59px, 8.8dvh, 84px);
+  }
+  .own-seat .hand-view {
+    padding: 5px 9px;
+  }
+  .own-seat .hand-details {
+    gap: 7px;
+    margin-top: 7px;
+  }
+  .own-seat .score-badge {
+    height: 24px;
+    min-width: 25px;
+    font-size: 12px;
+  }
+  .own-seat .hand-bet {
+    font-size: 10px;
+  }
+  .own-seat .hand-bet img {
+    width: 18px;
+    height: 18px;
+  }
+  .own-seat .seat-identity {
+    min-width: 162px;
+    margin-top: 7px;
+    padding: 6px 13px 6px 6px;
+  }
+  .own-seat .avatar {
+    width: 29px;
+    height: 29px;
+    font-size: 9px;
+  }
+  .own-seat .seat-name strong {
+    font-size: 11px;
+  }
+  .own-seat .turn-label {
+    font-size: 6px;
+    bottom: -6px;
+  }
+  .inline-result {
+    font-size: 10px;
+  }
+  .own-seat .split-hand {
+    --card-width: clamp(51px, 7.5dvh, 69px);
+  }
+  .action-bar,
+  .bet-controls {
+    left: 10px;
+    right: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    padding: 10px 12px;
+    border-radius: 15px;
+    max-width: none;
+  }
+  .action-status {
+    justify-content: center;
+    font-size: 9px;
+    margin-bottom: 7px;
+    min-height: 13px;
+  }
+  .action-buttons {
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .action-buttons .btn {
+    height: 44px;
+    min-height: 44px;
+    font-size: 12px;
+    padding: 0 15px;
+  }
+  .action-buttons kbd {
+    display: none;
+  }
+  .bet-controls {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .bet-heading {
+    flex-basis: 100%;
+    text-align: center;
+  }
+  .bet-heading .eyebrow {
+    display: none;
+  }
+  .bet-heading strong {
+    font-size: 13px;
+  }
+  .bet-heading p {
+    font-size: 9px;
+    margin-top: 3px;
+  }
+  .bet-controls small {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 7px;
+    line-height: 1.4;
+  }
+  .bet-stepper {
+    padding: 3px;
+    gap: 6px;
+  }
+  .bet-stepper output {
+    font-size: 20px;
+    min-width: 65px;
+  }
+  .bet-controls > .btn-primary {
+    min-height: 40px;
+  }
+  .game-notice {
+    top: 103px;
+    font-size: 9px;
+  }
+  .hand-index {
+    font-size: 6px;
+    margin-bottom: 4px;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .game-topbar {
+    height: 48px;
+    margin: 5px 9px 0;
+    padding: 0 12px;
+    gap: 12px;
+    border-radius: 11px;
+  }
+  .game-brand {
+    min-width: 100px;
+    gap: 7px;
+  }
+  .game-brand strong {
+    font-size: 12px;
+  }
+  .game-brand span {
+    font-size: 8px;
+    margin-top: 1px;
+  }
+  .game-topbar .connection {
+    font-size: 8px;
+  }
+  .game-topbar-actions {
+    gap: 0;
+    margin: 0;
+  }
+  .game-topbar-actions .icon-button {
+    height: 30px;
+    width: 30px;
+  }
+  .table-info {
+    gap: 16px;
+  }
+  .table-info > span {
+    font-size: 6px;
+    gap: 2px;
+  }
+  .table-info strong {
+    font-size: 10px;
+  }
+  .table-info-phase {
+    display: none !important;
+  }
+  .stage-table {
+    inset: 66px 8px 13px 157px;
+    padding: 12px;
+    border-radius: 44% / 32%;
+  }
+  .game-stage .game-playfield {
+    top: 68px;
+    bottom: 10px;
+    left: 156px;
+    right: 8px;
+    width: auto;
+  }
+  .table-wordmark {
+    top: 38%;
+    font-size: 20px;
+    letter-spacing: 4px;
+  }
+  .table-emblem {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  .table-rule {
+    font-size: 6px;
+    letter-spacing: 2px;
+    margin-top: 5px;
+  }
+  .table-house {
+    display: none;
+  }
+  .dealer-area {
+    gap: 3px;
+  }
+  .dealer-label {
+    font-size: 6px;
+    letter-spacing: 3px;
+  }
+  .dealer-cards {
+    gap: 4px;
+  }
+  .dealer-cards .playing-card {
+    --card-width: 32px;
+  }
+  .dealer-score {
+    font-size: 7px;
+  }
+  .dealer-score strong {
+    font-size: 8px;
+    padding: 0 5px;
+  }
+  .opponent-seats .player-seat {
+    width: 134px;
+    max-width: 31%;
+    --card-width: 30px;
+  }
+  .opponent-seats .player-hands {
+    gap: 3px;
+  }
+  .opponent-seats .hand-view {
+    padding: 0 2px;
+  }
+  .opponent-seats .hand-details {
+    margin-top: 2px;
+    gap: 3px;
+  }
+  .opponent-seats .score-badge {
+    font-size: 8px;
+    min-width: 18px;
+    height: 15px;
+    padding: 0 3px;
+  }
+  .opponent-seats .hand-bet,
+  .opponent-seats .hand-index,
+  .opponent-seats .hand-status {
+    display: none;
+  }
+  .opponent-seats .seat-identity {
+    min-width: 105px;
+    padding: 3px 7px 3px 3px;
+    margin-top: 3px;
+    gap: 4px;
+  }
+  .opponent-seats .avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 7px;
+  }
+  .opponent-seats .seat-name strong {
+    font-size: 8px;
+    max-width: 83px;
+  }
+  .opponent-seats .seat-name > span {
+    font-size: 7px;
+  }
+  .seat-name small {
+    font-size: 6px;
+  }
+  .own-seat {
+    max-width: 43%;
+    width: 270px;
+    --card-width: 43px;
+  }
+  .own-seat .hand-view {
+    padding: 3px 6px;
+  }
+  .own-seat .hand-details {
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .own-seat .score-badge {
+    height: 19px;
+    font-size: 10px;
+    min-width: 22px;
+  }
+  .own-seat .hand-bet {
+    font-size: 8px;
+  }
+  .own-seat .hand-bet img {
+    width: 14px;
+    height: 14px;
+  }
+  .own-seat .seat-identity {
+    min-width: 128px;
+    margin-top: 4px;
+    padding: 4px 10px 4px 4px;
+  }
+  .own-seat .avatar {
+    height: 24px;
+    width: 24px;
+    font-size: 8px;
+  }
+  .own-seat .seat-name strong {
+    font-size: 9px;
+  }
+  .own-seat .seat-name > span {
+    font-size: 8px;
+  }
+  .turn-label,
+  .own-seat .turn-label {
+    font-size: 5px;
+    bottom: -5px;
+  }
+  .inline-result,
+  .opponent-seats .inline-result {
+    font-size: 7px;
+    padding-top: 2px;
+    gap: 3px;
+  }
+  .hand-index {
+    font-size: 6px;
+    margin-bottom: 3px;
+  }
+  .deck-stack {
+    left: calc(50% + 67px);
+    top: 3%;
+    width: 25px;
+    height: 36px;
+  }
+  .deck-stack img {
+    width: 25px;
+  }
+  .discard-pile {
+    left: calc(50% - 101px);
+    top: 3%;
+    width: 26px;
+    height: 37px;
+    font-size: 4px;
+  }
+  .table-bet {
+    top: 46%;
+  }
+  .chip-stack {
+    gap: 5px;
+  }
+  .chip-stack-art {
+    width: 21px;
+    height: 26px;
+  }
+  .chip-stack-art img {
+    width: 21px;
+  }
+  .chip-stack small {
+    font-size: 5px;
+    letter-spacing: 1px;
+  }
+  .chip-stack strong {
+    font-size: 12px;
+  }
+  .action-bar,
+  .bet-controls {
+    left: 9px;
+    right: auto;
+    top: 67px;
+    bottom: 12px;
+    width: 137px;
+    max-width: none;
+    padding: 10px 9px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 14px;
+  }
+  .action-status {
+    font-size: 8px;
+    line-height: 1.4;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 11px;
+  }
+  .action-buttons {
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 7px;
+  }
+  .action-buttons .btn {
+    height: 43px;
+    min-height: 43px;
+    font-size: 10px;
+    padding: 0 10px;
+  }
+  .action-buttons kbd {
+    font-size: 8px;
+    width: 17px;
+    height: 18px;
+  }
+  .bet-controls {
+    gap: 12px;
+    min-height: 0;
+    text-align: center;
+  }
+  .bet-heading strong {
+    font-size: 12px;
+  }
+  .bet-heading p {
+    font-size: 8px;
+  }
+  .bet-controls small {
+    font-size: 7px;
+    line-height: 1.5;
+  }
+  .bet-stepper {
+    gap: 3px;
+    padding: 3px;
+  }
+  .bet-stepper .btn {
+    width: 26px;
+    height: 30px;
+    min-width: 26px;
+    min-height: 30px;
+    font-size: 16px;
+  }
+  .bet-stepper output {
+    min-width: 43px;
+    font-size: 15px;
+  }
+  .bet-controls > .btn-primary {
+    font-size: 10px;
+    padding: 8px;
+    width: 100%;
+  }
+  .game-notice {
+    top: 55px;
+    left: 60%;
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+  .many-seats .opponent-seats .hand-cards {
+    display: none;
+  }
+  .many-seats .opponent-seats .hand-details {
+    margin: 0;
+  }
+  .many-seats .opponent-seats .player-hands {
+    order: 3;
+    margin-top: 3px;
+  }
+  .many-seats .opponent-seats .seat-identity {
+    margin-top: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hand-view {
+    transition: none;
+  }
+}
+/* Keep seven complete seats separated, including the result line. */
+@media (min-width: 768px) and (min-height: 551px) {
+  .many-seats .opponent-seats .player-seat {
+    --card-width: clamp(43px, 5.8vh, 70px);
+  }
+  .many-seats .opponent-seats .hand-view {
+    padding: 4px 6px;
+  }
+  .many-seats .opponent-seats .seat-identity {
+    margin-top: 7px;
+    padding: 5px 12px 5px 5px;
+  }
+  .many-seats .opponent-seats .avatar {
+    width: 29px;
+    height: 29px;
+  }
+  .many-seats .opponent-seats .hand-details {
+    margin-top: 6px;
+  }
+}
+.table-wordmark {
+  top: 35%;
+}
+.seat-wager {
+  order: 1;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.seat-wager img {
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(0 4px 3px #00170d88);
+}
+.seat-wager strong {
+  font-size: 12px;
+  color: #d1d8ac;
+  font-weight: 500;
+}
+.wager-ring {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px dashed #bdc4903d;
+  border-radius: 50%;
+  font-size: 17px;
+  color: #b1bc8244;
+}
+.wager-confirmed + .seat-identity {
+  border-color: #95b98570;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .game-topbar {
+    height: 104px;
+  }
+  .game-stage .game-playfield {
+    top: 125px;
+  }
+  .table-wordmark {
+    top: 48%;
+  }
+  .table-bet {
+    top: 62%;
+  }
+  .game-notice {
+    top: 114px;
+  }
+  .opponent-seats .seat-wager {
+    min-height: 62px;
+  }
+  .opponent-seats .seat-wager img {
+    width: 34px;
+    height: 34px;
+  }
+  .opponent-seats .seat-wager strong {
+    font-size: 9px;
+  }
+  .opponent-seats .wager-ring {
+    width: 37px;
+    height: 37px;
+    font-size: 12px;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .table-wordmark {
+    top: 35%;
+  }
+  .seat-wager {
+    min-height: 42px;
+    gap: 1px;
+  }
+  .seat-wager img {
+    width: 25px;
+    height: 25px;
+  }
+  .seat-wager strong {
+    font-size: 8px;
+  }
+  .wager-ring {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) and (min-height: 551px) {
+  .many-seats .opponent-seats .player-seat {
+    --card-width: clamp(34px, 4.8vh, 48px);
+  }
+  .many-seats .opponent-seats .seat-identity {
+    margin-top: 5px;
+  }
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .game-stage:has(.many-seats) .table-wordmark {
+    opacity: 0.35;
+  }
+}
+/* Long hands stay within their seat; card indices remain exposed. */
+.hand-cards:has(.playing-card:nth-child(5)) .playing-card + .playing-card {
+  margin-left: calc(var(--card-width) * -0.72);
+}
+.hand-cards:has(.playing-card:nth-child(8)) .playing-card + .playing-card {
+  margin-left: calc(var(--card-width) * -0.82);
+}
+.table-bet {
+  left: calc(50% + 160px);
+  top: 25%;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .table-bet {
+    left: 15%;
+    top: 21%;
+  }
+  .current-user-seat {
+    bottom: 10px;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .table-bet {
+    display: none;
+  }
+}
