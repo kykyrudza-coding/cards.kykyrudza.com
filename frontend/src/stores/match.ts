@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { matchService } from '../services/match'
 import { connectEcho, disconnectEcho } from '../realtime/echo'
 import { ApiError } from '../services/api'
-import type { MatchData } from '../types/match'
+import type { MatchData, PlayingCard } from '../types/match'
 import { t } from '../i18n'
 
 let fetchSequence = 0
@@ -71,6 +71,26 @@ export const useMatchStore = defineStore('match', {
 
     async finishMatch() {
       await this.runAction(() => matchService.finish(this.requireId()))
+    },
+
+    async attack(cards: PlayingCard[]) {
+      await this.runAction(() => matchService.attack(this.requireId(), cards))
+    },
+
+    async translate() {
+      await this.runAction(() => matchService.translate(this.requireId()))
+    },
+
+    async defend(attack: PlayingCard, defense: PlayingCard) {
+      await this.runAction(() => matchService.defend(this.requireId(), attack, defense))
+    },
+
+    async take() {
+      await this.runAction(() => matchService.take(this.requireId()))
+    },
+
+    async pass() {
+      await this.runAction(() => matchService.pass(this.requireId()))
     },
 
     async runAction(fn: () => Promise<MatchData>) {

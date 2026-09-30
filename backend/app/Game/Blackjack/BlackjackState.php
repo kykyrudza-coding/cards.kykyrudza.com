@@ -2,7 +2,9 @@
 
 namespace App\Game\Blackjack;
 
-final class BlackjackState
+use App\Game\Contracts\GameState;
+
+final class BlackjackState implements GameState
 {
     /**
      * @param  'dealing'|'player_turn'|'dealer_turn'|'settling'|'round_finished'  $phase

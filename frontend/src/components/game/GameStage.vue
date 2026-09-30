@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import GameTable from './GameTable.vue'
-import type { MatchData } from '../../types/match'
+import type { BlackjackMatchData } from '../../types/match'
 import type { PresentationPhase } from '../../game/animations/types'
 withDefaults(
   defineProps<{
     tableSkin?: string
-    match?: MatchData | null
+    match?: BlackjackMatchData | null
     phase: PresentationPhase
     viewerId?: number
   }>(),

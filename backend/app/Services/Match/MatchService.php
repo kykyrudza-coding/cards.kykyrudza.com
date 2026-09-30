@@ -3,9 +3,13 @@
 namespace App\Services\Match;
 
 use App\Events\MatchUpdated;
-use App\Game\Blackjack\BlackjackActionException;
 use App\Game\Blackjack\BlackjackEngine;
 use App\Game\Blackjack\BlackjackState;
+use App\Game\Contracts\GameActionException;
+use App\Game\Contracts\GameEngine;
+use App\Game\Contracts\GameState;
+use App\Game\Durak\DurakPlayer;
+use App\Game\GameCatalog;
 use App\Models\GameMatch;
 use App\Models\Lobby;
 use App\Models\MatchPlayer;
@@ -43,10 +47,14 @@ class MatchService
                 ->map(fn (MatchPlayer $mp) => ['user_id' => $mp->user_id, 'seat' => $mp->seat, 'chips' => $mp->chips])
                 ->all();
 
-            $state = $this->engineFor($match)->deal($matchPlayersForEngine, $lobby->default_bet, 1);
+            // Blackjack waits for everyone to confirm a bet before dealing;
+            // Durak has no betting phase, so it deals immediately.
+            $state = $match->game_type === 'blackjack'
+                ? (new BlackjackEngine)->initial($matchPlayersForEngine)
+                : $this->engineFor($match)->start(['players' => $matchPlayersForEngine]);
 
             $this->persist($match, $state);
-            $this->syncChips($match, $state);
+            $this->syncPlayers($match, $state);
 
             return $match->fresh(self::RELATIONS);
         });
@@ -59,16 +67,16 @@ class MatchService
 
             abort_if($locked->status !== 'active', 422, 'Match is not active.');
 
-            $state = BlackjackState::fromArray($locked->state);
+            $state = $this->hydrateState($locked);
 
             try {
-                $state = $this->engineFor($locked)->applyAction($state, $user->id, $action, $payload);
-            } catch (BlackjackActionException $e) {
+                $state = $this->engineFor($locked)->handleAction($state, $user->id, $action, $payload);
+            } catch (GameActionException $e) {
                 abort($e->status, $e->getMessage());
             }
 
             $this->persist($locked, $state);
-            $this->syncChips($locked, $state);
+            $this->syncPlayers($locked, $state);
 
             return $locked->fresh(self::RELATIONS);
         });
@@ -78,6 +86,7 @@ class MatchService
     {
         return DB::transaction(function () use ($match, $user, $amount, $expectedRound) {
             $locked = GameMatch::query()->lockForUpdate()->findOrFail($match->id);
+            abort_if($locked->game_type !== 'blackjack', 422, 'Betting is not available for this game.');
             abort_if($locked->status !== 'active', 422, 'Match is not active.');
             abort_if($locked->round_number !== $expectedRound, 409, 'Round already advanced. Refresh the table.');
             $state = BlackjackState::fromArray($locked->state);
@@ -85,7 +94,8 @@ class MatchService
             $player = collect($state->players)->first(fn ($player) => $player->userId === $user->id);
             abort_unless($player, 403, 'You are not a participant in this match.');
             abort_if($player->status !== 'active' || $player->chips < 100, 422, 'Not enough chips for another round.');
-            abort_if($amount < 100 || ($amount <= 1000 ? $amount % 100 !== 0 : $amount % 500 !== 0), 422, 'Bets use steps of 100 up to 1000 and 500 above 1000.');
+            $betStep = $amount <= 1000 ? 100 : ($amount <= 10000 ? 500 : 1000);
+            abort_if($amount < 100 || $amount % $betStep !== 0, 422, 'Bets use steps of 100 up to 1000, 500 up to 10000, and 1000 above that.');
             abort_if($amount > $player->chips, 422, 'Not enough chips for this bet.');
             // A confirmed bet is immutable; identical retries are idempotent.
             if (isset($state->confirmedBets[$user->id])) {
@@ -96,10 +106,10 @@ class MatchService
             $state->confirmedBets[$user->id] = $amount;
             $eligible = collect($state->players)->filter(fn ($player) => $player->status === 'active' && $player->chips >= 100);
             if ($eligible->every(fn ($player) => isset($state->confirmedBets[$player->userId]))) {
-                $state = $this->engineFor($locked)->nextRound($state, 100, bets: $state->confirmedBets);
+                $state = (new BlackjackEngine)->nextRound($state, 100, bets: $state->confirmedBets);
             }
             $this->persist($locked, $state);
-            $this->syncChips($locked, $state);
+            $this->syncPlayers($locked, $state);
 
             return $locked->fresh(self::RELATIONS);
         });
@@ -130,31 +140,46 @@ class MatchService
         });
     }
 
-    private function persist(GameMatch $match, BlackjackState $state): void
+    private function persist(GameMatch $match, GameState $state): void
     {
+        $data = $state->toArray();
+
         $match->update([
-            'state' => $state->toArray(),
-            'round_number' => $state->round,
+            'state' => $data,
+            'round_number' => $data['round'],
             'version' => $match->version + 1,
         ]);
 
         MatchUpdated::dispatch($match->fresh(self::RELATIONS));
     }
 
-    private function syncChips(GameMatch $match, BlackjackState $state): void
+    private function syncPlayers(GameMatch $match, GameState $state): void
     {
+        if ($state instanceof BlackjackState) {
+            foreach ($state->players as $player) {
+                MatchPlayer::where('match_id', $match->id)
+                    ->where('user_id', $player->userId)
+                    ->update(['chips' => $player->chips, 'status' => $player->status]);
+            }
+
+            return;
+        }
+
         foreach ($state->players as $player) {
+            /** @var DurakPlayer $player */
             MatchPlayer::where('match_id', $match->id)
                 ->where('user_id', $player->userId)
-                ->update(['chips' => $player->chips, 'status' => $player->status]);
+                ->update(['status' => $player->status]);
         }
     }
 
-    private function engineFor(GameMatch $match): BlackjackEngine
+    private function hydrateState(GameMatch $match): GameState
     {
-        return match ($match->game_type) {
-            'blackjack' => new BlackjackEngine,
-            default => throw new \RuntimeException("Unsupported game type: {$match->game_type}"),
-        };
+        return GameCatalog::hydrateState($match->game_type, $match->state);
+    }
+
+    private function engineFor(GameMatch $match): GameEngine
+    {
+        return GameCatalog::engine($match->game_type);
     }
 }

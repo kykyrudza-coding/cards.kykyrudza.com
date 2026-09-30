@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { MatchData } from '../../types/match'
+import type { BlackjackMatchData } from '../../types/match'
 import type { PresentationPhase } from '../../game/animations/types'
 import { arrangeSeats } from '../../game/shared/seatLayout'
 import DealerArea from './DealerArea.vue'
 import PlayerSeat from './PlayerSeat.vue'
 import ChipStack from './ChipStack.vue'
 import DeckStack from './DeckStack.vue'
-const props = defineProps<{ match: MatchData; viewerId?: number; phase: PresentationPhase }>()
+const props = defineProps<{ match: BlackjackMatchData; viewerId?: number; phase: PresentationPhase }>()
 const { t } = useI18n()
 const seats = computed(() => arrangeSeats(props.match.game.players, props.viewerId))
 const own = computed(() => props.match.game.players.find((p) => p.id === props.viewerId))

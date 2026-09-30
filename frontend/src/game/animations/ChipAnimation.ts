@@ -29,7 +29,7 @@ export class ChipAnimation {
           y: target.top - rect.top,
           opacity: 0,
           scale: 0.65,
-          duration: 0.48,
+          duration: 0.75,
           ease: 'power2.inOut',
         },
         0,

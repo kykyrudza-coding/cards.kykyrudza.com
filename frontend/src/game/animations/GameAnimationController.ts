@@ -1,6 +1,6 @@
 import { nextTick } from 'vue'
 import { preloadCardImages } from '../cardImages'
-import type { MatchData, CardOrHidden } from '../../types/match'
+import type { BlackjackMatchData, CardOrHidden } from '../../types/match'
 import { AnimationQueue, pause } from './AnimationQueue'
 import { CardAnimation } from './CardAnimation'
 import { ChipAnimation } from './ChipAnimation'
@@ -8,16 +8,16 @@ import type { PresentationEvent, PresentationPhase } from './types'
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const cardId = (player: number, hand: number, card: number) => `p${player}-h${hand}-c${card}`
 interface Hooks {
-  render: (match: MatchData) => void
+  render: (match: BlackjackMatchData) => void
   phase: (phase: PresentationPhase) => void
-  ready: (match: MatchData) => void
-  event: (event: PresentationEvent, match: MatchData) => void
+  ready: (match: BlackjackMatchData) => void
+  event: (event: PresentationEvent, match: BlackjackMatchData) => void
   error: (error: unknown) => void
 }
 export class GameAnimationController {
   private queue: AnimationQueue
-  private latest: MatchData | null = null
-  private display: MatchData | null = null
+  private latest: BlackjackMatchData | null = null
+  private display: BlackjackMatchData | null = null
   private completedRound = ''
   private cards: CardAnimation
   private chips: ChipAnimation
@@ -31,12 +31,12 @@ export class GameAnimationController {
 
     this.queue = new AnimationQueue(hooks.error)
   }
-  private async render(value: MatchData) {
+  private async render(value: BlackjackMatchData) {
     this.display = copy(value)
     this.hooks.render(copy(value))
     await nextTick()
   }
-  accept(snapshot: MatchData) {
+  accept(snapshot: BlackjackMatchData) {
     if (
       this.latest?.id === snapshot.id &&
       this.latest.version === snapshot.version &&
@@ -67,7 +67,7 @@ export class GameAnimationController {
     }
     this.queue.enqueue((signal) => this.present(copy(snapshot), previous, signal))
   }
-  snap(snapshot: MatchData) {
+  snap(snapshot: BlackjackMatchData) {
     this.queue.cancel()
     this.cards.reset()
     this.latest = copy(snapshot)
@@ -87,7 +87,7 @@ export class GameAnimationController {
         this.queue.enqueue((signal) => this.finishRound(copy(snapshot), signal, false))
     } else this.hooks.phase(snapshot.game.phase === 'dealer_turn' ? 'dealer' : 'playing')
   }
-  private async present(next: MatchData, previous: MatchData | null, signal: AbortSignal) {
+  private async present(next: BlackjackMatchData, previous: BlackjackMatchData | null, signal: AbortSignal) {
     if (
       next.game.phase === 'round_finished' &&
       this.completedRound === `${next.id}:${next.round}`
@@ -104,7 +104,7 @@ export class GameAnimationController {
       this.hooks.phase(next.game.phase === 'dealer_turn' ? 'dealer' : 'playing')
     }
   }
-  private async initialDeal(next: MatchData, signal: AbortSignal) {
+  private async initialDeal(next: BlackjackMatchData, signal: AbortSignal) {
     this.hooks.phase('dealing')
     await preloadCardImages()
     if (signal.aborted) return
@@ -145,7 +145,7 @@ export class GameAnimationController {
       await this.updateCards(next, signal)
     }
   }
-  private async updateCards(next: MatchData, signal: AbortSignal) {
+  private async updateCards(next: BlackjackMatchData, signal: AbortSignal) {
     const stage = copy(this.display ?? next)
     this.hooks.phase('dealing')
     for (const player of next.game.players) {
@@ -215,7 +215,7 @@ export class GameAnimationController {
     stage.game.dealer.status = next.game.dealer.status
     await this.render(stage)
   }
-  private async finishRound(next: MatchData, signal: AbortSignal, animate: boolean) {
+  private async finishRound(next: BlackjackMatchData, signal: AbortSignal, animate: boolean) {
     const key = `${next.id}:${next.round}`
     if (this.completedRound === key) {
       await this.clearTable(next)
@@ -237,7 +237,7 @@ export class GameAnimationController {
     if (!signal.aborted && this.latest?.round === next.round && this.latest.status === 'active')
       this.hooks.ready(next)
   }
-  private async clearTable(next: MatchData) {
+  private async clearTable(next: BlackjackMatchData) {
     const empty = copy(next)
     empty.game.dealer = { cards: [], score: null, status: null }
     empty.game.players.forEach((p) => {

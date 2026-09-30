@@ -1,4 +1,4 @@
-export type GameType = 'blackjack'
+export type GameType = 'blackjack' | 'durak'
 
 export type LobbyStatus = 'waiting' | 'started' | 'closed'
 

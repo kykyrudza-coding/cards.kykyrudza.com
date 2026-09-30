@@ -50,7 +50,7 @@ export class CardAnimation {
           rotationX: 6,
           scale: 1.03,
           opacity: 1,
-          duration: 0.18,
+          duration: 0.29,
           ease: 'power1.out',
         },
       )
@@ -61,11 +61,11 @@ export class CardAnimation {
         rotationX: 0,
         rotationZ: tilt,
         scale: 1.02,
-        duration: 0.13,
+        duration: 0.21,
         ease: 'power2.in',
       })
       .call(() => this.sound('deal'))
-      .to(card, { scale: 1, duration: 0.065, ease: 'power1.out' })
+      .to(card, { scale: 1, duration: 0.1, ease: 'power1.out' })
     await playTimeline(timeline, signal)
   }
   async flip(id: string, signal: AbortSignal) {
@@ -81,9 +81,9 @@ export class CardAnimation {
     }
     const timeline = gsap
       .timeline({ paused: true })
-      .fromTo(inner, { rotationY: 180 }, { rotationY: 90, duration: 0.2, ease: 'power1.in' })
+      .fromTo(inner, { rotationY: 180 }, { rotationY: 90, duration: 0.32, ease: 'power1.in' })
       .call(() => this.sound('flip'))
-      .to(inner, { rotationY: 0, duration: 0.2, ease: 'power1.out' })
+      .to(inner, { rotationY: 0, duration: 0.32, ease: 'power1.out' })
     await playTimeline(timeline, signal)
     gsap.set(inner, { clearProps: 'transform' })
   }
@@ -101,7 +101,7 @@ export class CardAnimation {
           x: 0,
           y: 0,
           rotationZ: id.includes('-h1-') ? 2 : -2,
-          duration: 0.32,
+          duration: 0.5,
           ease: 'power2.inOut',
         },
         0,
@@ -127,13 +127,13 @@ export class CardAnimation {
           rotationZ: 18,
           scale: 0.5,
           opacity: 0,
-          duration: 0.4,
+          duration: 0.62,
           ease: 'power2.in',
         },
-        Math.min(index * 0.045, 0.38),
+        Math.min(index * 0.07, 0.55),
       )
     })
-    timeline.call(() => this.sound('collect'), [], 0.12)
+    timeline.call(() => this.sound('collect'), [], 0.18)
     await playTimeline(timeline, signal)
   }
   async shuffle(signal: AbortSignal) {
@@ -143,8 +143,8 @@ export class CardAnimation {
     await playTimeline(
       gsap
         .timeline({ paused: true })
-        .to(deck, { x: 5, rotationZ: 2, duration: 0.055, yoyo: true, repeat: 3 })
-        .to(deck, { x: 0, rotationZ: 0, duration: 0.06 }),
+        .to(deck, { x: 5, rotationZ: 2, duration: 0.09, yoyo: true, repeat: 3 })
+        .to(deck, { x: 0, rotationZ: 0, duration: 0.1 }),
       signal,
     )
   }

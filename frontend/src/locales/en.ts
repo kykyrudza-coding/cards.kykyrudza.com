@@ -110,6 +110,7 @@ export default {
       chooseGame: 'Choose a game',
       blackjack: 'Blackjack',
       playersRange: '1–7 players',
+      durakPlayersRange: '2–6 players',
       comingSoon: 'Coming soon',
       games: {
         texasHoldem: 'Texas Hold’em',
@@ -159,6 +160,7 @@ export default {
     statusStarted: 'STARTED',
     statusClosed: 'CLOSED',
     blackjack: 'Blackjack',
+    durak: 'Durak',
     subtitle: 'Get comfortable. The next hand is almost here.',
     cardBackAlt: 'Classic card back',
     atTable: 'At the table',
@@ -309,6 +311,33 @@ export default {
     tableWordmark: 'BLACKJACK',
     tablePays: 'PAYS 3 TO 2',
     tableHouse: 'THE CARD ROOM · KYKYRUDZA',
+  },
+  durak: {
+    tableWordmark: 'DURAK',
+    seat: {
+      attacking: 'Attacking',
+      defending: 'Defending',
+      cardCount: '{n} cards',
+      safe: 'Safe',
+    },
+    status: {
+      yourAttack: 'Your turn. Play an opening card.',
+      yourThrowIn: 'You can throw in a matching card, or pass.',
+      yourDefend: 'Beat the attack, or take the cards.',
+      waitingFor: '{attacker} attacks, {defender} defends…',
+      finished: 'Game over.',
+    },
+    actions: {
+      throw: 'Play',
+      translate: 'Translate',
+      take: 'Take',
+      pass: 'Beaten off',
+    },
+    result: {
+      youLost: 'You are the Durak.',
+      someoneLost: '{name} is the Durak.',
+      draw: 'The deck ran out for everyone at once.',
+    },
   },
   game: {
     actions: {

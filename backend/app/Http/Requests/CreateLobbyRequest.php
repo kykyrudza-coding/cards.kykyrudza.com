@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Services\Lobby\LobbyService;
+use App\Game\GameCatalog;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,7 +25,7 @@ class CreateLobbyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'game_type' => ['sometimes', 'string', Rule::in(LobbyService::SUPPORTED_GAME_TYPES)],
+            'game_type' => ['sometimes', 'string', Rule::in(GameCatalog::supportedGameTypes())],
             'max_players' => ['sometimes', 'integer', 'min:1', 'max:7'],
             'starting_chips' => ['sometimes', 'integer', 'min:1'],
             'default_bet' => ['sometimes', 'integer', 'min:2', 'multiple_of:2'],

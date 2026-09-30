@@ -10,6 +10,8 @@ import { useGamePresentation } from '../composables/useGamePresentation'
 import type { BlackjackAction } from '../types/match'
 import GameStage from '../components/game/GameStage.vue'
 import GameHUD from '../components/game/GameHUD.vue'
+import DurakStage from '../components/durak/DurakStage.vue'
+import DurakHUD from '../components/durak/DurakHUD.vue'
 import AppDrawer from '../components/ui/AppDrawer.vue'
 import AppModal from '../components/ui/AppModal.vue'
 import AppButton from '../components/ui/AppButton.vue'
@@ -27,6 +29,8 @@ const root = ref<HTMLElement>(),
   finishOpen = ref(false)
 const id = computed(() => Number(route.params.id))
 const match = computed(() => (store.match?.id === id.value ? store.match : null))
+const blackjackMatch = computed(() => (match.value?.game_type === 'blackjack' ? match.value : null))
+const durakMatch = computed(() => (match.value?.game_type === 'durak' ? match.value : null))
 const blocked = computed(() => settingsOpen.value || leaveOpen.value || finishOpen.value)
 const presentation = useGamePresentation(root)
 const { visible, phase, busy, autoError } = presentation
@@ -51,13 +55,14 @@ async function load() {
 }
 watch(id, load, { immediate: true })
 async function act(action: BlackjackAction) {
+  const current = blackjackMatch.value
   if (
-    !match.value ||
+    !current ||
     busy.value ||
     store.actionLoading ||
-    match.value.status !== 'active' ||
-    match.value.game.current_player_id !== auth.user?.id ||
-    !match.value.game.allowed_actions.includes(action)
+    current.status !== 'active' ||
+    current.game.current_player_id !== auth.user?.id ||
+    !current.game.allowed_actions.includes(action)
   )
     return
   try {
@@ -106,27 +111,39 @@ onUnmounted(() => {
 </script>
 <template>
   <main ref="root" class="match-screen" :data-presentation-phase="phase">
-    <GameStage :match="match ? visible : null" :phase="phase" :viewer-id="auth.user?.id" /><GameHUD
-      v-if="match"
-      :match="match"
-      :viewer-id="auth.user?.id"
-      :busy="store.actionLoading || busy"
-      :connection="status"
-      :lobby-code="match.lobby_code"
-      :error="store.error"
-      :phase="phase"
-      :auto-error="autoError"
-      @action="act"
-      @settings="settingsOpen = true"
-      @leave="leaveOpen = true"
-      @refresh="
-        store
-          .fetchMatch(id)
-          .then(presentation.snap)
-          .catch(() => undefined)
-      "
-      @bet="store.placeBet($event).catch(() => undefined)"
-    />
+    <template v-if="blackjackMatch">
+      <GameStage :match="visible" :phase="phase" :viewer-id="auth.user?.id" /><GameHUD
+        :match="blackjackMatch"
+        :viewer-id="auth.user?.id"
+        :busy="store.actionLoading || busy"
+        :connection="status"
+        :lobby-code="blackjackMatch.lobby_code"
+        :error="store.error"
+        :phase="phase"
+        :auto-error="autoError"
+        @action="act"
+        @settings="settingsOpen = true"
+        @leave="leaveOpen = true"
+        @refresh="
+          store
+            .fetchMatch(id)
+            .then(presentation.snap)
+            .catch(() => undefined)
+        "
+        @bet="store.placeBet($event).catch(() => undefined)"
+      />
+    </template>
+    <template v-else-if="durakMatch">
+      <DurakStage :match="durakMatch" :viewer-id="auth.user?.id" /><DurakHUD
+        :match="durakMatch"
+        :connection="status"
+        :lobby-code="durakMatch.lobby_code"
+        :error="store.error"
+        @settings="settingsOpen = true"
+        @leave="leaveOpen = true"
+        @refresh="store.fetchMatch(id).catch(() => undefined)"
+      />
+    </template>
     <div v-else class="match-fallback panel">
       <div v-if="store.loading" class="skeleton" :aria-label="t('match.loadingAria')" />
       <EmptyState

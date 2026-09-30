@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { BlackjackAction, MatchData } from '../../types/match'
+import type { BlackjackAction, BlackjackMatchData } from '../../types/match'
 import type { PresentationPhase } from '../../game/animations/types'
 import { usePreferencesStore } from '../../stores/preferences'
 import GameTopBar from './GameTopBar.vue'
 import ActionBar from './ActionBar.vue'
 import BetControls from './BetControls.vue'
 defineProps<{
-  match: MatchData
+  match: BlackjackMatchData
   viewerId?: number
   busy: boolean
   connection: string

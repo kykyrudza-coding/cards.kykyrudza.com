@@ -20,8 +20,11 @@ class MatchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_starting_a_ready_lobby_creates_an_active_match_with_dealt_hands(): void
+    public function test_starting_a_ready_lobby_creates_an_active_match_awaiting_first_bets(): void
     {
+        // The very first hand now goes through the same bet-confirmation
+        // flow as every other round, instead of auto-dealing with the
+        // lobby's default_bet before anyone has agreed to a stake.
         $host = User::factory()->create();
         $guest = User::factory()->create();
         $lobby = $this->readyLobby($host, $guest);
@@ -31,12 +34,37 @@ class MatchTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('status', 'active')
             ->assertJsonPath('game_type', 'blackjack')
-            ->assertJsonPath('game.round', 1)
-            ->assertJsonCount(2, 'game.players');
+            ->assertJsonPath('game.round', 0)
+            ->assertJsonPath('game.phase', 'round_finished')
+            ->assertJsonCount(2, 'game.players')
+            ->assertJsonPath('game.players.0.hands', [])
+            ->assertJsonPath('game.players.0.chips', $lobby->starting_chips);
 
         $this->assertDatabaseHas('matches', ['lobby_id' => $lobby->id, 'status' => 'active']);
         $this->assertDatabaseHas('lobbies', ['id' => $lobby->id, 'status' => 'started']);
         $this->assertDatabaseCount('match_players', 2);
+    }
+
+    public function test_first_hand_deals_once_every_player_confirms_a_bet(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create();
+        $lobby = $this->readyLobby($host, $guest);
+        $match = $this->actingAs($host, 'sanctum')
+            ->postJson("/api/lobbies/{$lobby->code}/start")
+            ->json();
+
+        $this->actingAs($host, 'sanctum')
+            ->postJson("/api/matches/{$match['id']}/bet", ['amount' => 100, 'expected_round' => 0])
+            ->assertOk()
+            ->assertJsonPath('game.round', 0);
+
+        $response = $this->actingAs($guest, 'sanctum')
+            ->postJson("/api/matches/{$match['id']}/bet", ['amount' => 100, 'expected_round' => 0]);
+
+        $response->assertOk()
+            ->assertJsonPath('game.round', 1)
+            ->assertJsonPath('game.players.0.hands.0.bet', 100);
     }
 
     public function test_match_show_requires_participation(): void

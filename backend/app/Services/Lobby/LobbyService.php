@@ -14,8 +14,6 @@ use Illuminate\Validation\ValidationException;
 
 class LobbyService
 {
-    public const SUPPORTED_GAME_TYPES = ['blackjack'];
-
     private const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
     private const CODE_LENGTH = 6;

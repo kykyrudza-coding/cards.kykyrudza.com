@@ -137,7 +137,7 @@ async function leave() {
                 ? t('lobby.statusClosed')
                 : t('lobby.statusStarted')
           }}</AppBadge>
-          <h2>{{ t('lobby.blackjack') }}</h2>
+          <h2>{{ t(room.game_type === 'durak' ? 'lobby.durak' : 'lobby.blackjack') }}</h2>
           <p>{{ t('lobby.subtitle') }}</p>
         </div>
         <img :src="assets.back()" :alt="t('lobby.cardBackAlt')" />

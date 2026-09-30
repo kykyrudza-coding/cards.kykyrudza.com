@@ -8,13 +8,13 @@ import { GameAnimationController } from '../game/animations/GameAnimationControl
 import { CardAnimation } from '../game/animations/CardAnimation'
 import { ChipAnimation } from '../game/animations/ChipAnimation'
 import type { PresentationPhase } from '../game/animations/types'
-import type { MatchData } from '../types/match'
+import type { BlackjackMatchData } from '../types/match'
 export function useGamePresentation(root: Ref<HTMLElement | undefined>) {
   const store = useMatchStore(),
     auth = useAuthStore(),
     preferences = usePreferencesStore()
   const { t } = useI18n()
-  const visible = shallowRef<MatchData | null>(null),
+  const visible = shallowRef<BlackjackMatchData | null>(null),
     phase = ref<PresentationPhase>('idle'),
     autoError = ref('')
   let controller: GameAnimationController | undefined
@@ -63,23 +63,28 @@ export function useGamePresentation(root: Ref<HTMLElement | undefined>) {
         },
         error: () => {
           autoError.value = t('errors.animationInterrupted')
-          if (store.match) controller?.snap(store.match)
+          const snapshot = store.match
+          if (snapshot?.game_type === 'blackjack') controller?.snap(snapshot)
         },
       },
     )
-    if (store.match) controller.accept(store.match)
+    const initial = store.match
+    if (initial?.game_type === 'blackjack') controller.accept(initial)
   }
+  // This whole presentation/animation pipeline is Blackjack-specific — Durak
+  // renders its match snapshot directly, with no animation layer (yet).
   watch(
     () => store.match,
     (snapshot) => {
       initialize()
-      if (snapshot) controller?.accept(snapshot)
+      if (snapshot?.game_type === 'blackjack') controller?.accept(snapshot)
     },
     { flush: 'post' },
   )
   function snap() {
     gameAudio.stop()
-    if (store.match) controller?.snap(store.match)
+    const snapshot = store.match
+    if (snapshot?.game_type === 'blackjack') controller?.snap(snapshot)
   }
   watch(
     () => [preferences.reducedMotion, preferences.cardAnimations, preferences.chipAnimations],

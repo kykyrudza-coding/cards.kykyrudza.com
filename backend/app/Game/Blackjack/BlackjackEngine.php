@@ -39,6 +39,35 @@ final class BlackjackEngine implements GameEngine
         return $state;
     }
 
+    /**
+     * Seats players at the table with empty hands, in the same
+     * 'round_finished' phase a round normally ends in — so the very first
+     * hand goes through the same bet-confirmation flow as every other
+     * round (MatchService::placeBet), instead of auto-dealing with the
+     * lobby's default_bet before anyone has agreed to a stake.
+     *
+     * @param  array<int, array{user_id: int, seat: int, chips: int}>  $matchPlayers
+     */
+    public function initial(array $matchPlayers): BlackjackState
+    {
+        $players = array_map(
+            fn (array $p) => new BlackjackPlayer($p['user_id'], $p['seat'], $p['chips']),
+            $matchPlayers
+        );
+        usort($players, fn (BlackjackPlayer $a, BlackjackPlayer $b) => $a->seat <=> $b->seat);
+
+        return new BlackjackState(
+            phase: 'round_finished',
+            deck: Deck::standard()->shuffle(),
+            dealerCards: [],
+            dealerHoleHidden: true,
+            players: $players,
+            currentPlayerIndex: null,
+            currentHandIndex: null,
+            round: 0,
+        );
+    }
+
     public function applyAction(BlackjackState $state, int $userId, string $action, array $payload = []): BlackjackState
     {
         if ($state->phase !== 'player_turn') {
@@ -111,8 +140,10 @@ final class BlackjackEngine implements GameEngine
      *
      * @return array<string, mixed>
      */
-    public function publicState(BlackjackState $state, int $viewerId): array
+    public function publicState(mixed $state, int $viewerId): array
     {
+        $state = $this->castState($state);
+
         $dealerCards = [];
         foreach ($state->dealerCards as $i => $card) {
             $dealerCards[] = ($state->dealerHoleHidden && $i === 1)

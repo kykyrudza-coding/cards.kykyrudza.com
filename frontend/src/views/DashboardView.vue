@@ -7,6 +7,7 @@ import { useLobbyStore } from '../stores/lobby'
 import { useUiStore } from '../stores/ui'
 import { ApiError } from '../services/api'
 import { assets } from '../config/assets'
+import type { GameType } from '../types/lobby'
 import AppButton from '../components/ui/AppButton.vue'
 import AppInput from '../components/ui/AppInput.vue'
 import AppToggle from '../components/ui/AppToggle.vue'
@@ -18,6 +19,7 @@ const auth = useAuthStore()
 const lobby = useLobbyStore()
 const ui = useUiStore()
 const router = useRouter()
+const selectedGame = ref<GameType>('blackjack')
 const maxPlayers = ref(4)
 const startingChips = ref(5000)
 const defaultBet = ref(100)
@@ -35,10 +37,11 @@ async function create() {
   fields.value = {}
   try {
     const result = await lobby.createLobby({
-      game_type: 'blackjack',
+      game_type: selectedGame.value,
       max_players: maxPlayers.value,
-      starting_chips: startingChips.value,
-      default_bet: defaultBet.value,
+      ...(selectedGame.value === 'blackjack'
+        ? { starting_chips: startingChips.value, default_bet: defaultBet.value }
+        : {}),
       is_private: isPrivate.value,
       password: isPrivate.value ? createPassword.value || null : null,
     })
@@ -112,14 +115,39 @@ async function join() {
           <fieldset class="game-picker">
             <legend>{{ t('dashboard.create.chooseGame') }}</legend>
             <div class="game-options">
-              <button type="button" class="game-option selected" aria-pressed="true">
+              <button
+                type="button"
+                class="game-option"
+                :class="{ selected: selectedGame === 'blackjack' }"
+                :aria-pressed="selectedGame === 'blackjack'"
+                @click="selectedGame = 'blackjack'"
+              >
                 <AppIcon name="cards" /><strong>{{ t('dashboard.create.blackjack') }}</strong
                 ><small>{{ t('dashboard.create.playersRange') }}</small
-                ><AppIcon name="check" class="game-check" :size="16" /></button
+                ><AppIcon
+                  v-if="selectedGame === 'blackjack'"
+                  name="check"
+                  class="game-check"
+                  :size="16"
+              /></button
+              ><button
+                type="button"
+                class="game-option"
+                :class="{ selected: selectedGame === 'durak' }"
+                :aria-pressed="selectedGame === 'durak'"
+                @click="selectedGame = 'durak'"
+              >
+                <AppIcon name="cards" /><strong>{{ t('dashboard.create.games.durak') }}</strong
+                ><small>{{ t('dashboard.create.durakPlayersRange') }}</small
+                ><AppIcon
+                  v-if="selectedGame === 'durak'"
+                  name="check"
+                  class="game-check"
+                  :size="16"
+              /></button
               ><button
                 v-for="name in [
                   t('dashboard.create.games.texasHoldem'),
-                  t('dashboard.create.games.durak'),
                   t('dashboard.create.games.threeCardPoker'),
                   t('dashboard.create.games.sunduchok'),
                 ]"
@@ -142,22 +170,24 @@ async function join() {
               max="7"
               required
               :error="fields.max_players?.[0]"
-            /><AppInput
-              v-model.number="startingChips"
-              :label="t('dashboard.create.startingChips')"
-              type="number"
-              min="1"
-              required
-              :error="fields.starting_chips?.[0]"
-            /><AppInput
-              v-model.number="defaultBet"
-              :label="t('dashboard.create.defaultBet')"
-              type="number"
-              min="2"
-              step="2"
-              required
-              :error="fields.default_bet?.[0]"
-            />
+            /><template v-if="selectedGame === 'blackjack'">
+              <AppInput
+                v-model.number="startingChips"
+                :label="t('dashboard.create.startingChips')"
+                type="number"
+                min="1"
+                required
+                :error="fields.starting_chips?.[0]"
+              /><AppInput
+                v-model.number="defaultBet"
+                :label="t('dashboard.create.defaultBet')"
+                type="number"
+                min="2"
+                step="2"
+                required
+                :error="fields.default_bet?.[0]"
+              />
+            </template>
           </div>
           <AppToggle
             v-model="isPrivate"

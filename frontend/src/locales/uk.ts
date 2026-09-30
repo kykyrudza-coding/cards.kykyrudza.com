@@ -112,6 +112,7 @@ export default {
       chooseGame: 'Обери гру',
       blackjack: 'Блекджек',
       playersRange: '1–7 гравців',
+      durakPlayersRange: '2–6 гравців',
       comingSoon: 'Скоро',
       games: {
         texasHoldem: 'Техаський холдем',
@@ -161,6 +162,7 @@ export default {
     statusStarted: 'РОЗПОЧАТО',
     statusClosed: 'ЗАКРИТО',
     blackjack: 'Блекджек',
+    durak: 'Дурак',
     subtitle: 'Влаштовуйся зручніше. Наступна роздача вже скоро.',
     cardBackAlt: 'Класична сорочка карти',
     atTable: 'За столом',
@@ -311,6 +313,33 @@ export default {
     tableWordmark: 'БЛЕКДЖЕК',
     tablePays: 'ВИПЛАТА 3 ДО 2',
     tableHouse: 'КАРТКОВА КІМНАТА · KYKYRUDZA',
+  },
+  durak: {
+    tableWordmark: 'ДУРАК',
+    seat: {
+      attacking: 'Атакує',
+      defending: 'Захищається',
+      cardCount: '{n} карт',
+      safe: 'У безпеці',
+    },
+    status: {
+      yourAttack: 'Твій хід. Виклади карту.',
+      yourThrowIn: 'Можеш підкинути карту того ж рангу або пасувати.',
+      yourDefend: 'Відбий атаку або візьми карти.',
+      waitingFor: '{attacker} атакує, {defender} захищається…',
+      finished: 'Гру завершено.',
+    },
+    actions: {
+      throw: 'Ходити',
+      translate: 'Перевести',
+      take: 'Взяти',
+      pass: 'Бито',
+    },
+    result: {
+      youLost: 'Ти — Дурак.',
+      someoneLost: '{name} — Дурак.',
+      draw: 'Колода закінчилась одночасно для всіх.',
+    },
   },
   game: {
     actions: {
