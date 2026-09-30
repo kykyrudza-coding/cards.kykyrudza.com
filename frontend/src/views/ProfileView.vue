@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
+import { useStatisticsStore } from '../stores/statistics'
 import AppAvatar from '../components/ui/AppAvatar.vue'
 import AppIcon from '../components/ui/AppIcon.vue'
 import AppModal from '../components/ui/AppModal.vue'
@@ -10,13 +11,31 @@ import AppButton from '../components/ui/AppButton.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 const { t } = useI18n()
 const auth = useAuthStore()
+const stats = useStatisticsStore()
 const router = useRouter()
 const logoutOpen = ref(false)
+onMounted(() => stats.fetch())
 async function logout() {
   await auth.logout()
   logoutOpen.value = false
   await router.push('/login')
 }
+const winRate = computed(() => {
+  const rate = stats.data?.overview.win_rate
+  return rate === null || rate === undefined ? t('profile.metrics.none') : `${rate}%`
+})
+const favouriteGame = computed(() => {
+  if (!stats.data) return t('profile.metrics.none')
+  const { blackjack, durak } = stats.data
+  if (blackjack.played === 0 && durak.played === 0) return t('profile.metrics.none')
+  return blackjack.played >= durak.played ? t('lobby.blackjack') : t('lobby.durak')
+})
+const metrics = computed(() => [
+  { label: t('profile.metrics.matches'), value: stats.data?.overview.played ?? t('profile.metrics.none') },
+  { label: t('profile.metrics.wins'), value: stats.data?.overview.won ?? t('profile.metrics.none') },
+  { label: t('profile.metrics.winRate'), value: winRate.value },
+  { label: t('profile.metrics.favouriteGame'), value: favouriteGame.value },
+])
 </script>
 <template>
   <main class="page">
@@ -34,22 +53,12 @@ async function logout() {
       <div>
         <h2>{{ auth.user?.username ?? t('common.player') }}</h2>
         <p class="muted">{{ auth.user?.email }}</p>
-        <span class="small muted">{{ t('profile.memberDetailsSoon') }}</span>
       </div>
     </section>
     <div class="metric-grid">
-      <div
-        v-for="label in [
-          t('profile.metrics.matches'),
-          t('profile.metrics.wins'),
-          t('profile.metrics.winRate'),
-          t('profile.metrics.favouriteGame'),
-        ]"
-        :key="label"
-        class="panel metric"
-      >
-        <span>{{ label }}</span
-        ><strong>—</strong>
+      <div v-for="metric in metrics" :key="metric.label" class="panel metric">
+        <span>{{ metric.label }}</span
+        ><strong>{{ metric.value }}</strong>
       </div>
     </div>
     <section class="panel">

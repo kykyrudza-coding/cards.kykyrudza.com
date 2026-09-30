@@ -372,8 +372,10 @@ export default {
       title: 'Account',
       username: 'Username',
       email: 'Email',
+      save: 'Save username',
+      saved: 'Username updated.',
       uploadAvatar: 'Upload avatar · coming soon',
-      note: 'Account editing will be available in a future update.',
+      note: 'Only your username can be changed for now — avatar and email updates are coming soon.',
     },
     appearance: {
       title: 'Appearance',
@@ -437,6 +439,7 @@ export default {
       wins: 'Wins',
       winRate: 'Win rate',
       favouriteGame: 'Favourite game',
+      none: '—',
     },
     storyTitle: 'Your story is still being written',
     storyDescription:
@@ -464,10 +467,19 @@ export default {
       wins: 'Wins',
       losses: 'Losses',
       winRate: 'Win rate',
+      currentStreak: 'Current streak',
+      bestStreak: 'Best streak',
+      peakChips: 'Peak chips, best match',
+      blackjacksHit: 'Natural blackjacks',
+      splits: 'Splits played',
+      dealerBusts: 'Dealer busts you beat',
+      survived: 'Times survived',
     },
     performanceOverall: 'Your performance',
     performanceBlackjack: 'Blackjack performance',
-    bestStreak: 'Best streak —',
+    performanceDurak: 'Durak performance',
+    noGamesTitle: 'No games recorded yet',
+    noGamesDescription: 'Play a hand of Blackjack or a round of Durak and your stats show up here.',
     emptyTitle: 'Statistics are coming soon',
     emptyDescription:
       'We’re preparing your game history. There are no recorded statistics to show yet.',
@@ -477,9 +489,55 @@ export default {
     title: 'Achievements',
     subtitle: 'The little milestones that make a great game night.',
     badge: 'Coming soon',
+    progress: '{unlocked}/{total} unlocked',
+    unlocked: 'Achievement unlocked',
+    lockedLabel: 'Locked',
+    unlockedOn: 'Unlocked {date}',
     emptyTitle: 'Great hands deserve a little recognition',
     emptyDescription:
       'Achievements, progress and rewards will arrive in a future update. Keep enjoying the game with your friends.',
+    catalog: {
+      first_win: {
+        name: 'First Win',
+        description: 'Win your first Blackjack hand, or survive your first Durak game.',
+      },
+      natural_blackjack: {
+        name: 'Natural Blackjack',
+        description: 'Draw an Ace and a ten-value card for an instant Blackjack.',
+      },
+      high_roller: {
+        name: 'High Roller',
+        description: 'Win a Blackjack hand with a bet of 1,000 chips or more.',
+      },
+      win_streak_3: {
+        name: 'On a Roll',
+        description: 'Win three games in a row.',
+      },
+      split_master: {
+        name: 'Split Master',
+        description: 'Perform 5 splits in Blackjack.',
+      },
+      dealer_buster: {
+        name: 'Dealer Buster',
+        description: 'Beat the dealer by bust 10 times.',
+      },
+      durak_veteran: {
+        name: 'Durak Veteran',
+        description: 'Survive 5 games of Durak without becoming the fool.',
+      },
+      marathoner: {
+        name: 'Marathoner',
+        description: 'Play 25 hands or games, combined.',
+      },
+      chip_fortune: {
+        name: 'Chip Fortune',
+        description: 'Reach 10,000 chips in a single match.',
+      },
+      two_games: {
+        name: 'Two of a Kind',
+        description: 'Play at least one hand of both Blackjack and Durak.',
+      },
+    },
   },
   collection: {
     eyebrow: 'A TABLE THAT FEELS LIKE YOU',

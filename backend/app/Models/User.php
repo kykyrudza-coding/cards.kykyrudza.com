@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -48,5 +49,22 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Lobby::class, 'lobby_players')
             ->withPivot(['seat', 'is_ready', 'joined_at']);
+    }
+
+    /**
+     * @return HasOne<UserStatistic, $this>
+     */
+    public function statistic(): HasOne
+    {
+        return $this->hasOne(UserStatistic::class);
+    }
+
+    /**
+     * @return BelongsToMany<Achievement, $this>
+     */
+    public function achievements(): BelongsToMany
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withPivot(['unlocked_at', 'acknowledged_at']);
     }
 }

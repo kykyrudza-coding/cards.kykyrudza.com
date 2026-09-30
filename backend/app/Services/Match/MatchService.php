@@ -9,16 +9,20 @@ use App\Game\Contracts\GameActionException;
 use App\Game\Contracts\GameEngine;
 use App\Game\Contracts\GameState;
 use App\Game\Durak\DurakPlayer;
+use App\Game\Durak\DurakState;
 use App\Game\GameCatalog;
 use App\Models\GameMatch;
 use App\Models\Lobby;
 use App\Models\MatchPlayer;
 use App\Models\User;
+use App\Services\Achievement\AchievementService;
 use Illuminate\Support\Facades\DB;
 
 class MatchService
 {
     private const array RELATIONS = ['matchPlayers.user', 'lobby'];
+
+    public function __construct(private readonly AchievementService $achievements) {}
 
     public function createForLobby(Lobby $lobby): GameMatch
     {
@@ -68,6 +72,7 @@ class MatchService
             abort_if($locked->status !== 'active', 422, 'Match is not active.');
 
             $state = $this->hydrateState($locked);
+            $previousPhase = $state->phase;
 
             try {
                 $state = $this->engineFor($locked)->handleAction($state, $user->id, $action, $payload);
@@ -77,6 +82,15 @@ class MatchService
 
             $this->persist($locked, $state);
             $this->syncPlayers($locked, $state);
+
+            if ($state instanceof BlackjackState) {
+                if ($action === 'split') {
+                    $this->achievements->recordSplit($user);
+                }
+                $this->achievements->afterBlackjackAction($locked, $previousPhase, $state);
+            } elseif ($state instanceof DurakState) {
+                $this->achievements->afterDurakAction($locked, $previousPhase, $state);
+            }
 
             return $locked->fresh(self::RELATIONS);
         });
@@ -105,11 +119,20 @@ class MatchService
             }
             $state->confirmedBets[$user->id] = $amount;
             $eligible = collect($state->players)->filter(fn ($player) => $player->status === 'active' && $player->chips >= 100);
+            $dealt = false;
             if ($eligible->every(fn ($player) => isset($state->confirmedBets[$player->userId]))) {
                 $state = (new BlackjackEngine)->nextRound($state, 100, bets: $state->confirmedBets);
+                $dealt = true;
             }
             $this->persist($locked, $state);
             $this->syncPlayers($locked, $state);
+
+            // A dealer natural Blackjack settles the round immediately on
+            // deal, with no further action ever passing through
+            // performAction() — catch that instant-settle case here too.
+            if ($dealt) {
+                $this->achievements->afterBlackjackAction($locked, 'dealing', $state);
+            }
 
             return $locked->fresh(self::RELATIONS);
         });

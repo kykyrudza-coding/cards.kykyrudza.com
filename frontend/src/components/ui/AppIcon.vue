@@ -25,6 +25,14 @@ import {
   IconMenu2,
   IconBrandGithub,
   IconSparkles,
+  IconStar,
+  IconDiamond,
+  IconFlame,
+  IconSwords,
+  IconTarget,
+  IconShieldCheck,
+  IconRoute,
+  IconCoins,
 } from '@tabler/icons-vue'
 const icons = {
   cards: IconCards,
@@ -52,6 +60,14 @@ const icons = {
   menu: IconMenu2,
   github: IconBrandGithub,
   sparkles: IconSparkles,
+  star: IconStar,
+  diamond: IconDiamond,
+  flame: IconFlame,
+  swords: IconSwords,
+  target: IconTarget,
+  shield: IconShieldCheck,
+  route: IconRoute,
+  coins: IconCoins,
 }
 withDefaults(defineProps<{ name: keyof typeof icons; size?: number }>(), { size: 20 })
 </script>

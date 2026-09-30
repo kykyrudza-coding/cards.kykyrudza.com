@@ -5,17 +5,20 @@ import { gameAudio } from './audio/GameAudio'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 import { usePreferencesStore } from './stores/preferences'
+import { useAchievementsStore } from './stores/achievements'
 import AppIcon from './components/ui/AppIcon.vue'
 import AppAvatar from './components/ui/AppAvatar.vue'
 import AppButton from './components/ui/AppButton.vue'
 import AppModal from './components/ui/AppModal.vue'
 import AppToast from './components/ui/AppToast.vue'
+import AchievementSplash from './components/ui/AchievementSplash.vue'
 import LocaleSwitcher from './components/ui/LocaleSwitcher.vue'
 const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const preferences = usePreferencesStore()
+const achievements = useAchievementsStore()
 const logoutOpen = ref(false)
 const gameRoute = computed(() => route.name === 'match')
 const appRoute = computed(() => route.meta.requiresAuth && !gameRoute.value)
@@ -36,7 +39,10 @@ watch(
   (authenticated) => {
     if (!authenticated && route.meta.requiresAuth)
       void router.push({ path: '/login', query: { redirect: route.fullPath } })
+    if (authenticated) achievements.startPolling()
+    else achievements.stopPolling()
   },
+  { immediate: true },
 )
 watch(
   preferences.$state,
@@ -155,4 +161,5 @@ onUnmounted(() => {
     </div></AppModal
   >
   <AppToast />
+  <AchievementSplash />
 </template>

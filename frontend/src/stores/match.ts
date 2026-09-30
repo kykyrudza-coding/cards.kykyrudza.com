@@ -4,6 +4,7 @@ import { connectEcho, disconnectEcho } from '../realtime/echo'
 import { ApiError } from '../services/api'
 import type { MatchData, PlayingCard } from '../types/match'
 import { t } from '../i18n'
+import { useAchievementsStore } from './achievements'
 
 let fetchSequence = 0
 
@@ -101,6 +102,7 @@ export const useMatchStore = defineStore('match', {
       try {
         const incoming = await fn()
         if (this.match?.id === id) this.acceptMatch(incoming)
+        void useAchievementsStore().checkUnseen()
       } catch (err) {
         this.error = err instanceof ApiError ? err.message : t('errors.actionFailed')
         throw err
@@ -132,6 +134,7 @@ export const useMatchStore = defineStore('match', {
       const echo = connectEcho()
       echo.private(`match.${id}`).listen('.MatchUpdated', () => {
         this.fetchMatch(id).catch(() => undefined)
+        void useAchievementsStore().checkUnseen()
       })
 
       this.subscribedId = id

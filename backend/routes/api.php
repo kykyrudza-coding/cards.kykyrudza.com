@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LobbyController;
 use App\Http\Controllers\Api\MatchController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\StatisticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -42,4 +45,11 @@ Route::middleware('auth:sanctum')->prefix('matches')->group(function () {
     Route::post('/{match}/bet', [MatchController::class, 'placeBet']);
     Route::post('/{match}/next-round', [MatchController::class, 'nextRound']);
     Route::post('/{match}/finish', [MatchController::class, 'finish']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::get('/statistics', [StatisticsController::class, 'show']);
+    Route::get('/achievements', [AchievementController::class, 'index']);
+    Route::get('/achievements/unseen', [AchievementController::class, 'unseen']);
 });
