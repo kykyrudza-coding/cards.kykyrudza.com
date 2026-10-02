@@ -20,6 +20,7 @@ class LobbyResource extends JsonResource
             'max_players' => $this->max_players,
             'starting_chips' => $this->starting_chips,
             'default_bet' => $this->default_bet,
+            'events_enabled' => $this->events_enabled,
             'is_private' => $this->is_private,
             'match_id' => $this->activeMatch?->id,
             'host' => [

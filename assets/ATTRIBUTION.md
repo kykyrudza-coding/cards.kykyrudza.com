@@ -40,3 +40,8 @@ Existing three Ukrainian MP3 files use Microsoft `uk-UA-OstapNeural` via [edge-t
 ## 3D
 
 No external 3D model is included. The researched [Kenney Playing Cards Pack](https://kenney.nl/assets/playing-cards-pack) is a 2D pack, not a verified 3D replacement. No model was selected with verified geometry, textures and license. Full 3D remains a separate stage; use one card mesh with interchangeable face/back textures.
+
+## Midnight and additional recorded cues
+
+Midnight SVG graphics are an original vector variant created for this project.
+Five additional cues (turn, split, double, push, blackjack) layer the included Kenney CC0 recordings with timing, gain, filtering and fades. No new third-party audio source or synthesized noise is used. Exact sources and durations are in `audio/recorded-manifest.json`; reproduction is in `source/extend-audio.py`.

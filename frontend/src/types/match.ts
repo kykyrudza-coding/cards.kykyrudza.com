@@ -28,7 +28,7 @@ export interface BlackjackHandView {
   score: number
   bet: number
   status: 'playing' | 'stood' | 'bust' | 'blackjack' | 'finished'
-  result: 'win' | 'lose' | 'push' | 'blackjack' | null
+  result: 'win' | 'lose' | 'push' | 'blackjack' | 'event' | 'killed' | null
   profit?: number | null
   is_split: boolean
   is_active: boolean
@@ -43,6 +43,19 @@ export interface BlackjackPlayerView {
   hands: BlackjackHandView[]
 }
 
+export interface MachineGunEvent {
+  type: 'machine_gun'
+  /** Players the holder may shoot (everyone else still in the round). */
+  targets: number[]
+}
+
+export interface MachineGunResult {
+  type: 'machine_gun'
+  holder_id: number
+  mode: 'dealer' | 'player'
+  target_id: number | null
+}
+
 export interface BlackjackGameState {
   phase: BlackjackPhase
   round: number
@@ -55,6 +68,9 @@ export interface BlackjackGameState {
   current_player_id: number | null
   current_hand_index: number | null
   allowed_actions: BlackjackAction[]
+  /** Private: only present for the viewer who currently holds an event weapon. */
+  event?: MachineGunEvent | null
+  event_result?: MachineGunResult | null
 }
 
 export interface BlackjackMatchData extends MatchBase {
@@ -107,6 +123,72 @@ export interface DurakMatchData extends MatchBase {
   game: DurakGameState
 }
 
+// --- Texas Hold'em ----------------------------------------------------------
+
+export type PokerPhase = 'preflop' | 'flop' | 'turn' | 'river' | 'hand_finished' | 'finished'
+
+export type PokerAction = 'fold' | 'check' | 'call' | 'raise' | 'all_in' | 'next_hand'
+
+export type PokerHandName =
+  | 'high_card'
+  | 'pair'
+  | 'two_pair'
+  | 'three_of_a_kind'
+  | 'straight'
+  | 'flush'
+  | 'full_house'
+  | 'four_of_a_kind'
+  | 'straight_flush'
+
+export interface PokerPlayerView {
+  id: number
+  username: string | null
+  seat: number
+  status: 'active' | 'folded' | 'all_in' | 'out'
+  chips: number
+  /** Chips committed on the current betting street. */
+  bet: number
+  total_bet: number
+  hand_count: number
+  /** Own cards, or everyone still in the hand once a showdown reveals them. */
+  hand?: PlayingCard[]
+  is_dealer: boolean
+  is_small_blind: boolean
+  is_big_blind: boolean
+}
+
+export interface PokerResult {
+  user_id: number
+  amount: number
+  hand: PokerHandName | null
+}
+
+export interface PokerGameState {
+  phase: PokerPhase
+  round: number
+  small_blind: number
+  big_blind: number
+  community: PlayingCard[]
+  pot: number
+  current_bet: number
+  to_call: number
+  min_raise_to: number
+  max_raise_to: number
+  players: PokerPlayerView[]
+  dealer_id: number
+  current_player_id: number | null
+  allowed_actions: PokerAction[]
+  showdown: boolean
+  results: PokerResult[]
+  ready: number[]
+  winner_id: number | null
+}
+
+export interface PokerMatchData extends MatchBase {
+  game_type: 'poker'
+  game: PokerGameState
+}
+
 // --- Union ---------------------------------------------------------------
 
-export type MatchData = BlackjackMatchData | DurakMatchData
+export type MatchData = BlackjackMatchData | DurakMatchData | PokerMatchData

@@ -11,6 +11,8 @@ use App\Game\Contracts\GameState;
 use App\Game\Durak\DurakPlayer;
 use App\Game\Durak\DurakState;
 use App\Game\GameCatalog;
+use App\Game\Poker\PokerPlayer;
+use App\Game\Poker\PokerState;
 use App\Models\GameMatch;
 use App\Models\Lobby;
 use App\Models\MatchPlayer;
@@ -52,10 +54,11 @@ class MatchService
                 ->all();
 
             // Blackjack waits for everyone to confirm a bet before dealing;
-            // Durak has no betting phase, so it deals immediately.
+            // Durak and Poker have no bet-confirmation phase, so they deal immediately
+            // (Poker's big blind is the lobby's default bet).
             $state = $match->game_type === 'blackjack'
-                ? (new BlackjackEngine)->initial($matchPlayersForEngine)
-                : $this->engineFor($match)->start(['players' => $matchPlayersForEngine]);
+                ? (new BlackjackEngine)->initial($matchPlayersForEngine, (bool) $lobby->events_enabled)
+                : $this->engineFor($match)->start(['players' => $matchPlayersForEngine, 'big_blind' => $lobby->default_bet]);
 
             $this->persist($match, $state);
             $this->syncPlayers($match, $state);
@@ -183,6 +186,17 @@ class MatchService
                 MatchPlayer::where('match_id', $match->id)
                     ->where('user_id', $player->userId)
                     ->update(['chips' => $player->chips, 'status' => $player->status]);
+            }
+
+            return;
+        }
+
+        if ($state instanceof PokerState) {
+            foreach ($state->players as $player) {
+                /** @var PokerPlayer $player */
+                MatchPlayer::where('match_id', $match->id)
+                    ->where('user_id', $player->userId)
+                    ->update(['chips' => $player->chips, 'status' => $player->chips > 0 ? 'active' : 'out']);
             }
 
             return;

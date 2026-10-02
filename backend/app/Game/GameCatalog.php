@@ -8,6 +8,8 @@ use App\Game\Contracts\GameEngine;
 use App\Game\Contracts\GameState;
 use App\Game\Durak\DurakEngine;
 use App\Game\Durak\DurakState;
+use App\Game\Poker\PokerEngine;
+use App\Game\Poker\PokerState;
 
 /**
  * Single source of truth for which game_type strings are supported and
@@ -18,6 +20,7 @@ final class GameCatalog
     private const array GAMES = [
         'blackjack' => ['engine' => BlackjackEngine::class, 'state' => BlackjackState::class],
         'durak' => ['engine' => DurakEngine::class, 'state' => DurakState::class],
+        'poker' => ['engine' => PokerEngine::class, 'state' => PokerState::class],
     ];
 
     /**

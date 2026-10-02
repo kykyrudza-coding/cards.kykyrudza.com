@@ -12,6 +12,8 @@ export const matchService = {
   nextRound: (id: number, expectedRound: number) =>
     api.post<MatchData>(`/api/matches/${id}/next-round`, { expected_round: expectedRound }),
   finish: (id: number) => api.post<MatchData>(`/api/matches/${id}/finish`),
+  machineGun: (id: number, mode: 'dealer' | 'player', targetId?: number) =>
+    api.post<MatchData>(`/api/matches/${id}/actions/machine-gun`, { mode, target_id: targetId }),
   attack: (id: number, cards: PlayingCard[]) =>
     api.post<MatchData>(`/api/matches/${id}/actions/attack`, { cards }),
   translate: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/translate`),
@@ -19,4 +21,11 @@ export const matchService = {
     api.post<MatchData>(`/api/matches/${id}/actions/defend`, { attack, defense }),
   take: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/take`),
   pass: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/pass`),
+  fold: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/fold`),
+  check: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/check`),
+  call: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/call`),
+  raise: (id: number, amount: number) =>
+    api.post<MatchData>(`/api/matches/${id}/actions/raise`, { amount }),
+  allIn: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/all-in`),
+  nextHand: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/next-hand`),
 }

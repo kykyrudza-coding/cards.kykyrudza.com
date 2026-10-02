@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { DurakMatchData, PlayingCard } from '../../types/match'
 import { arrangeSeats } from '../../game/shared/seatLayout'
 import { useMatchStore } from '../../stores/match'
+import { usePreferencesStore } from '../../stores/preferences'
 import DurakPlayerSeat from './DurakPlayerSeat.vue'
 import DeckStack from '../game/DeckStack.vue'
 import PlayingCardView from '../game/PlayingCard.vue'
@@ -15,7 +16,9 @@ const store = useMatchStore()
 
 const game = computed(() => props.match.game)
 const own = computed(() => game.value.players.find((p) => p.id === props.viewerId))
-const seats = computed(() => arrangeSeats(game.value.players, props.viewerId))
+const seats = computed(() => arrangeSeats(game.value.players, props.viewerId, true))
+const preferences = usePreferencesStore()
+const animated = computed(() => preferences.cardAnimations && !preferences.reducedMotion)
 const allowed = computed(() => game.value.allowed_actions)
 const isDefender = computed(() => game.value.defender_id === props.viewerId)
 const outstandingSlots = computed(() => game.value.table.filter((slot) => !slot.defense))
@@ -94,8 +97,8 @@ const resultMessage = computed(() => {
 // however many cards are in it (a defender who just took a big throw-in
 // can easily be holding a dozen-plus) — cards never grow past the screen
 // edge or stack fully hidden behind each other.
-const cardWidth = 78
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 960)
+const cardWidth = computed(() => (viewportWidth.value < 768 ? 58 : 78))
 function updateViewportWidth() {
   viewportWidth.value = window.innerWidth
 }
@@ -105,13 +108,13 @@ const maxHandWidth = computed(() => Math.min(640, viewportWidth.value - 40))
 const handOverlap = computed(() => {
   const n = (own.value?.hand ?? []).length
   if (n <= 1) return 0
-  const available = maxHandWidth.value - cardWidth
-  const perCardGap = available / (n - 1)
-  return Math.max(0, Math.min(cardWidth * 0.82, cardWidth - perCardGap))
+  const w = cardWidth.value
+  const perCardGap = (maxHandWidth.value - w) / (n - 1)
+  return Math.max(0, Math.min(w * 0.82, w - perCardGap))
 })
 </script>
 <template>
-  <div class="durak-table">
+  <div class="durak-table" :class="{ 'no-anim': !animated }">
     <div class="opponent-seats">
       <DurakPlayerSeat
         v-for="seat in seats"
@@ -158,7 +161,7 @@ const handOverlap = computed(() => {
       <p>{{ resultMessage }}</p>
     </div>
     <div v-if="own" class="durak-own-seat">
-      <div class="durak-own-hand">
+      <div class="durak-own-hand" :style="{ '--card-width': `${cardWidth}px` }">
         <PlayingCardView
           v-for="(card, index) in own.hand ?? []"
           :key="cardKey(card)"

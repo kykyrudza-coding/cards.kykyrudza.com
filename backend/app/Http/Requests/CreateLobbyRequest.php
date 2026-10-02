@@ -29,6 +29,7 @@ class CreateLobbyRequest extends FormRequest
             'max_players' => ['sometimes', 'integer', 'min:1', 'max:7'],
             'starting_chips' => ['sometimes', 'integer', 'min:1'],
             'default_bet' => ['sometimes', 'integer', 'min:2', 'multiple_of:2'],
+            'events_enabled' => ['sometimes', 'boolean'],
             'is_private' => ['sometimes', 'boolean'],
             'password' => ['nullable', 'string', 'required_if:is_private,true'],
         ];

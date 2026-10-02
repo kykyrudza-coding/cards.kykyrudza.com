@@ -15,6 +15,11 @@ const paths = {
   click: 'ui/click',
   win: 'ui/win',
   lose: 'ui/lose',
+  turn: 'ui/turn',
+  split: 'ui/split',
+  double: 'ui/double',
+  push: 'ui/push',
+  blackjack: 'ui/blackjack',
   twenty: 'voices/uk/twenty',
   bust: 'voices/uk/bust',
   youWin: 'voices/uk/you-win',
@@ -158,10 +163,10 @@ class GameAudio {
     this.active.clear()
     this.voiceActive = null
   }
-  async test() {
+  async test(sound: Sound = 'deal') {
     await this.unlock()
     await this.preload()
-    this.play('deal')
+    this.play(sound)
   }
 }
 export const gameAudio = new GameAudio()

@@ -19,6 +19,7 @@ class Lobby extends Model
         'max_players',
         'starting_chips',
         'default_bet',
+        'events_enabled',
         'is_private',
         'password',
     ];
@@ -27,6 +28,7 @@ class Lobby extends Model
     {
         return [
             'is_private' => 'boolean',
+            'events_enabled' => 'boolean',
             'max_players' => 'integer',
             'starting_chips' => 'integer',
             'default_bet' => 'integer',

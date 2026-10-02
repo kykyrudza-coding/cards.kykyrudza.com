@@ -1,4 +1,4 @@
-export type GameType = 'blackjack' | 'durak'
+export type GameType = 'blackjack' | 'durak' | 'poker'
 
 export type LobbyStatus = 'waiting' | 'started' | 'closed'
 
@@ -23,6 +23,7 @@ export interface Lobby {
   max_players: number
   starting_chips: number
   default_bet: number
+  events_enabled: boolean
   is_private: boolean
   match_id: number | null
   host: LobbyHost
@@ -34,6 +35,7 @@ export interface CreateLobbyPayload {
   max_players?: number
   starting_chips?: number
   default_bet?: number
+  events_enabled?: boolean
   is_private?: boolean
   password?: string | null
 }

@@ -19,6 +19,7 @@ export function useGamePresentation(root: Ref<HTMLElement | undefined>) {
     autoError = ref('')
   let controller: GameAnimationController | undefined
   let spokenTwenty = ''
+  let soundedTurn = ''
   const media = window.matchMedia('(prefers-reduced-motion: reduce)')
   const reduced = () => preferences.reducedMotion || media.matches || !preferences.cardAnimations
   const busy = computed(() => !['playing', 'betting', 'idle'].includes(phase.value))
@@ -29,6 +30,10 @@ export function useGamePresentation(root: Ref<HTMLElement | undefined>) {
     const index = snapshot.game.current_hand_index ?? 0
     const hand = snapshot.game.players.find((player) => player.id === auth.user?.id)?.hands[index]
     const key = `${snapshot.id}:${snapshot.round}:${index}`
+    if (soundedTurn !== key) {
+      soundedTurn = key
+      gameAudio.play('turn')
+    }
     if (hand?.score === 20 && spokenTwenty !== key) {
       spokenTwenty = key
       gameAudio.play('twenty')
@@ -49,16 +54,17 @@ export function useGamePresentation(root: Ref<HTMLElement | undefined>) {
         },
         ready: () => {},
         event: (event, snapshot) => {
-          if (event === 'BET_CHANGED' || event === 'PLAYER_SPLIT') gameAudio.play('bet')
+          if (event === 'BET_CHANGED') gameAudio.play('bet')
+          if (event === 'PLAYER_SPLIT') gameAudio.play('split')
           if (event === 'ROUND_FINISHED') {
             const hands = snapshot.game.players.find((p) => p.id === auth.user?.id)?.hands ?? []
             if (hands.some((h) => h.result === 'win' || h.result === 'blackjack')) {
-              gameAudio.play('win')
+              gameAudio.play(hands.some((h) => h.result === 'blackjack') ? 'blackjack' : 'win')
               gameAudio.play('youWin')
             } else if (hands.some((h) => h.result === 'lose')) {
               gameAudio.play('lose')
               if (hands.some((h) => h.status === 'bust')) gameAudio.play('bust')
-            } else gameAudio.play('payout')
+            } else gameAudio.play('push')
           }
         },
         error: () => {

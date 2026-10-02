@@ -43,7 +43,7 @@ class AchievementService
             foreach ($player->hands as $hand) {
                 $won = match ($hand->result) {
                     'win', 'blackjack' => true,
-                    'push', null => null,
+                    'push', 'event', null => null,
                     default => false,
                 };
 

@@ -6,6 +6,8 @@ import { usePreferencesStore } from '../../stores/preferences'
 import GameTopBar from './GameTopBar.vue'
 import ActionBar from './ActionBar.vue'
 import BetControls from './BetControls.vue'
+import MachineGunPanel from './MachineGunPanel.vue'
+import EventBanner from './EventBanner.vue'
 defineProps<{
   match: BlackjackMatchData
   viewerId?: number
@@ -22,6 +24,7 @@ defineEmits<{
   leave: []
   refresh: []
   bet: [amount: number]
+  machineGun: [mode: 'dealer' | 'player', targetId?: number]
 }>()
 const preferences = usePreferencesStore()
 const { t } = useI18n()
@@ -49,6 +52,18 @@ const { t } = useI18n()
       <span>{{ error ?? t('match.connectionInterrupted') }}</span
       ><button type="button" @click="$emit('refresh')">{{ t('match.refresh') }}</button>
     </div>
+    <MachineGunPanel
+      v-if="match.game.event && match.status === 'active' && phase === 'playing'"
+      :event="match.game.event"
+      :players="match.game.players"
+      :busy="busy"
+      @fire="(mode, target) => $emit('machineGun', mode, target)"
+    />
+    <EventBanner
+      v-if="match.game.event_result && (phase === 'settling' || phase === 'collecting')"
+      :result="match.game.event_result"
+      :players="match.game.players"
+    />
     <BetControls
       v-if="phase === 'betting' && match.status === 'active'"
       :match="match"

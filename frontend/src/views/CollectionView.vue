@@ -6,6 +6,7 @@ import AppTabs from '../components/ui/AppTabs.vue'
 import AppBadge from '../components/ui/AppBadge.vue'
 import AppIcon from '../components/ui/AppIcon.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
+import AppearancePanel from '../components/settings/AppearancePanel.vue'
 const { t } = useI18n()
 const tab = ref('backs')
 const tabs = computed(() => [
@@ -26,6 +27,7 @@ const tabs = computed(() => [
       </div>
     </header>
     <AppTabs v-model="tab" :label="t('collection.tabsAria')" :tabs="tabs" />
+    <AppearancePanel v-if="tab === 'backs' || tab === 'tables'" />
     <section v-if="tab === 'effects'" class="panel">
       <EmptyState
         icon="collection"
@@ -33,7 +35,7 @@ const tabs = computed(() => [
         :description="t('collection.effectsEmptyDescription')"
       />
     </section>
-    <div v-else class="collection-grid">
+    <div v-else-if="tab !== 'backs' && tab !== 'tables'" class="collection-grid">
       <article class="panel">
         <div class="cosmetic-preview">
           <img

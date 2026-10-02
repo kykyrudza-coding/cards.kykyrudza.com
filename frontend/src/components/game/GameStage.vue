@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import GameTable from './GameTable.vue'
+import { usePreferencesStore } from '../../stores/preferences'
+const preferences = usePreferencesStore()
 import type { BlackjackMatchData } from '../../types/match'
 import type { PresentationPhase } from '../../game/animations/types'
 withDefaults(
@@ -10,14 +12,14 @@ withDefaults(
     phase: PresentationPhase
     viewerId?: number
   }>(),
-  { tableSkin: 'classic' },
+  {},
 )
 const { t } = useI18n()
 </script>
 <template>
   <div class="game-stage">
     <div class="stage-light" aria-hidden="true" />
-    <div class="stage-table" :data-skin="tableSkin" aria-hidden="true">
+    <div class="stage-table" :data-skin="tableSkin ?? preferences.tableSkin" aria-hidden="true">
       <div class="table-felt">
         <div class="felt-stitch" />
         <div class="table-wordmark">

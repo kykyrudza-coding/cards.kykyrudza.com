@@ -190,5 +190,101 @@
       "mp3": 10492
     },
     "modified": "Trimmed, mono, filtered 70 Hz\u201311 kHz, normalized to -3 dBFS, short edge fades, encoded."
+  },
+  {
+    "id": "ui/turn",
+    "source": [
+      "chip-lay-2.ogg",
+      "chip-lay-1.ogg"
+    ],
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.282,
+    "files": {
+      "ogg": "audio/ui/turn.ogg",
+      "mp3": "audio/ui/turn.mp3"
+    },
+    "bytes": {
+      "ogg": 6471,
+      "mp3": 5476
+    },
+    "modified": "Layered recorded cues, trimmed, filtered, normalized, edge fades."
+  },
+  {
+    "id": "ui/split",
+    "source": [
+      "card-slide-1.ogg",
+      "card-slide-4.ogg"
+    ],
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.67,
+    "files": {
+      "ogg": "audio/ui/split.ogg",
+      "mp3": "audio/ui/split.mp3"
+    },
+    "bytes": {
+      "ogg": 10136,
+      "mp3": 11745
+    },
+    "modified": "Layered recorded cues, trimmed, filtered, normalized, edge fades."
+  },
+  {
+    "id": "ui/double",
+    "source": [
+      "chip-lay-1.ogg",
+      "chips-stack-3.ogg"
+    ],
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.495,
+    "files": {
+      "ogg": "audio/ui/double.ogg",
+      "mp3": "audio/ui/double.mp3"
+    },
+    "bytes": {
+      "ogg": 8702,
+      "mp3": 8820
+    },
+    "modified": "Layered recorded cues, trimmed, filtered, normalized, edge fades."
+  },
+  {
+    "id": "ui/push",
+    "source": [
+      "card-place-1.ogg",
+      "chip-lay-2.ogg"
+    ],
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.328,
+    "files": {
+      "ogg": "audio/ui/push.ogg",
+      "mp3": "audio/ui/push.mp3"
+    },
+    "bytes": {
+      "ogg": 7460,
+      "mp3": 6312
+    },
+    "modified": "Layered recorded cues, trimmed, filtered, normalized, edge fades."
+  },
+  {
+    "id": "ui/blackjack",
+    "source": [
+      "chips-stack-1.ogg",
+      "chips-stack-3.ogg",
+      "chips-collide-2.ogg"
+    ],
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "duration": 0.608,
+    "files": {
+      "ogg": "audio/ui/blackjack.ogg",
+      "mp3": "audio/ui/blackjack.mp3"
+    },
+    "bytes": {
+      "ogg": 9742,
+      "mp3": 10910
+    },
+    "modified": "Layered recorded cues, trimmed, filtered, normalized, edge fades."
   }
 ]

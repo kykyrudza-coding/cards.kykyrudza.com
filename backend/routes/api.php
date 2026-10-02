@@ -37,11 +37,18 @@ Route::middleware('auth:sanctum')->prefix('matches')->group(function () {
     Route::post('/{match}/actions/stand', [MatchController::class, 'stand']);
     Route::post('/{match}/actions/double', [MatchController::class, 'double']);
     Route::post('/{match}/actions/split', [MatchController::class, 'split']);
+    Route::post('/{match}/actions/machine-gun', [MatchController::class, 'machineGun']);
     Route::post('/{match}/actions/attack', [MatchController::class, 'attack']);
     Route::post('/{match}/actions/translate', [MatchController::class, 'translate']);
     Route::post('/{match}/actions/defend', [MatchController::class, 'defend']);
     Route::post('/{match}/actions/take', [MatchController::class, 'take']);
     Route::post('/{match}/actions/pass', [MatchController::class, 'pass']);
+    Route::post('/{match}/actions/fold', [MatchController::class, 'fold']);
+    Route::post('/{match}/actions/check', [MatchController::class, 'check']);
+    Route::post('/{match}/actions/call', [MatchController::class, 'call']);
+    Route::post('/{match}/actions/raise', [MatchController::class, 'raise']);
+    Route::post('/{match}/actions/all-in', [MatchController::class, 'allIn']);
+    Route::post('/{match}/actions/next-hand', [MatchController::class, 'nextHand']);
     Route::post('/{match}/bet', [MatchController::class, 'placeBet']);
     Route::post('/{match}/next-round', [MatchController::class, 'nextRound']);
     Route::post('/{match}/finish', [MatchController::class, 'finish']);

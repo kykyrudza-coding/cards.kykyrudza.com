@@ -20,9 +20,15 @@ const lobby = useLobbyStore()
 const ui = useUiStore()
 const router = useRouter()
 const selectedGame = ref<GameType>('blackjack')
+// Poker needs an opponent, so its table never starts below two seats.
+function selectGame(game: GameType) {
+  selectedGame.value = game
+  if (game === 'poker' && maxPlayers.value < 2) maxPlayers.value = 2
+}
 const maxPlayers = ref(4)
 const startingChips = ref(5000)
 const defaultBet = ref(100)
+const eventsEnabled = ref(false)
 const isPrivate = ref(false)
 const createPassword = ref('')
 const createError = ref('')
@@ -39,8 +45,12 @@ async function create() {
     const result = await lobby.createLobby({
       game_type: selectedGame.value,
       max_players: maxPlayers.value,
-      ...(selectedGame.value === 'blackjack'
-        ? { starting_chips: startingChips.value, default_bet: defaultBet.value }
+      ...(selectedGame.value !== 'durak'
+        ? {
+            starting_chips: startingChips.value,
+            default_bet: defaultBet.value,
+            ...(selectedGame.value === 'blackjack' ? { events_enabled: eventsEnabled.value } : {}),
+          }
         : {}),
       is_private: isPrivate.value,
       password: isPrivate.value ? createPassword.value || null : null,
@@ -120,7 +130,7 @@ async function join() {
                 class="game-option"
                 :class="{ selected: selectedGame === 'blackjack' }"
                 :aria-pressed="selectedGame === 'blackjack'"
-                @click="selectedGame = 'blackjack'"
+                @click="selectGame('blackjack')"
               >
                 <AppIcon name="cards" /><strong>{{ t('dashboard.create.blackjack') }}</strong
                 ><small>{{ t('dashboard.create.playersRange') }}</small
@@ -135,7 +145,7 @@ async function join() {
                 class="game-option"
                 :class="{ selected: selectedGame === 'durak' }"
                 :aria-pressed="selectedGame === 'durak'"
-                @click="selectedGame = 'durak'"
+                @click="selectGame('durak')"
               >
                 <AppIcon name="cards" /><strong>{{ t('dashboard.create.games.durak') }}</strong
                 ><small>{{ t('dashboard.create.durakPlayersRange') }}</small
@@ -146,8 +156,22 @@ async function join() {
                   :size="16"
               /></button
               ><button
+                type="button"
+                class="game-option"
+                :class="{ selected: selectedGame === 'poker' }"
+                :aria-pressed="selectedGame === 'poker'"
+                @click="selectGame('poker')"
+              >
+                <AppIcon name="cards" /><strong>{{ t('dashboard.create.games.texasHoldem') }}</strong
+                ><small>{{ t('dashboard.create.pokerPlayersRange') }}</small
+                ><AppIcon
+                  v-if="selectedGame === 'poker'"
+                  name="check"
+                  class="game-check"
+                  :size="16"
+              /></button
+              ><button
                 v-for="name in [
-                  t('dashboard.create.games.texasHoldem'),
                   t('dashboard.create.games.threeCardPoker'),
                   t('dashboard.create.games.sunduchok'),
                 ]"
@@ -166,11 +190,11 @@ async function join() {
               v-model.number="maxPlayers"
               :label="t('dashboard.create.maxPlayers')"
               type="number"
-              min="1"
+              :min="selectedGame === 'poker' ? 2 : 1"
               max="7"
               required
               :error="fields.max_players?.[0]"
-            /><template v-if="selectedGame === 'blackjack'">
+            /><template v-if="selectedGame !== 'durak'">
               <AppInput
                 v-model.number="startingChips"
                 :label="t('dashboard.create.startingChips')"
@@ -180,7 +204,11 @@ async function join() {
                 :error="fields.starting_chips?.[0]"
               /><AppInput
                 v-model.number="defaultBet"
-                :label="t('dashboard.create.defaultBet')"
+                :label="
+                  selectedGame === 'poker'
+                    ? t('dashboard.create.bigBlind')
+                    : t('dashboard.create.defaultBet')
+                "
                 type="number"
                 min="2"
                 step="2"
@@ -190,6 +218,10 @@ async function join() {
             </template>
           </div>
           <AppToggle
+            v-if="selectedGame === 'blackjack'"
+            v-model="eventsEnabled"
+            :label="t('dashboard.create.events')"
+          /><AppToggle
             v-model="isPrivate"
             :label="t('dashboard.create.privateLobby')"
             :hint="t('dashboard.create.privateHint')"

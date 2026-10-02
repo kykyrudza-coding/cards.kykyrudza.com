@@ -6,11 +6,13 @@ import AppToggle from '../ui/AppToggle.vue'
 import AppSelect from '../ui/AppSelect.vue'
 import AppButton from '../ui/AppButton.vue'
 import { gameAudio } from '../../audio/GameAudio'
+import AppearancePanel from './AppearancePanel.vue'
 const { t } = useI18n()
 const preferences = usePreferencesStore()
 </script>
 <template>
   <div class="settings-stack">
+    <AppearancePanel />
     <section class="settings-section">
       <h2>{{ t('settings.audio.title') }}</h2>
       <p class="muted small" role="status">
@@ -25,6 +27,9 @@ const preferences = usePreferencesStore()
       </p>
       <p v-if="gameAudio.status.error" class="error">{{ gameAudio.status.error }}</p>
       <AppButton @click="gameAudio.test()">{{ t('settings.audio.enableTest') }}</AppButton>
+      <div class="sound-previews" :aria-label="t('cosmetics.sounds')">
+        <AppButton v-for="sound in (['turn','split','double','push','blackjack'] as const)" :key="sound" @click="gameAudio.test(sound)">{{ t(`cosmetics.${sound}`) }}</AppButton>
+      </div>
       <AppToggle v-model="preferences.muted" :label="t('settings.audio.muteAll')" /><AppSlider
         v-model="preferences.master"
         :label="t('settings.audio.masterVolume')"
@@ -78,3 +83,7 @@ const preferences = usePreferencesStore()
     </section>
   </div>
 </template>
+
+<style scoped>
+.sound-previews { display:flex; flex-wrap:wrap; gap:8px; }
+</style>

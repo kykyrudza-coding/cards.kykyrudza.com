@@ -43,6 +43,7 @@ class LobbyService
             'max_players' => $data['max_players'] ?? 4,
             'starting_chips' => $startingChips,
             'default_bet' => $defaultBet,
+            'events_enabled' => ($data['game_type'] ?? 'blackjack') === 'blackjack' && (bool) ($data['events_enabled'] ?? false),
             'is_private' => $isPrivate,
             'password' => $isPrivate && ! empty($data['password']) ? Hash::make($data['password']) : null,
         ]);
@@ -147,6 +148,7 @@ class LobbyService
         $players = $lobby->players()->get();
 
         abort_if($players->isEmpty(), 422, 'Lobby has no players.');
+        abort_if($lobby->game_type === 'poker' && $players->count() < 2, 422, 'Poker needs at least two players.');
         abort_if($players->contains(fn (LobbyPlayer $player) => ! $player->is_ready), 422, 'All players must be ready.');
 
         return DB::transaction(function () use ($lobby) {

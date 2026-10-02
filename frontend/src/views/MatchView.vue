@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { gameAudio } from '../audio/GameAudio'
 import { useAuthStore } from '../stores/auth'
 import { useMatchStore } from '../stores/match'
 import { usePreferencesStore } from '../stores/preferences'
@@ -12,6 +13,8 @@ import GameStage from '../components/game/GameStage.vue'
 import GameHUD from '../components/game/GameHUD.vue'
 import DurakStage from '../components/durak/DurakStage.vue'
 import DurakHUD from '../components/durak/DurakHUD.vue'
+import PokerStage from '../components/poker/PokerStage.vue'
+import PokerHUD from '../components/poker/PokerHUD.vue'
 import AppDrawer from '../components/ui/AppDrawer.vue'
 import AppModal from '../components/ui/AppModal.vue'
 import AppButton from '../components/ui/AppButton.vue'
@@ -31,6 +34,7 @@ const id = computed(() => Number(route.params.id))
 const match = computed(() => (store.match?.id === id.value ? store.match : null))
 const blackjackMatch = computed(() => (match.value?.game_type === 'blackjack' ? match.value : null))
 const durakMatch = computed(() => (match.value?.game_type === 'durak' ? match.value : null))
+const pokerMatch = computed(() => (match.value?.game_type === 'poker' ? match.value : null))
 const blocked = computed(() => settingsOpen.value || leaveOpen.value || finishOpen.value)
 const presentation = useGamePresentation(root)
 const { visible, phase, busy, autoError } = presentation
@@ -67,6 +71,7 @@ async function act(action: BlackjackAction) {
     return
   try {
     await store[action]()
+    if (action === 'double') gameAudio.play('double')
   } catch {
     /* Store exposes error. */
   }
@@ -110,7 +115,12 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <main ref="root" class="match-screen" :data-presentation-phase="phase">
+  <main
+    ref="root"
+    class="match-screen"
+    :class="{ 'event-shake': blackjackMatch?.game.event_result && phase === 'settling' }"
+    :data-presentation-phase="phase"
+  >
     <template v-if="blackjackMatch">
       <GameStage :match="visible" :phase="phase" :viewer-id="auth.user?.id" /><GameHUD
         :match="blackjackMatch"
@@ -131,6 +141,7 @@ onUnmounted(() => {
             .catch(() => undefined)
         "
         @bet="store.placeBet($event).catch(() => undefined)"
+        @machine-gun="(mode, target) => store.machineGun(mode, target).catch(() => undefined)"
       />
     </template>
     <template v-else-if="durakMatch">
@@ -138,6 +149,17 @@ onUnmounted(() => {
         :match="durakMatch"
         :connection="status"
         :lobby-code="durakMatch.lobby_code"
+        :error="store.error"
+        @settings="settingsOpen = true"
+        @leave="leaveOpen = true"
+        @refresh="store.fetchMatch(id).catch(() => undefined)"
+      />
+    </template>
+    <template v-else-if="pokerMatch">
+      <PokerStage :match="pokerMatch" :viewer-id="auth.user?.id" :blocked="blocked" /><PokerHUD
+        :match="pokerMatch"
+        :connection="status"
+        :lobby-code="pokerMatch.lobby_code"
         :error="store.error"
         @settings="settingsOpen = true"
         @leave="leaveOpen = true"

@@ -21,6 +21,9 @@ final class BlackjackState implements GameState
         public ?int $currentHandIndex,
         public int $round,
         public array $confirmedBets = [],
+        public bool $eventsEnabled = false,
+        public ?int $machineGunHolderId = null,
+        public ?array $eventResult = null,
     ) {}
 
     /**
@@ -38,6 +41,9 @@ final class BlackjackState implements GameState
             'current_hand_index' => $this->currentHandIndex,
             'round' => $this->round,
             'confirmed_bets' => $this->confirmedBets,
+            'events_enabled' => $this->eventsEnabled,
+            'machine_gun_holder_id' => $this->machineGunHolderId,
+            'event_result' => $this->eventResult,
         ];
     }
 
@@ -56,6 +62,9 @@ final class BlackjackState implements GameState
             $data['current_hand_index'],
             $data['round'],
             $data['confirmed_bets'] ?? [],
+            $data['events_enabled'] ?? false,
+            $data['machine_gun_holder_id'] ?? null,
+            $data['event_result'] ?? null,
         );
     }
 }

@@ -52,3 +52,5 @@ const voices=[{id:'twenty',text:'У вас двадцять'},{id:'bust',text:'�
 put('manifest.json',JSON.stringify({version:1,name:'Blackjack Classic',cardSize:{width:240,height:336},cards,back:'cards/classic/back/back.svg',table:'tables/classic/table.svg',chips,sfx:sounds.map(s=>({id:s.id,path:s.files.ogg,duration:s.duration,volume:.8})),voices},null,2)+'\n');
 put('audio/voices/uk/phrases.json',JSON.stringify(voices,null,2)+'\n');
 console.log(`Generated ${cards.length} faces, 1 back, 1 table, ${chips.length} chips, ${sounds.length} SFX and manifest. Voice MP3s are generated separately.`);
+
+await import('./generate-midnight.mjs');

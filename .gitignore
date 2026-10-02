@@ -47,3 +47,6 @@ Thumbs.db
 *.log
 /test-results/
 /frontend/test-results-live/
+
+/assets/source/.audio-tools/
+/frontend/test-results-cosmetics/

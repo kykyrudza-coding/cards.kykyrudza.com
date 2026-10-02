@@ -39,6 +39,16 @@ class MatchController extends Controller
         return $this->act($request, $match, 'split');
     }
 
+    public function machineGun(Request $request, GameMatch $match)
+    {
+        $validated = $request->validate([
+            'mode' => ['required', 'in:dealer,player'],
+            'target_id' => ['required_if:mode,player', 'nullable', 'integer'],
+        ]);
+
+        return $this->act($request, $match, 'machine_gun', $validated);
+    }
+
     public function attack(Request $request, GameMatch $match)
     {
         $validated = $request->validate([
@@ -77,6 +87,38 @@ class MatchController extends Controller
     public function pass(Request $request, GameMatch $match)
     {
         return $this->act($request, $match, 'pass');
+    }
+
+    public function fold(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'fold');
+    }
+
+    public function check(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'check');
+    }
+
+    public function call(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'call');
+    }
+
+    public function raise(Request $request, GameMatch $match)
+    {
+        $validated = $request->validate(['amount' => ['required', 'integer', 'min:1']]);
+
+        return $this->act($request, $match, 'raise', $validated);
+    }
+
+    public function allIn(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'all_in');
+    }
+
+    public function nextHand(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'next_hand');
     }
 
     public function placeBet(Request $request, GameMatch $match)

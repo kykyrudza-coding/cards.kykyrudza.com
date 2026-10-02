@@ -11,6 +11,20 @@ use App\Game\Contracts\GameEngine;
  */
 final class BlackjackEngine implements GameEngine
 {
+    /** Per-round chance (percent) that the Machine Gun event drops on a random player. */
+    public const int MACHINE_GUN_CHANCE = 10;
+
+    /** @var \Closure(int, int): int */
+    private readonly \Closure $random;
+
+    /**
+     * @param  (\Closure(int, int): int)|null  $random  Inject a predictable RNG for tests.
+     */
+    public function __construct(?\Closure $random = null)
+    {
+        $this->random = $random ?? fn (int $min, int $max): int => random_int($min, $max);
+    }
+
     /**
      * @param  array<int, array{user_id: int, seat: int, chips: int}>  $matchPlayers
      * @param  Deck|null  $deck  Inject a predefined deck for deterministic tests; omit for real play.
@@ -48,7 +62,7 @@ final class BlackjackEngine implements GameEngine
      *
      * @param  array<int, array{user_id: int, seat: int, chips: int}>  $matchPlayers
      */
-    public function initial(array $matchPlayers): BlackjackState
+    public function initial(array $matchPlayers, bool $eventsEnabled = false): BlackjackState
     {
         $players = array_map(
             fn (array $p) => new BlackjackPlayer($p['user_id'], $p['seat'], $p['chips']),
@@ -65,6 +79,7 @@ final class BlackjackEngine implements GameEngine
             currentPlayerIndex: null,
             currentHandIndex: null,
             round: 0,
+            eventsEnabled: $eventsEnabled,
         );
     }
 
@@ -72,6 +87,12 @@ final class BlackjackEngine implements GameEngine
     {
         if ($state->phase !== 'player_turn') {
             throw new BlackjackActionException('No action can be taken right now.');
+        }
+
+        if ($action === 'machine_gun') {
+            $this->applyMachineGun($state, $userId, $payload);
+
+            return $state;
         }
 
         [$player, $hand] = $this->requireCurrentPlayerHand($state, $userId);
@@ -121,12 +142,23 @@ final class BlackjackEngine implements GameEngine
         $player = $state->players[$state->currentPlayerIndex];
 
         if ($player->userId !== $userId) {
-            return [];
+            return $this->machineGunActions($state, $userId);
         }
 
         $hand = $player->hands[$state->currentHandIndex];
 
-        return BlackjackRules::allowedActions($hand, $player);
+        return array_merge(BlackjackRules::allowedActions($hand, $player), $this->machineGunActions($state, $userId));
+    }
+
+    /**
+     * The Machine Gun holder may fire at any moment of the round, not only on
+     * their own turn.
+     *
+     * @return string[]
+     */
+    private function machineGunActions(BlackjackState $state, int $userId): array
+    {
+        return $state->phase === 'player_turn' && $state->machineGunHolderId === $userId ? ['machine_gun'] : [];
     }
 
     public function isRoundFinished(BlackjackState $state): bool
@@ -189,6 +221,12 @@ final class BlackjackEngine implements GameEngine
             'current_player_id' => $currentPlayerId,
             'current_hand_index' => $state->currentHandIndex,
             'allowed_actions' => $this->getAllowedActions($state, $viewerId),
+            // Only the holder ever learns the weapon exists, and only until it is fired.
+            'event' => $this->machineGunActions($state, $viewerId) === [] ? null : [
+                'type' => 'machine_gun',
+                'targets' => $this->machineGunTargets($state, $viewerId),
+            ],
+            'event_result' => $state->eventResult,
         ];
     }
 
@@ -210,6 +248,8 @@ final class BlackjackEngine implements GameEngine
 
         $state->dealerCards = [];
         $state->dealerHoleHidden = true;
+        $state->machineGunHolderId = null;
+        $state->eventResult = null;
 
         for ($i = 0; $i < 2; $i++) {
             foreach ($state->players as $player) {
@@ -247,7 +287,111 @@ final class BlackjackEngine implements GameEngine
         if ($state->phase === 'dealer_turn') {
             $this->playDealer($state);
             $this->settle($state);
+
+            return;
         }
+
+        $this->maybeGrantMachineGun($state);
+    }
+
+    private function maybeGrantMachineGun(BlackjackState $state): void
+    {
+        if (! $state->eventsEnabled || ($this->random)(1, 100) > self::MACHINE_GUN_CHANCE) {
+            return;
+        }
+
+        $holders = array_values(array_filter($state->players, fn (BlackjackPlayer $p) => $this->isInRound($p)));
+
+        if ($holders === []) {
+            return;
+        }
+
+        $state->machineGunHolderId = $holders[($this->random)(0, count($holders) - 1)]->userId;
+    }
+
+    private function isInRound(BlackjackPlayer $player): bool
+    {
+        return $player->status === 'active' && $player->hands !== [];
+    }
+
+    /**
+     * @return int[]
+     */
+    private function machineGunTargets(BlackjackState $state, int $holderId): array
+    {
+        return array_values(array_map(
+            fn (BlackjackPlayer $p) => $p->userId,
+            array_filter($state->players, fn (BlackjackPlayer $p) => $p->userId !== $holderId && $this->isInRound($p)),
+        ));
+    }
+
+    /**
+     * Dealer kill: every bet goes into one pot split equally between all
+     * players. Player kill: the victim forfeits their bet, which is split
+     * equally between the surviving players on top of their own refunded bets.
+     * Either way the round ends on the spot. Remainders go to the earliest seats.
+     */
+    private function applyMachineGun(BlackjackState $state, int $userId, array $payload): void
+    {
+        if ($state->machineGunHolderId !== $userId) {
+            throw new BlackjackActionException('You do not have the machine gun.', 403);
+        }
+
+        $mode = $payload['mode'] ?? null;
+        $participants = array_values(array_filter($state->players, fn (BlackjackPlayer $p) => $this->isInRound($p)));
+        $bets = [];
+        foreach ($participants as $p) {
+            $bets[$p->userId] = array_sum(array_map(fn (BlackjackHand $h) => $h->bet, $p->hands));
+        }
+
+        $victimId = null;
+        if ($mode === 'dealer') {
+            $recipients = $participants;
+            $pot = array_sum($bets);
+            $refunds = array_fill_keys(array_keys($bets), 0);
+        } elseif ($mode === 'player') {
+            $victimId = isset($payload['target_id']) ? (int) $payload['target_id'] : null;
+            if ($victimId === null || ! in_array($victimId, $this->machineGunTargets($state, $userId), true)) {
+                throw new BlackjackActionException('Choose another player at the table.');
+            }
+            $recipients = array_values(array_filter($participants, fn (BlackjackPlayer $p) => $p->userId !== $victimId));
+            $pot = $bets[$victimId];
+            $refunds = $bets;
+            $refunds[$victimId] = 0;
+        } else {
+            throw new BlackjackActionException('Choose the dealer or a player.');
+        }
+
+        $share = intdiv($pot, count($recipients));
+        $remainder = $pot % count($recipients);
+
+        foreach ($participants as $p) {
+            $payout = 0;
+            $recipientIndex = array_search($p, $recipients, true);
+            if ($recipientIndex !== false) {
+                $payout = ($refunds[$p->userId] ?? 0) + $share + ($recipientIndex < $remainder ? 1 : 0);
+            }
+
+            $p->chips += $payout;
+            $killed = $p->userId === $victimId;
+            foreach ($p->hands as $i => $hand) {
+                $hand->status = $hand->status === 'playing' ? 'finished' : $hand->status;
+                $hand->result = $killed ? 'killed' : 'event';
+                $hand->profit = ($i === 0 ? $payout : 0) - $hand->bet;
+            }
+        }
+
+        $state->eventResult = [
+            'type' => 'machine_gun',
+            'holder_id' => $userId,
+            'mode' => $mode,
+            'target_id' => $victimId,
+        ];
+        $state->machineGunHolderId = null;
+        $state->currentPlayerIndex = null;
+        $state->currentHandIndex = null;
+        $state->dealerHoleHidden = false;
+        $state->phase = 'round_finished';
     }
 
     /**

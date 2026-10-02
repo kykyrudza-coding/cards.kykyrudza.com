@@ -368,7 +368,7 @@ test('audio unlock, decode, mute and duplicate realtime snapshots', async ({ pag
   await page.getByRole('button', { name: 'Game settings' }).click()
   await page.getByRole('button', { name: 'Enable sound / Test' }).click()
   const audioStatus = page.getByRole('dialog').getByRole('status')
-  await expect(audioStatus).toContainText('15/15 clips ready')
+  await expect(audioStatus).toContainText('20/20 clips ready')
   await expect(audioStatus).toContainText('Sound ready')
   const played = Number((await audioStatus.innerText()).match(/(\d+) played/)![1])
   expect(played).toBeGreaterThan(0)
@@ -597,3 +597,44 @@ for (const [width, height] of [
     await page.screenshot({ path: `test-results/polish-results-${width}.png` })
   })
 }
+
+test('Midnight table and complete deck can be chosen independently and persist', async ({ page }) => {
+  await setup(page, 7)
+  await page.addInitScript(() => {
+    const saved = JSON.parse(localStorage.getItem('poker.preferences') ?? '{}')
+    localStorage.setItem('poker.preferences', JSON.stringify({ ...saved, reducedMotion: true }))
+  })
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/match/42')
+  await expect(page.locator('main')).toHaveAttribute('data-presentation-phase', 'playing', { timeout: 15000 })
+  await page.getByRole('button', { name: 'Game settings' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Table style', { exact: true }).selectOption('midnight')
+  await expect(page.locator('.stage-table')).toHaveAttribute('data-skin', 'midnight')
+  await expect(page.locator('.own-seat .card-front img').first()).toHaveAttribute('src', /cards\/classic\//)
+  await dialog.getByLabel('Card deck', { exact: true }).selectOption('midnight')
+  await expect(page.locator('.own-seat .card-front img').first()).toHaveAttribute('src', /cards\/midnight\//)
+  await expect(page.locator('[data-deck] img').first()).toHaveAttribute('src', /cards\/midnight\//)
+  for (const sound of ['Your turn', 'Split', 'Double', 'Push', 'Blackjack']) {
+    await dialog.getByRole('button', { name: sound, exact: true }).click()
+  }
+  await expect(dialog.getByRole('status')).toContainText('20/20 clips ready')
+  const decoded = await page.evaluate(async () => {
+    const { preloadCardImages } = await import('/src/game/cardImages.ts')
+    await preloadCardImages('midnight')
+    return performance.getEntriesByType('resource').filter(entry => /cards\/midnight\/.*\.svg/.test(entry.name)).length
+  })
+  expect(decoded).toBeGreaterThanOrEqual(53)
+  await page.keyboard.press('Escape')
+  await page.reload()
+  await expect(page.locator('main')).toHaveAttribute('data-presentation-phase', 'playing', { timeout: 15000 })
+  await expect(page.locator('.stage-table')).toHaveAttribute('data-skin', 'midnight')
+  await expect(page.locator('.own-seat .card-front img').first()).toHaveAttribute('src', /cards\/midnight\//)
+  await page.screenshot({ path: 'test-results/midnight-desktop.png' })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.screenshot({ path: 'test-results/midnight-mobile.png' })
+  await page.goto('/collection')
+  await page.getByLabel('Card deck', { exact: true }).selectOption('classic')
+  await expect(page.getByLabel('Card deck', { exact: true })).toHaveValue('classic')
+  await expect(page.getByLabel('Table style', { exact: true })).toHaveValue('midnight')
+})

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { assets } from '../../config/assets'
+import { usePreferencesStore } from '../../stores/preferences'
+const preferences = usePreferencesStore()
 const { t } = useI18n()
 withDefaults(
   defineProps<{
@@ -15,7 +17,7 @@ withDefaults(
     cardFaceTheme?: string
     cardBackTheme?: string
   }>(),
-  { cardFaceTheme: 'classic', cardBackTheme: 'classic' },
+  {},
 )
 </script>
 <template>
@@ -39,10 +41,10 @@ withDefaults(
       ><span class="card-face card-front"
         ><img
           v-if="!hidden && rank && suit"
-          :src="assets.card(rank, suit, cardFaceTheme)"
+          :src="assets.card(rank, suit, cardFaceTheme ?? preferences.cardTheme)"
           alt=""
           draggable="false" /></span
       ><span class="card-face card-back"
-        ><img :src="assets.back(cardBackTheme)" alt="" draggable="false" /></span></span
+        ><img :src="assets.back(cardBackTheme ?? preferences.cardTheme)" alt="" draggable="false" /></span></span
   ></span>
 </template>

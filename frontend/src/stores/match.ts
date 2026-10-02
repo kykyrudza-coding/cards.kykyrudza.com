@@ -58,6 +58,10 @@ export const useMatchStore = defineStore('match', {
       await this.runAction(() => matchService.split(this.requireId()))
     },
 
+    async machineGun(mode: 'dealer' | 'player', targetId?: number) {
+      await this.runAction(() => matchService.machineGun(this.requireId(), mode, targetId))
+    },
+
     async placeBet(amount: number) {
       const round = this.match?.round
       if (round === undefined) return
@@ -92,6 +96,30 @@ export const useMatchStore = defineStore('match', {
 
     async pass() {
       await this.runAction(() => matchService.pass(this.requireId()))
+    },
+
+    async fold() {
+      await this.runAction(() => matchService.fold(this.requireId()))
+    },
+
+    async check() {
+      await this.runAction(() => matchService.check(this.requireId()))
+    },
+
+    async call() {
+      await this.runAction(() => matchService.call(this.requireId()))
+    },
+
+    async raise(amount: number) {
+      await this.runAction(() => matchService.raise(this.requireId(), amount))
+    },
+
+    async allIn() {
+      await this.runAction(() => matchService.allIn(this.requireId()))
+    },
+
+    async nextHand() {
+      await this.runAction(() => matchService.nextHand(this.requireId()))
     },
 
     async runAction(fn: () => Promise<MatchData>) {

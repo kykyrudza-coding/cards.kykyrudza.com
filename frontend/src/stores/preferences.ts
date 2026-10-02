@@ -12,6 +12,8 @@ export interface Preferences {
   shortcuts: boolean
   quality: string
   theme: string
+  tableSkin: string
+  cardTheme: string
 }
 const defaults: Preferences = {
   master: 80,
@@ -26,6 +28,8 @@ const defaults: Preferences = {
   shortcuts: true,
   quality: 'auto',
   theme: 'dark',
+  tableSkin: 'classic',
+  cardTheme: 'classic',
 }
 function read(): Preferences {
   const result = { ...defaults }
@@ -48,6 +52,8 @@ function read(): Preferences {
     if (['auto', 'low', 'medium', 'high'].includes(String(saved.quality)))
       result.quality = String(saved.quality)
     if (['dark', 'system'].includes(String(saved.theme))) result.theme = String(saved.theme)
+    for (const key of ['tableSkin', 'cardTheme'] as const)
+      if (['classic', 'midnight'].includes(String(saved[key]))) result[key] = String(saved[key])
   } catch {
     /* Storage may be unavailable or contain a previous schema. */
   }

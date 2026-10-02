@@ -15,16 +15,22 @@ const { t } = useI18n()
     <dl>
       <div>
         <dt>{{ t('lobby.settings.game') }}</dt>
-        <dd>{{ t(lobby.game_type === 'durak' ? 'lobby.durak' : 'lobby.blackjack') }}</dd>
+        <dd>{{ t(`lobby.${lobby.game_type}`) }}</dd>
       </div>
-      <template v-if="lobby.game_type === 'blackjack'">
+      <template v-if="lobby.game_type !== 'durak'">
         <div>
           <dt>{{ t('lobby.settings.startingChips') }}</dt>
           <dd>{{ formatChips(lobby.starting_chips) }}</dd>
         </div>
         <div>
-          <dt>{{ t('lobby.settings.defaultBet') }}</dt>
+          <dt>
+            {{ t(lobby.game_type === 'poker' ? 'lobby.settings.bigBlind' : 'lobby.settings.defaultBet') }}
+          </dt>
           <dd>{{ formatChips(lobby.default_bet) }}</dd>
+        </div>
+        <div>
+          <dt>{{ t('lobby.settings.events') }}</dt>
+          <dd>{{ lobby.events_enabled ? t('lobby.settings.eventsOn') : t('lobby.settings.eventsOff') }}</dd>
         </div>
       </template>
       <div>
