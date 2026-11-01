@@ -583,8 +583,8 @@ export default {
     tabs: {
       overview: 'Огляд',
       blackjack: 'Блекджек',
-      poker: 'Покер · скоро',
-      durak: 'Дурак · скоро',
+      poker: 'Покер',
+      durak: 'Дурак',
     },
     metrics: {
       played: 'Зіграно матчів',
@@ -598,10 +598,13 @@ export default {
       splits: 'Зіграно сплітів',
       dealerBusts: 'Перемог через перебір крупʼє',
       survived: 'Разів вижив',
+      biggestPot: 'Найбільший виграний банк',
+      matchesWon: 'Виграно матчів',
     },
     performanceOverall: 'Твоя результативність',
     performanceBlackjack: 'Результативність у блекджеку',
     performanceDurak: 'Результативність у Дурні',
+    performancePoker: 'Результати в покері',
     noGamesTitle: 'Ще немає зіграних ігор',
     noGamesDescription: 'Зіграй роздачу в Блекджек або партію в Дурня — і статистика зʼявиться тут.',
     emptyTitle: 'Статистика скоро зʼявиться',
@@ -685,6 +688,7 @@ export default {
       default: 'Класична',
     },
     preview: 'Прослухати',
+    equip: 'Обрати',
     equipped: 'Обрано',
     voicesDescription:
       'Три тестові українські фрази. Увімкни голос дилера в налаштуваннях столу.',

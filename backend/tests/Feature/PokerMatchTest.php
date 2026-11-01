@@ -107,6 +107,30 @@ class PokerMatchTest extends TestCase
             ->assertJsonPath('round', 2);
     }
 
+    public function test_a_finished_poker_hand_updates_everyones_statistics(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create();
+        $lobby = $this->readyPokerLobby($host, $guest);
+        $matchId = $this->actingAs($host, 'sanctum')->postJson("/api/lobbies/{$lobby->code}/start")->json('id');
+
+        $this->actingAs($host, 'sanctum')->postJson("/api/matches/{$matchId}/actions/raise", ['amount' => 300])->assertOk();
+        $this->actingAs($guest, 'sanctum')->postJson("/api/matches/{$matchId}/actions/fold")
+            ->assertOk()
+            ->assertJsonPath('game.phase', 'hand_finished');
+
+        $winner = $this->actingAs($host, 'sanctum')->getJson('/api/statistics')->json('poker');
+        $this->assertSame(1, $winner['played']);
+        $this->assertSame(1, $winner['won']);
+        $this->assertGreaterThan(0, $winner['biggest_pot']);
+
+        $loser = $this->actingAs($guest, 'sanctum')->getJson('/api/statistics')->json('poker');
+        $this->assertSame(1, $loser['played']);
+        $this->assertSame(0, $loser['won']);
+        $this->assertSame(1, $loser['losses']);
+        $this->assertSame(100, $this->actingAs($host, 'sanctum')->getJson('/api/statistics')->json('overview.win_rate'));
+    }
+
     private function readyPokerLobby(User $host, User ...$guests): Lobby
     {
         $lobby = Lobby::create([

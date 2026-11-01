@@ -44,6 +44,16 @@ class UserStatisticResource extends JsonResource
                     ? round($this->durak_matches_survived / $this->durak_matches_played * 100)
                     : null,
             ],
+            'poker' => [
+                'played' => $this->poker_hands_played,
+                'won' => $this->poker_hands_won,
+                'losses' => $this->poker_hands_played - $this->poker_hands_won,
+                'win_rate' => $this->poker_hands_played > 0
+                    ? round($this->poker_hands_won / $this->poker_hands_played * 100)
+                    : null,
+                'biggest_pot' => (int) $this->poker_biggest_pot,
+                'matches_won' => $this->poker_matches_won,
+            ],
         ];
     }
 }

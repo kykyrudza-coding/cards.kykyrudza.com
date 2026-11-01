@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'current_win_streak',
     'best_win_streak',
     'peak_match_chips',
+    'poker_hands_played',
+    'poker_hands_won',
+    'poker_biggest_pot',
+    'poker_matches_won',
 ])]
 class UserStatistic extends Model
 {
@@ -38,6 +42,10 @@ class UserStatistic extends Model
         'current_win_streak' => 0,
         'best_win_streak' => 0,
         'peak_match_chips' => 0,
+        'poker_hands_played' => 0,
+        'poker_hands_won' => 0,
+        'poker_biggest_pot' => 0,
+        'poker_matches_won' => 0,
     ];
 
     /**
@@ -50,11 +58,11 @@ class UserStatistic extends Model
 
     public function gamesPlayed(): int
     {
-        return $this->blackjack_hands_played + $this->durak_matches_played;
+        return $this->blackjack_hands_played + $this->durak_matches_played + $this->poker_hands_played;
     }
 
     public function gamesWon(): int
     {
-        return $this->blackjack_hands_won + $this->durak_matches_survived;
+        return $this->blackjack_hands_won + $this->durak_matches_survived + $this->poker_hands_won;
     }
 }

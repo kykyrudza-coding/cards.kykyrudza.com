@@ -20,9 +20,14 @@ function formatDate(value: string): string {
         <h1>{{ t('achievements.title') }}</h1>
         <p>{{ t('achievements.subtitle') }}</p>
       </div>
-      <AppBadge v-if="store.catalog.length" tone="success">{{
-        t('achievements.progress', { unlocked: unlockedCount, total: store.catalog.length })
-      }}</AppBadge>
+      <div v-if="store.catalog.length" class="progress-card">
+        <AppBadge tone="success">{{
+          t('achievements.progress', { unlocked: unlockedCount, total: store.catalog.length })
+        }}</AppBadge>
+        <span class="progress-track" aria-hidden="true"
+          ><span :style="{ width: `${(unlockedCount / store.catalog.length) * 100}%` }"
+        /></span>
+      </div>
     </header>
     <div v-if="store.catalog.length" class="collection-grid">
       <article

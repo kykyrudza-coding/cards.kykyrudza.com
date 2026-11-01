@@ -14,7 +14,7 @@ const tabs = computed(() => [
   { id: 'overview', label: t('statistics.tabs.overview') },
   { id: 'blackjack', label: t('statistics.tabs.blackjack') },
   { id: 'durak', label: t('statistics.tabs.durak') },
-  { id: 'poker', label: t('statistics.tabs.poker'), disabled: true },
+  { id: 'poker', label: t('statistics.tabs.poker') },
 ])
 
 const winRate = (value: number | null) => (value === null ? '—' : `${value}%`)
@@ -43,6 +43,17 @@ const metrics = computed(() => {
       { label: t('statistics.metrics.winRate'), value: winRate(s.win_rate) },
     ]
   }
+  if (tab.value === 'poker') {
+    const s = data.poker
+    return [
+      { label: t('statistics.metrics.played'), value: s.played },
+      { label: t('statistics.metrics.wins'), value: s.won },
+      { label: t('statistics.metrics.losses'), value: s.losses },
+      { label: t('statistics.metrics.winRate'), value: winRate(s.win_rate) },
+      { label: t('statistics.metrics.biggestPot'), value: formatChips(s.biggest_pot) },
+      { label: t('statistics.metrics.matchesWon'), value: s.matches_won },
+    ]
+  }
   const s = data.overview
   return [
     { label: t('statistics.metrics.played'), value: s.played },
@@ -58,6 +69,7 @@ const metrics = computed(() => {
 const gamesPlayed = computed(() => {
   if (tab.value === 'blackjack') return store.data?.blackjack.played ?? 0
   if (tab.value === 'durak') return store.data?.durak.played ?? 0
+  if (tab.value === 'poker') return store.data?.poker.played ?? 0
   return store.data?.overview.played ?? 0
 })
 
@@ -66,7 +78,9 @@ const performanceTitle = computed(() =>
     ? t('statistics.performanceBlackjack')
     : tab.value === 'durak'
       ? t('statistics.performanceDurak')
-      : t('statistics.performanceOverall'),
+      : tab.value === 'poker'
+        ? t('statistics.performancePoker')
+        : t('statistics.performanceOverall'),
 )
 </script>
 <template>

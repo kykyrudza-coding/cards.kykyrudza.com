@@ -275,3 +275,107 @@
     gap: 4px;
   }
 }
+
+/* --- Layout fixes: trump/deck row, seat tags, controls and the phone strip --- */
+.durak-trump-deck {
+  gap: 18px;
+}
+.durak-trump-deck .deck-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.durak-trump-deck .deck-stack {
+  position: relative;
+  left: auto;
+  width: 40px;
+  aspect-ratio: 5 / 7;
+}
+.durak-trump-deck .discard-pile {
+  display: none;
+}
+.durak-trump-card {
+  /* Rotated 90°, so the box is as wide as the card is tall. */
+  width: calc(var(--card-width) * 1.4);
+  height: var(--card-width);
+  margin: 12px 0;
+}
+.durak-trump-card .playing-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+.durak-deck-count {
+  position: static;
+  transform: none;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #101b16e0;
+  border: 1px solid var(--gold-soft);
+  color: var(--gold);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.durak-trump-card {
+  display: flex;
+  align-items: center;
+}
+.durak-seat .turn-label {
+  bottom: -13px;
+}
+.durak-seat .durak-hand-back {
+  margin-top: 14px;
+}
+.durak-own-seat {
+  bottom: 10px;
+}
+.stage-table[data-game='durak'] .table-wordmark {
+  top: 72%;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .durak-table .opponent-seats {
+    top: 14%;
+  }
+  .durak-center {
+    top: 47%;
+  }
+  .stage-table[data-game='durak'] .table-wordmark {
+    top: 80%;
+  }
+}
+
+/* The deck size sits right of the trump card; on phones every opponent is visible at once. */
+.durak-deck-count {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  margin-left: 0;
+  transform: translateY(-50%);
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .durak-table .opponent-seats {
+    overflow: visible;
+    padding: 8px 6px 12px;
+    gap: 5px;
+  }
+  .durak-table .opponent-seats .player-seat {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+  .durak-table .opponent-seats .seat-identity {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    justify-content: center;
+  }
+  .durak-table .opponent-seats:has(.durak-seat:nth-child(4)) .avatar {
+    display: none;
+  }
+  .durak-table .opponent-seats .seat-name strong {
+    max-width: 100%;
+  }
+}

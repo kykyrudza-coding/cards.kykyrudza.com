@@ -3,8 +3,9 @@ import type { BlackjackHandView } from '../../types/match'
 import { formatChips } from '../../config/gameLabels'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
-import { assets } from '../../config/assets'
 import PlayingCard from './PlayingCard.vue'
+import ChipPile from './ChipPile.vue'
+import WinBurst from './WinBurst.vue'
 defineProps<{
   hand: BlackjackHandView
   index: number
@@ -43,7 +44,9 @@ const profitLabel = (value: number) =>
     <div v-if="hand.cards.length" class="hand-details">
       <strong class="score-badge">{{ pending ? '—' : hand.score }}</strong
       ><span class="hand-bet"
-        ><img data-bet-chip :src="assets.chip(25)" alt="" />{{
+        ><span data-bet-chip class="hand-chips"
+          ><ChipPile :amount="hand.bet" :max-height="3" /></span
+        >{{
           t('match.hand.bet', { amount: formatChips(hand.bet) })
         }}</span
       ><span
@@ -53,6 +56,7 @@ const profitLabel = (value: number) =>
         >{{ t(`game.status.${hand.status}`) }}</span
       >
     </div>
+    <WinBurst v-if="hand.result === 'win' || hand.result === 'blackjack'" />
     <div v-if="hand.result" class="inline-result" :class="`result-${hand.result}`" role="status">
       <strong>{{ t(`game.status.${hand.result}`) }}</strong
       ><span v-if="hand.profit !== undefined && hand.profit !== null">{{

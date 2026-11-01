@@ -232,3 +232,18 @@
     transition: none;
   }
 }
+
+/* A hand's bet is a little stack of chips (the settle animation moves .hand-chips). */
+.hand-chips {
+  display: inline-flex;
+}
+.hand-bet .chip-pile {
+  --pile-chip: 15px;
+}
+.own-seat .hand-bet .chip-pile {
+  --pile-chip: 19px;
+}
+.hand-bet .chip-pile .chip-column img {
+  width: 100%;
+  height: auto;
+}

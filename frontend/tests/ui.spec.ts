@@ -81,6 +81,63 @@ async function setup(page: Page, count = 4, signedIn = true) {
     if (path === '/api/auth/register' || path === '/api/auth/login')
       return route.fulfill({ json: { user, token: 'fixture-token' } })
     if (path === '/api/auth/logout') return route.fulfill({ json: { message: 'Logged out' } })
+    if (path === '/api/achievements') return route.fulfill({ json: { achievements: [] } })
+    if (path === '/api/achievements/unseen') return route.fulfill({ json: [] })
+    if (path === '/api/statistics')
+      return route.fulfill({
+        json: {
+          overview: {
+            played: 0,
+            won: 0,
+            losses: 0,
+            win_rate: null,
+            current_win_streak: 0,
+            best_win_streak: 0,
+            peak_match_chips: 0,
+          },
+          blackjack: {
+            played: 0,
+            won: 0,
+            losses: 0,
+            win_rate: null,
+            blackjacks_hit: 0,
+            splits_performed: 0,
+            dealer_busts_witnessed: 0,
+          },
+          durak: { played: 0, survived: 0, losses: 0, win_rate: null },
+          poker: { played: 0, won: 0, losses: 0, win_rate: null, biggest_pot: 0, matches_won: 0 },
+        },
+      })
+    if (path === '/api/lobbies' && request.method() === 'GET')
+      return route.fulfill({ json: { data: [] } })
+    if (path === '/api/achievements') return route.fulfill({ json: { achievements: [] } })
+    if (path === '/api/achievements/unseen') return route.fulfill({ json: [] })
+    if (path === '/api/statistics')
+      return route.fulfill({
+        json: {
+          overview: {
+            played: 0,
+            won: 0,
+            losses: 0,
+            win_rate: null,
+            current_win_streak: 0,
+            best_win_streak: 0,
+            peak_match_chips: 0,
+          },
+          blackjack: {
+            played: 0,
+            won: 0,
+            losses: 0,
+            win_rate: null,
+            blackjacks_hit: 0,
+            splits_performed: 0,
+            dealer_busts_witnessed: 0,
+          },
+          durak: { played: 0, survived: 0, losses: 0, win_rate: null },
+        },
+      })
+    if (path === '/api/lobbies' && request.method() === 'GET')
+      return route.fulfill({ json: { data: [] } })
     if (path.startsWith('/api/lobbies')) {
       if (state.missing)
         return route.fulfill({ status: 404, json: { message: 'Lobby not found.' } })
@@ -471,20 +528,20 @@ test('bet steps cross 1000 in both directions and confirmation survives realtime
   })
   expect(state.expectedRounds).toEqual([])
   const selected = page.getByLabel('Selected bet')
-  await expect(selected).toHaveText('100')
+  await expect(selected).toHaveValue('100')
   for (let i = 0; i < 9; i++)
     await page.getByRole('button', { name: 'Increase bet', exact: true }).click()
-  await expect(selected).toHaveText('1,000')
+  await expect(selected).toHaveValue('1000')
   await page.getByRole('button', { name: 'Increase bet', exact: true }).click()
-  await expect(selected).toHaveText('1,500')
+  await expect(selected).toHaveValue('1500')
   state.match.version++
   state.broadcast()
   await expect.poll(() => state.matchGets).toBeGreaterThan(1)
-  await expect(selected).toHaveText('1,500')
+  await expect(selected).toHaveValue('1500')
   await page.getByRole('button', { name: 'Decrease bet', exact: true }).click()
-  await expect(selected).toHaveText('1,000')
+  await expect(selected).toHaveValue('1000')
   await page.getByRole('button', { name: 'Decrease bet', exact: true }).click()
-  await expect(selected).toHaveText('900')
+  await expect(selected).toHaveValue('900')
   await page.screenshot({ path: 'test-results/betting-desktop.png' })
   await page.getByRole('button', { name: 'Confirm bet', exact: true }).click()
   await expect(page.getByText('Bet confirmed: 900')).toBeVisible()

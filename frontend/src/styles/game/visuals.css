@@ -1,0 +1,230 @@
+/* ==========================================================================
+   Visual pass 2 — room, walnut rail, felt grain, glass seats, dealer button,
+   win sparks. Loaded last so it refines everything above.
+   ========================================================================== */
+
+/* --- The room ------------------------------------------------------------ */
+.match-screen {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% -5%, #24382e 0, transparent 70%),
+    radial-gradient(ellipse at 50% 120%, #1c140a 0, transparent 60%), #080d0b;
+}
+.match-screen::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 120px at 12% 18%, #e9c27c26, transparent 70%),
+    radial-gradient(circle 160px at 88% 12%, #e9c27c1f, transparent 70%),
+    radial-gradient(circle 200px at 78% 88%, #7fd6a81a, transparent 70%),
+    radial-gradient(circle 140px at 8% 82%, #e9c27c14, transparent 70%);
+  animation: room-drift 28s ease-in-out infinite alternate;
+}
+@keyframes room-drift {
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+}
+
+/* --- Walnut rail + felt grain (classic skin; Midnight keeps its own look) -- */
+.stage-table {
+  background:
+    repeating-linear-gradient(93deg, #ffffff07 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(88deg, #00000014 0 2px, transparent 2px 13px),
+    linear-gradient(165deg, #6b5237, #3a2b1a 26%, #24190e 70%, #5a4430);
+  border: 1px solid #c29b6477;
+  box-shadow:
+    0 14px 0 #0b0704,
+    0 16px 0 #7a5d3a55,
+    0 38px 56px #000b,
+    inset 0 2px 2px #ffe2b04a,
+    inset 0 -10px 16px #00000088;
+}
+.table-felt {
+  border-color: #d1b36a8c;
+  box-shadow:
+    inset 0 6px 24px #000b,
+    inset 0 0 90px #04120a88,
+    0 0 0 3px #00000055,
+    0 0 0 4px #d1b36a33;
+}
+.table-felt::after {
+  opacity: 0.4;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(35deg, #ffffff0a 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(125deg, #00000017 0 1px, transparent 1px 4px);
+  mix-blend-mode: soft-light;
+}
+.stage-table[data-skin='midnight'] .table-felt::after {
+  mix-blend-mode: soft-light;
+}
+
+/* --- Top bar: glass with a gold hairline --------------------------------- */
+.game-topbar {
+  background: linear-gradient(120deg, #1b2520e6, #0f1814e6);
+  border-color: #d1c38a26;
+  border-top-color: #d1c38a55;
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow:
+    0 10px 28px #0006,
+    inset 0 1px #ffffff0d;
+}
+
+/* --- Seat plates: glass, gold for you, glow for the player to act -------- */
+.seat-identity {
+  background: linear-gradient(160deg, #26402f, #142419);
+  border: 1px solid #c9d6b02e;
+  box-shadow:
+    0 8px 18px #0009,
+    inset 0 1px #ffffff14,
+    inset 0 -8px 12px #0000002e;
+  backdrop-filter: blur(4px);
+}
+.own-seat .seat-identity,
+.poker-own-hand {
+  border-color: #d1c38a55;
+}
+.own-seat .avatar,
+.poker-own-info .avatar {
+  border-color: var(--gold);
+}
+.seat-active .seat-identity {
+  animation: seat-glow 2.2s ease-in-out infinite;
+}
+@keyframes seat-glow {
+  50% {
+    box-shadow:
+      0 8px 22px #000a,
+      0 0 0 2px #9bd4a066,
+      0 0 26px #9bd4a055,
+      inset 0 1px #ffffff1a;
+  }
+}
+.seat-name strong {
+  text-shadow: 0 1px 2px #0008;
+}
+.turn-label {
+  background: linear-gradient(180deg, #f1e3ae, #cdb872);
+  box-shadow:
+    0 3px 8px #0007,
+    inset 0 1px #fff8;
+}
+
+/* --- Cards: heavier contact shadow, slight edge sheen --------------------- */
+:where(.playing-card) .card-face {
+  box-shadow:
+    0 1px 0 #ffffff55 inset,
+    0 2px 3px #0005,
+    0 9px 16px #0006;
+}
+
+/* --- Pot and bets: warm gold numerals ------------------------------------- */
+.poker-pot strong,
+.chip-stack strong {
+  background: linear-gradient(180deg, #fff4c8, #d9b866);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px #0008);
+}
+.poker-pot strong {
+  font-size: 26px;
+}
+.poker-bet,
+.poker-bet-inline {
+  background: linear-gradient(180deg, #1b2a22ee, #0e1812ee);
+  box-shadow: 0 4px 10px #0007;
+}
+
+/* --- Poker position buttons: a real dealer puck, coloured blinds ---------- */
+.poker-badge[data-badge='D'] {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ffffff, #ece5cf 55%, #b9ae86);
+  color: #1d2a1f;
+  box-shadow:
+    0 3px 6px #000a,
+    inset 0 -3px 4px #0003,
+    0 0 0 2px #ffffff55;
+}
+.poker-badge[data-badge='SB'] {
+  background: linear-gradient(180deg, #8fc1ff, #5b93d6);
+  color: #0b2038;
+}
+.poker-badge[data-badge='BB'] {
+  background: linear-gradient(180deg, #ffcb85, #e09a42);
+  color: #3a2208;
+}
+
+/* --- Win sparks ------------------------------------------------------------ */
+.win-burst {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.win-burst i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: #ffe9a6;
+  box-shadow: 0 0 8px 2px #ffd36a99;
+  opacity: 0;
+  animation: spark 1.3s ease-out var(--delay) 2 both;
+}
+.win-burst i[data-hue='1'] {
+  background: #fff;
+  box-shadow: 0 0 8px 2px #ffffff88;
+}
+.win-burst i[data-hue='2'] {
+  background: #9be8bf;
+  box-shadow: 0 0 8px 2px #6fe0a888;
+}
+@keyframes spark {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) scale(0.2);
+  }
+}
+.hand-view {
+  position: relative;
+}
+@media (prefers-reduced-motion: reduce) {
+  .win-burst,
+  .match-screen::before {
+    display: none;
+  }
+  .seat-active .seat-identity {
+    animation: none;
+  }
+}
+
+/* Phones: keep the table total fully on the felt. */
+@media (max-width: 767px) and (orientation: portrait) {
+  .table-bet {
+    left: 26%;
+  }
+  .chip-stack .chip-pile {
+    --pile-chip: 20px;
+  }
+}

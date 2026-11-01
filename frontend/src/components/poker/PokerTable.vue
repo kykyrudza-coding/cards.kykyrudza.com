@@ -14,6 +14,7 @@ import { pokerMotionKey } from './motion'
 import PokerPlayerSeat from './PokerPlayerSeat.vue'
 import PlayingCardView from '../game/PlayingCard.vue'
 import ChipPile from '../game/ChipPile.vue'
+import WinBurst from '../game/WinBurst.vue'
 import AppButton from '../ui/AppButton.vue'
 import AppAvatar from '../ui/AppAvatar.vue'
 
@@ -439,9 +440,9 @@ const ownHandName = computed(() =>
           <AppAvatar :name="own.username ?? t('common.player')" :src="own.avatar" />
           <strong>{{ formatChips(own.chips) }}</strong>
           <span class="poker-own-tags">
-            <span v-if="own.is_dealer" class="poker-badge">D</span>
-            <span v-if="own.is_small_blind" class="poker-badge">SB</span>
-            <span v-if="own.is_big_blind" class="poker-badge">BB</span>
+            <span v-if="own.is_dealer" class="poker-badge" data-badge="D">D</span>
+            <span v-if="own.is_small_blind" class="poker-badge" data-badge="SB">SB</span>
+            <span v-if="own.is_big_blind" class="poker-badge" data-badge="BB">BB</span>
             <Transition name="poker-pop">
               <span v-if="ownLast" :key="ownLast" class="poker-last" :data-tone="own.last_action">{{
                 ownLast
@@ -452,6 +453,7 @@ const ownHandName = computed(() =>
           <span v-if="own.bet > 0" class="poker-bet-inline" :data-bet-for="own.id"
             ><ChipPile :amount="own.bet" :max-height="4" />{{ formatChips(own.bet) }}</span
           >
+          <WinBurst v-if="(winAmounts.get(own.id) ?? 0) > 0" />
           <span
             v-if="(winAmounts.get(own.id) ?? 0) > 0"
             class="poker-win-float"

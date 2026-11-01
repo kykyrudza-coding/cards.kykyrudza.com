@@ -7,6 +7,7 @@ import { pokerMotionKey } from './motion'
 import SeatIdentity from '../game/SeatIdentity.vue'
 import PlayingCardView from '../game/PlayingCard.vue'
 import ChipPile from '../game/ChipPile.vue'
+import WinBurst from '../game/WinBurst.vue'
 
 const props = defineProps<{
   player: PokerPlayerView
@@ -112,7 +113,9 @@ const handName = computed(() =>
       <span :style="{ width: `${Math.max(0, timer) * 100}%` }" />
     </div>
     <div class="poker-seat-meta">
-      <span v-for="badge in badges" :key="badge" class="poker-badge">{{ badge }}</span>
+      <span v-for="badge in badges" :key="badge" class="poker-badge" :data-badge="badge">{{
+        badge
+      }}</span>
       <span v-if="statusLabel" class="poker-status">{{ statusLabel }}</span>
       <Transition name="poker-pop">
         <span v-if="lastAction" :key="lastAction.key" class="poker-last" :data-tone="lastAction.tone">{{
@@ -132,6 +135,7 @@ const handName = computed(() =>
         ><ChipPile :amount="player.bet" :max-height="4" />{{ formatChips(player.bet) }}</span
       >
     </TransitionGroup>
+    <WinBurst v-if="winAmount > 0 && announced" />
     <span v-if="winAmount > 0 && announced" class="poker-win-float" aria-hidden="true"
       >+{{ formatChips(winAmount) }}</span
     >

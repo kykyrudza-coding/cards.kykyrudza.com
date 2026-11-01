@@ -5,6 +5,7 @@ namespace App\Services\Achievement;
 use App\Game\Blackjack\BlackjackHand;
 use App\Game\Blackjack\BlackjackState;
 use App\Game\Durak\DurakState;
+use App\Game\Poker\PokerState;
 use App\Models\Achievement;
 use App\Models\GameMatch;
 use App\Models\User;
@@ -97,6 +98,50 @@ class AchievementService
                 'durak_losses' => $survived ? 0 : 1,
             ], $survived);
 
+            $stat->save();
+
+            $this->checkUnlocks($user, $stat);
+        }
+    }
+
+    /**
+     * Call after every Poker action — acts only the moment a hand newly ends
+     * (into 'hand_finished' or 'finished'). A hand counts for everyone who
+     * was dealt in; it is won by whoever appears in the results.
+     */
+    public function afterPokerAction(GameMatch $match, string $previousPhase, PokerState $state): void
+    {
+        $over = ['hand_finished', 'finished'];
+        if (in_array($previousPhase, $over, true) || ! in_array($state->phase, $over, true)) {
+            return;
+        }
+
+        $won = [];
+        foreach ($state->results as $result) {
+            $won[$result['user_id']] = max($won[$result['user_id']] ?? 0, (int) $result['amount']);
+        }
+
+        foreach ($state->players as $player) {
+            if ($player->totalBet <= 0 && $player->hand === []) {
+                continue;
+            }
+
+            $user = User::find($player->userId);
+            if (! $user) {
+                continue;
+            }
+
+            $stat = $this->statFor($user);
+            $isWinner = isset($won[$player->userId]);
+
+            $this->credit($stat, [
+                'poker_hands_played' => 1,
+                'poker_hands_won' => $isWinner ? 1 : 0,
+                'poker_matches_won' => $state->phase === 'finished' && $state->winnerId === $player->userId ? 1 : 0,
+            ], $isWinner);
+
+            $stat->poker_biggest_pot = max($stat->poker_biggest_pot, $won[$player->userId] ?? 0);
+            $stat->peak_match_chips = max($stat->peak_match_chips, $player->chips);
             $stat->save();
 
             $this->checkUnlocks($user, $stat);

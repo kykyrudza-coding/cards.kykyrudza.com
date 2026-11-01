@@ -93,6 +93,8 @@ class MatchService
                 $this->achievements->afterBlackjackAction($locked, $previousPhase, $state);
             } elseif ($state instanceof DurakState) {
                 $this->achievements->afterDurakAction($locked, $previousPhase, $state);
+            } elseif ($state instanceof PokerState) {
+                $this->achievements->afterPokerAction($locked, $previousPhase, $state);
             }
 
             return $locked->fresh(self::RELATIONS);

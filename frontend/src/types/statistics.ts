@@ -25,8 +25,18 @@ export interface DurakStatistics {
   win_rate: number | null
 }
 
+export interface PokerStatistics {
+  played: number
+  won: number
+  losses: number
+  win_rate: number | null
+  biggest_pot: number
+  matches_won: number
+}
+
 export interface Statistics {
   overview: StatisticsOverview
   blackjack: BlackjackStatistics
   durak: DurakStatistics
+  poker: PokerStatistics
 }

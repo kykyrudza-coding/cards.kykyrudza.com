@@ -6,13 +6,13 @@ import { useAuthStore } from '../stores/auth'
 import { useLobbyStore } from '../stores/lobby'
 import { useUiStore } from '../stores/ui'
 import { useConnection } from '../composables/useConnection'
-import { assets } from '../config/assets'
 import AppButton from '../components/ui/AppButton.vue'
 import AppInput from '../components/ui/AppInput.vue'
 import AppModal from '../components/ui/AppModal.vue'
 import AppBadge from '../components/ui/AppBadge.vue'
 import AppIcon from '../components/ui/AppIcon.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
+import LobbyTable from '../components/lobby/LobbyTable.vue'
 import LobbyCode from '../components/lobby/LobbyCode.vue'
 import LobbyPlayerCard from '../components/lobby/LobbyPlayerCard.vue'
 import LobbySettings from '../components/lobby/LobbySettings.vue'
@@ -140,7 +140,7 @@ async function leave() {
           <h2>{{ t(`lobby.${room.game_type}`) }}</h2>
           <p>{{ t('lobby.subtitle') }}</p>
         </div>
-        <img :src="assets.back()" :alt="t('lobby.cardBackAlt')" />
+        <LobbyTable :players="room.players" :max="room.max_players" :game="room.game_type" />
       </div>
       <div class="lobby-columns">
         <section class="panel">

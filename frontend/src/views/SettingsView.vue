@@ -154,21 +154,6 @@ async function removeAvatar() {
               { value: 'dark', label: t('settings.appearance.themeDark') },
               { value: 'system', label: t('settings.appearance.themeSystem') },
             ]"
-          /><AppSelect
-            model-value="classic"
-            :label="t('settings.appearance.cardBack')"
-            :options="[{ value: 'classic', label: t('settings.appearance.classic') }]"
-            disabled
-          /><AppSelect
-            model-value="classic"
-            :label="t('settings.appearance.tableStyle')"
-            :options="[{ value: 'classic', label: t('settings.appearance.classicGreen') }]"
-            disabled
-          /><AppSelect
-            model-value="classic"
-            :label="t('settings.appearance.chipStyle')"
-            :options="[{ value: 'classic', label: t('settings.appearance.classic') }]"
-            disabled
           />
         </section>
       </div>
