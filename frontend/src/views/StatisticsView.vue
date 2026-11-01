@@ -79,7 +79,10 @@ const performanceTitle = computed(() =>
       </div>
     </header>
     <AppTabs v-model="tab" :label="t('statistics.tabsAria')" :tabs="tabs" />
-    <div v-if="store.data" class="metric-grid">
+    <div v-if="store.loading && !store.data" class="metric-grid" aria-busy="true">
+      <div v-for="n in 6" :key="n" class="skeleton metric-skeleton" />
+    </div>
+    <div v-else-if="store.data" class="metric-grid">
       <div v-for="metric in metrics" :key="metric.label" class="panel metric">
         <span>{{ metric.label }}</span
         ><strong>{{ metric.value }}</strong>

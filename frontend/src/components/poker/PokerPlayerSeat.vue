@@ -4,8 +4,9 @@ import { useI18n } from 'vue-i18n'
 import type { PokerPlayerView } from '../../types/match'
 import { formatChips } from '../../config/gameLabels'
 import { pokerMotionKey } from './motion'
-import AppAvatar from '../ui/AppAvatar.vue'
+import SeatIdentity from '../game/SeatIdentity.vue'
 import PlayingCardView from '../game/PlayingCard.vue'
+import ChipPile from '../game/ChipPile.vue'
 
 const props = defineProps<{
   player: PokerPlayerView
@@ -75,6 +76,8 @@ const handName = computed(() =>
       'poker-winner': winAmount > 0 && announced,
       'poker-folded': player.status === 'folded' || player.status === 'out',
     }"
+    :style="timer !== null ? { '--timer': Math.max(0, timer) } : undefined"
+    :data-low="timer !== null && timer < 0.25 ? '' : undefined"
     :aria-label="player.username ?? t('common.player')"
   >
     <TransitionGroup
@@ -99,14 +102,12 @@ const handName = computed(() =>
         :data-reveal="card.face ? '1' : '0'"
       />
     </TransitionGroup>
-    <div class="seat-identity">
-      <AppAvatar :name="player.username ?? t('common.player')" :src="player.avatar" />
-      <div class="seat-name">
-        <strong>{{ player.username ?? t('common.player') }}</strong
-        ><span>{{ formatChips(player.chips) }}</span>
-      </div>
-      <span v-if="isCurrent" class="poker-turn-dot" aria-hidden="true" />
-    </div>
+    <SeatIdentity
+      :name="player.username ?? t('common.player')"
+      :avatar="player.avatar"
+      :dot="isCurrent"
+      >{{ formatChips(player.chips) }}</SeatIdentity
+    >
     <div v-if="timer !== null" class="poker-timer" :class="{ low: timer < 0.25 }" aria-hidden="true">
       <span :style="{ width: `${Math.max(0, timer) * 100}%` }" />
     </div>
@@ -127,9 +128,9 @@ const handName = computed(() =>
       @enter="motion?.betIn"
       @leave="motion?.leaveInstantly"
     >
-      <span v-if="player.bet > 0" :key="player.bet" class="poker-bet" :data-bet-for="player.id">{{
-        formatChips(player.bet)
-      }}</span>
+      <span v-if="player.bet > 0" :key="player.bet" class="poker-bet" :data-bet-for="player.id"
+        ><ChipPile :amount="player.bet" :max-height="4" />{{ formatChips(player.bet) }}</span
+      >
     </TransitionGroup>
     <span v-if="winAmount > 0 && announced" class="poker-win-float" aria-hidden="true"
       >+{{ formatChips(winAmount) }}</span

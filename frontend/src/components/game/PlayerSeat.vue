@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BlackjackPlayerView } from '../../types/match'
 import AnimatedChips from './AnimatedChips.vue'
-import AppAvatar from '../ui/AppAvatar.vue'
+import SeatIdentity from './SeatIdentity.vue'
 import HandView from './HandView.vue'
 import { assets } from '../../config/assets'
 import { formatChips } from '../../config/gameLabels'
@@ -40,20 +40,14 @@ defineProps<{
         >+</span
       ><strong v-if="confirmedBet !== undefined">{{ formatChips(confirmedBet) }}</strong>
     </div>
-    <div class="seat-identity">
-      <AppAvatar :name="player.username ?? t('common.player')" :src="player.avatar" />
-      <div class="seat-name">
-        <strong
-          >{{ player.username ?? t('common.player')
-          }}<span v-if="isYou" class="you-label">{{ t('match.seat.you') }}</span></strong
-        ><span
-          ><AnimatedChips :value="player.chips" /> <small>{{ t('match.seat.chips') }}</small></span
-        >
-      </div>
-      <span v-if="active" class="turn-label">{{
-        isYou ? t('match.seat.yourTurn') : t('match.seat.playing')
-      }}</span>
-    </div>
+    <SeatIdentity
+      :name="player.username ?? t('common.player')"
+      :avatar="player.avatar"
+      :you-label="isYou ? t('match.seat.you') : undefined"
+      :tag="active ? (isYou ? t('match.seat.yourTurn') : t('match.seat.playing')) : undefined"
+    >
+      <AnimatedChips :value="player.chips" /> <small>{{ t('match.seat.chips') }}</small>
+    </SeatIdentity>
     <div class="player-hands">
       <HandView
         v-for="(hand, index) in player.hands"

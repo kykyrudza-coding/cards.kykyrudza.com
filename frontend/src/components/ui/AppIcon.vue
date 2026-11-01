@@ -33,6 +33,8 @@ import {
   IconShieldCheck,
   IconRoute,
   IconCoins,
+  IconNumber21Small,
+  IconPokerChip,
 } from '@tabler/icons-vue'
 const icons = {
   cards: IconCards,
@@ -68,6 +70,8 @@ const icons = {
   shield: IconShieldCheck,
   route: IconRoute,
   coins: IconCoins,
+  blackjack: IconNumber21Small,
+  chip: IconPokerChip,
 }
 withDefaults(defineProps<{ name: keyof typeof icons; size?: number }>(), { size: 20 })
 </script>

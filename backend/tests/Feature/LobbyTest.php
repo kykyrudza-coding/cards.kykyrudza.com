@@ -209,4 +209,31 @@ class LobbyTest extends TestCase
     {
         $this->actingAs($user, 'sanctum')->postJson("/api/lobbies/{$lobby->code}/ready", ['ready' => $ready])->assertOk();
     }
+
+    public function test_open_lobbies_list_shows_only_public_waiting_lobbies_with_free_seats(): void
+    {
+        $viewer = User::factory()->create();
+        $open = $this->actingAs(User::factory()->create(), 'sanctum')->postJson('/api/lobbies', [
+            'game_type' => 'poker',
+            'max_players' => 4,
+        ])->assertCreated();
+        $this->actingAs(User::factory()->create(), 'sanctum')->postJson('/api/lobbies', [
+            'game_type' => 'blackjack',
+            'is_private' => true,
+            'password' => 'secret',
+        ])->assertCreated();
+        $full = $this->actingAs(User::factory()->create(), 'sanctum')->postJson('/api/lobbies', [
+            'game_type' => 'poker',
+            'max_players' => 2,
+        ])->assertCreated();
+        $this->actingAs(User::factory()->create(), 'sanctum')->postJson("/api/lobbies/{$full->json('code')}/join")
+            ->assertOk();
+
+        $this->actingAs($viewer, 'sanctum')->getJson('/api/lobbies')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.code', $open->json('code'))
+            ->assertJsonPath('data.0.players_count', 1)
+            ->assertJsonMissingPath('data.0.password');
+    }
 }

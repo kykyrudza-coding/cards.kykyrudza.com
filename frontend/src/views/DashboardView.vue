@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 import { useLobbyStore } from '../stores/lobby'
+import { lobbyService, type OpenLobby } from '../services/lobby'
 import { useUiStore } from '../stores/ui'
 import { ApiError } from '../services/api'
 import { assets } from '../config/assets'
@@ -24,6 +25,57 @@ const selectedGame = ref<GameType>('blackjack')
 function selectGame(game: GameType) {
   selectedGame.value = game
   if (game === 'poker' && maxPlayers.value < 2) maxPlayers.value = 2
+}
+const featured = computed(() => {
+  const key = selectedGame.value
+  const cards = {
+    blackjack: ['A', 'spades', 'J', 'hearts'],
+    durak: ['6', 'spades', 'A', 'hearts'],
+    poker: ['A', 'spades', 'A', 'hearts'],
+  }[key]
+  const mark = { blackjack: '21', durak: '36', poker: 'AA' }[key]
+  const chip = key === 'poker' ? 100 : 25
+  if (key === 'blackjack')
+    return {
+      title: t('dashboard.featured.title'),
+      description: t('dashboard.featured.description'),
+      line2: t('dashboard.featured.descriptionLine2'),
+      players: t('dashboard.featured.players'),
+      cards,
+      mark,
+      chip,
+    }
+  return {
+    title: t(`dashboard.featured.${key}.title`),
+    description: t(`dashboard.featured.${key}.description`),
+    line2: t(`dashboard.featured.${key}.descriptionLine2`),
+    players: t(
+      key === 'durak' ? 'dashboard.create.durakPlayersRange' : 'dashboard.create.pokerPlayersRange',
+    ),
+    cards,
+    mark,
+    chip,
+  }
+})
+const openLobbies = ref<OpenLobby[]>([])
+let openTimer: ReturnType<typeof setInterval> | undefined
+async function loadOpen() {
+  try {
+    const response = await lobbyService.open()
+    openLobbies.value = Array.isArray(response?.data) ? response.data : []
+  } catch {
+    openLobbies.value = []
+  }
+}
+onMounted(() => {
+  void loadOpen()
+  openTimer = setInterval(() => void loadOpen(), 15000)
+})
+onBeforeUnmount(() => clearInterval(openTimer))
+const gameIcon = { blackjack: 'blackjack', durak: 'swords', poker: 'chip' } as const
+async function joinOpen(code: string) {
+  joinCode.value = code
+  await join()
 }
 const maxPlayers = ref(4)
 const startingChips = ref(5000)
@@ -93,24 +145,24 @@ async function join() {
       </div>
       <AppBadge>{{ t('common.virtualChipsOnly') }}</AppBadge>
     </header>
-    <section class="featured-game">
+    <section class="featured-game" :data-game="selectedGame">
       <div class="featured-copy">
         <AppBadge tone="success">{{ t('dashboard.featured.availableNow') }}</AppBadge>
-        <h2>{{ t('dashboard.featured.title') }}<span class="accent">.</span></h2>
-        <p>{{ t('dashboard.featured.description') }}<br />{{ t('dashboard.featured.descriptionLine2') }}</p>
+        <h2>{{ featured.title }}<span class="accent">.</span></h2>
+        <p>{{ featured.description }}<br />{{ featured.line2 }}</p>
         <div class="game-meta">
-          <span><AppIcon name="users" :size="17" />{{ t('dashboard.featured.players') }}</span
+          <span><AppIcon name="users" :size="17" />{{ featured.players }}</span
           ><span>{{ t('dashboard.featured.quickRounds') }}</span
           ><span>{{ t('dashboard.featured.privateRooms') }}</span>
         </div>
       </div>
       <div class="featured-art" aria-hidden="true">
-        <img :src="assets.card('A', 'spades')" alt="" /><img
-          :src="assets.card('J', 'hearts')"
+        <img :src="assets.card(featured.cards[0], featured.cards[1])" alt="" /><img
+          :src="assets.card(featured.cards[2], featured.cards[3])"
           alt=""
-        /><img class="featured-chip" :src="assets.chip(25)" alt="" />
+        /><img class="featured-chip" :src="assets.chip(featured.chip)" alt="" />
       </div>
-      <span class="featured-watermark" aria-hidden="true">21</span>
+      <span class="featured-watermark" aria-hidden="true">{{ featured.mark }}</span>
     </section>
     <div class="dashboard-columns">
       <section class="panel create-panel">
@@ -132,7 +184,7 @@ async function join() {
                 :aria-pressed="selectedGame === 'blackjack'"
                 @click="selectGame('blackjack')"
               >
-                <AppIcon name="cards" /><strong>{{ t('dashboard.create.blackjack') }}</strong
+                <AppIcon name="blackjack" /><strong>{{ t('dashboard.create.blackjack') }}</strong
                 ><small>{{ t('dashboard.create.playersRange') }}</small
                 ><AppIcon
                   v-if="selectedGame === 'blackjack'"
@@ -147,7 +199,7 @@ async function join() {
                 :aria-pressed="selectedGame === 'durak'"
                 @click="selectGame('durak')"
               >
-                <AppIcon name="cards" /><strong>{{ t('dashboard.create.games.durak') }}</strong
+                <AppIcon name="swords" /><strong>{{ t('dashboard.create.games.durak') }}</strong
                 ><small>{{ t('dashboard.create.durakPlayersRange') }}</small
                 ><AppIcon
                   v-if="selectedGame === 'durak'"
@@ -162,7 +214,7 @@ async function join() {
                 :aria-pressed="selectedGame === 'poker'"
                 @click="selectGame('poker')"
               >
-                <AppIcon name="cards" /><strong>{{ t('dashboard.create.games.texasHoldem') }}</strong
+                <AppIcon name="chip" /><strong>{{ t('dashboard.create.games.texasHoldem') }}</strong
                 ><small>{{ t('dashboard.create.pokerPlayersRange') }}</small
                 ><AppIcon
                   v-if="selectedGame === 'poker'"
@@ -274,6 +326,31 @@ async function join() {
               >{{ t('dashboard.join.submit') }}<AppIcon name="arrow" :size="18"
             /></AppButton>
           </form>
+        </section>
+        <section class="panel open-tables">
+          <div class="section-heading">
+            <span class="section-icon"><AppIcon name="users" /></span>
+            <div>
+              <h2>{{ t('dashboard.open.title') }}</h2>
+              <p>{{ t('dashboard.open.subtitle') }}</p>
+            </div>
+          </div>
+          <ul v-if="openLobbies.length" class="open-list">
+            <li v-for="lobby in openLobbies" :key="lobby.code">
+              <AppIcon :name="gameIcon[lobby.game_type] ?? 'cards'" :size="20" />
+              <span class="open-info"
+                ><strong>{{ lobby.host.username }}</strong
+                ><small
+                  >{{ lobby.max_players - lobby.players_count }} / {{ lobby.max_players }}
+                  {{ t('dashboard.open.seats') }}</small
+                ></span
+              >
+              <AppButton :disabled="!!pending" @click="joinOpen(lobby.code)">{{
+                t('dashboard.open.join')
+              }}</AppButton>
+            </li>
+          </ul>
+          <p v-else class="muted small">{{ t('dashboard.open.empty') }}</p>
         </section>
         <div class="fair-play">
           <AppIcon name="users" :size="22" />

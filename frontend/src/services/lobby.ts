@@ -1,8 +1,17 @@
 import { api } from './api'
-import type { CreateLobbyPayload, Lobby } from '../types/lobby'
+import type { CreateLobbyPayload, GameType, Lobby } from '../types/lobby'
 import type { MatchData } from '../types/match'
 
+export interface OpenLobby {
+  code: string
+  game_type: GameType
+  max_players: number
+  players_count: number
+  host: { username: string; avatar: string | null }
+}
+
 export const lobbyService = {
+  open: () => api.get<{ data: OpenLobby[] }>('/api/lobbies'),
   create: (payload: CreateLobbyPayload) => api.post<Lobby>('/api/lobbies', payload),
   show: (code: string) => api.get<Lobby>(`/api/lobbies/${code}`),
   join: (code: string, password?: string | null) =>

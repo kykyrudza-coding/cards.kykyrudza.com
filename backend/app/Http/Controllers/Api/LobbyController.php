@@ -21,6 +21,37 @@ class LobbyController extends Controller
         return (new LobbyResource($lobby))->response()->setStatusCode(201);
     }
 
+    /**
+     * Public lobbies that are still waiting for players, newest first.
+     */
+    public function index()
+    {
+        $lobbies = Lobby::query()
+            ->where('status', 'waiting')
+            ->where('is_private', false)
+            ->with('host')
+            ->withCount('players')
+            ->latest()
+            ->limit(30)
+            ->get()
+            ->filter(fn (Lobby $lobby): bool => $lobby->players_count < $lobby->max_players)
+            ->take(12)
+            ->values();
+
+        return response()->json([
+            'data' => $lobbies->map(fn (Lobby $lobby): array => [
+                'code' => $lobby->code,
+                'game_type' => $lobby->game_type,
+                'max_players' => $lobby->max_players,
+                'players_count' => $lobby->players_count,
+                'host' => [
+                    'username' => $lobby->host->username,
+                    'avatar' => $lobby->host->avatar,
+                ],
+            ]),
+        ]);
+    }
+
     public function show(Lobby $lobby)
     {
         return new LobbyResource($this->lobbyService->fresh($lobby));

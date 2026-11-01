@@ -52,8 +52,10 @@ function read(): Preferences {
     if (['auto', 'low', 'medium', 'high'].includes(String(saved.quality)))
       result.quality = String(saved.quality)
     if (['dark', 'system'].includes(String(saved.theme))) result.theme = String(saved.theme)
-    for (const key of ['tableSkin', 'cardTheme'] as const)
-      if (['classic', 'midnight'].includes(String(saved[key]))) result[key] = String(saved[key])
+    if (['classic', 'midnight'].includes(String(saved.tableSkin)))
+      result.tableSkin = String(saved.tableSkin)
+    if (['classic', 'midnight', 'fourcolor'].includes(String(saved.cardTheme)))
+      result.cardTheme = String(saved.cardTheme)
   } catch {
     /* Storage may be unavailable or contain a previous schema. */
   }

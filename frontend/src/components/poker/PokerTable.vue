@@ -13,6 +13,7 @@ import { resultsVisible as isAnnounced, visibleCommunity } from '../../game/poke
 import { pokerMotionKey } from './motion'
 import PokerPlayerSeat from './PokerPlayerSeat.vue'
 import PlayingCardView from '../game/PlayingCard.vue'
+import ChipPile from '../game/ChipPile.vue'
 import AppButton from '../ui/AppButton.vue'
 import AppAvatar from '../ui/AppAvatar.vue'
 
@@ -357,6 +358,7 @@ const ownHandName = computed(() =>
             ><strong>{{ formatChips(game.pot) }}</strong
             ><small :key="phaseLabel">{{ phaseLabel }}</small>
           </div>
+          <ChipPile v-if="game.pot > 0" :amount="game.pot" :max-height="4" class="poker-pot-pile" />
         </div>
         <div class="poker-board">
           <div class="poker-board-slots" aria-hidden="true">
@@ -413,6 +415,8 @@ const ownHandName = computed(() =>
           'poker-winner': (winAmounts.get(own.id) ?? 0) > 0,
           'poker-turn': isMyTurn,
         }"
+        :style="isMyTurn && turnShare !== null ? { '--timer': turnShare } : undefined"
+        :data-low="isMyTurn && turnShare !== null && turnShare < 0.25 ? '' : undefined"
       >
         <TransitionGroup
           tag="div"
@@ -445,9 +449,9 @@ const ownHandName = computed(() =>
             </Transition>
           </span>
           <span v-if="ownHandName" class="poker-handname">{{ ownHandName }}</span>
-          <span v-if="own.bet > 0" class="poker-bet-inline" :data-bet-for="own.id">{{
-            formatChips(own.bet)
-          }}</span>
+          <span v-if="own.bet > 0" class="poker-bet-inline" :data-bet-for="own.id"
+            ><ChipPile :amount="own.bet" :max-height="4" />{{ formatChips(own.bet) }}</span
+          >
           <span
             v-if="(winAmounts.get(own.id) ?? 0) > 0"
             class="poker-win-float"

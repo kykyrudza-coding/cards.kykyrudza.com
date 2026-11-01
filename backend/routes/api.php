@@ -23,6 +23,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('lobbies')->group(function () {
+    Route::get('/', [LobbyController::class, 'index']);
     Route::post('/', [LobbyController::class, 'store']);
     Route::get('/{lobby:code}', [LobbyController::class, 'show']);
     Route::post('/{lobby:code}/join', [LobbyController::class, 'join']);

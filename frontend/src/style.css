@@ -6,6 +6,7 @@
 @import '@fontsource/inter/cyrillic-500.css';
 @import '@fontsource/inter/cyrillic-600.css';
 @import '@fontsource/inter/cyrillic-700.css';
+@import './styles/tokens.css';
 @import './styles/game.css';
 
 :root {
@@ -131,7 +132,7 @@ small {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 2px;
   font-weight: 600;
   color: var(--text-muted);
@@ -245,7 +246,7 @@ small {
   align-items: center;
   border-radius: 999px;
   padding: 5px 10px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
   white-space: nowrap;
@@ -303,7 +304,7 @@ small {
 }
 .brand-sub {
   display: block;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 2.1px;
   color: var(--text-muted);
   font-weight: 500;
@@ -327,7 +328,7 @@ small {
   margin: 0 4px 48px;
 }
 .nav-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.7px;
   color: #737c89;
@@ -388,7 +389,7 @@ small {
   text-overflow: ellipsis;
 }
 .sidebar-user small {
-  font-size: 10px;
+  font-size: 11px;
 }
 .sidebar-user .icon-button {
   width: 30px;
@@ -643,7 +644,7 @@ input[aria-invalid='true'] {
   font-weight: 500;
 }
 .game-option small {
-  font-size: 9px;
+  font-size: 11px;
 }
 .game-option.selected {
   border-color: #38d99665;
@@ -846,10 +847,10 @@ input[aria-invalid='true'] {
 }
 .home-table {
   position: absolute;
-  inset: 14% -6% 8%;
+  inset: 16% 3% 10% 0;
   background-size: cover;
   background-position: center;
-  transform: rotate(-13deg);
+  transform: rotate(-9deg);
   border-radius: 50%;
   opacity: 0.65;
   z-index: -1;
@@ -878,7 +879,7 @@ input[aria-invalid='true'] {
   position: absolute;
   top: 14%;
   left: 23%;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 3px;
   color: #789b86;
 }
@@ -890,12 +891,12 @@ input[aria-invalid='true'] {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
 }
 .home-art-caption .muted {
   margin-left: auto;
-  font-size: 9px;
+  font-size: 11px;
 }
 .home-footer {
   grid-column: 1/-1;
@@ -1048,7 +1049,7 @@ input[aria-invalid='true'] {
   min-width: 0;
 }
 .achievement-splash-eyebrow {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -1365,7 +1366,7 @@ input[aria-invalid='true'] {
   gap: 6px;
   align-items: center;
   margin-top: 5px;
-  font-size: 10px;
+  font-size: 11px;
 }
 .lobby-player.is-ready {
   border-color: #38d99630;
@@ -1522,7 +1523,7 @@ input[aria-invalid='true'] {
     letter-spacing: -1px;
   }
   .page-heading .eyebrow {
-    font-size: 8px;
+    font-size: 9px;
     letter-spacing: 1.5px;
   }
   .panel {
@@ -1571,14 +1572,14 @@ input[aria-invalid='true'] {
   .game-meta {
     gap: 15px;
     position: relative;
-    font-size: 9px;
+    font-size: 10px;
     margin-top: 24px;
   }
   .game-meta span:last-child {
     display: none;
   }
   .featured-game .badge {
-    font-size: 8px;
+    font-size: 9px;
   }
   .game-options {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1632,7 +1633,7 @@ input[aria-invalid='true'] {
     margin-top: 24px;
   }
   .home-art-label {
-    font-size: 8px;
+    font-size: 9px;
     top: 8%;
   }
   .home-table {
@@ -1640,10 +1641,10 @@ input[aria-invalid='true'] {
   }
   .home-art-caption {
     left: 0;
-    font-size: 8px;
+    font-size: 9px;
   }
   .home-art-caption .muted {
-    font-size: 7px;
+    font-size: 9px;
   }
   .home-footer {
     margin-top: 26px;
@@ -1776,4 +1777,88 @@ input[aria-invalid='true'] {
   width: 34px;
   height: 34px;
   border-radius: 50%;
+}
+
+/* ==========================================================================
+   Card-room accent: warm gold alongside the green, and loading skeletons
+   ========================================================================== */
+.eyebrow {
+  color: #b9ad7a;
+}
+.featured-game {
+  border-color: var(--gold-soft);
+  box-shadow: inset 0 1px 0 #ffffff08, 0 0 0 1px #00000040;
+}
+.featured-game[data-game='durak'] {
+  background: radial-gradient(ellipse at 80% 80%, #3a2f1c 0, transparent 58%), #1b1913;
+}
+.featured-game[data-game='poker'] {
+  background: radial-gradient(ellipse at 80% 80%, #2b3b1f 0, transparent 58%), #141a12;
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #151a20;
+  border-radius: 14px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, #ffffff0d, transparent);
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+.metric-skeleton {
+  height: 84px;
+}
+@keyframes skeleton-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+.open-tables {
+  margin-bottom: 20px;
+}
+.open-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.open-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0e1216;
+}
+.open-list li > svg {
+  color: var(--gold);
+}
+.open-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.open-info strong {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.open-list .btn {
+  padding: 6px 12px;
+  font-size: 12px;
 }

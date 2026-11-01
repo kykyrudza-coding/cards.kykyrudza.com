@@ -1,0 +1,277 @@
+/* --- Дурак (Durak) --------------------------------------------------------- */
+.durak-table {
+  position: absolute;
+  inset: 0;
+  z-index: var(--layer-seats);
+}
+.durak-center {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: var(--layer-seats);
+}
+.durak-trump-deck {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.durak-trump-card {
+  position: relative;
+  --card-width: 54px;
+}
+.durak-trump-card .playing-card {
+  transform: rotate(-90deg);
+}
+.durak-deck-count {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #b3be8f;
+  white-space: nowrap;
+}
+.durak-hand-back {
+  display: flex;
+  order: 3;
+  margin-top: 8px;
+  height: 40px;
+}
+.durak-mini-card {
+  width: 28px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px #00000055;
+}
+.durak-battlefield {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  width: min(640px, 86vw);
+  min-height: 100px;
+}
+.durak-slot {
+  position: relative;
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  --card-width: 72px;
+}
+.durak-slot:not(:disabled) {
+  cursor: pointer;
+}
+.durak-slot.targeted .card-face {
+  outline: 2px solid var(--accent);
+}
+.durak-defense-card {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+}
+.durak-result {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  padding: 20px 28px;
+  text-align: center;
+  font-size: 16px;
+  z-index: var(--layer-hud);
+}
+.durak-own-seat {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(720px, 96%);
+  pointer-events: auto;
+}
+.durak-own-hand {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 10px 4px 4px;
+  --card-width: 78px;
+}
+.durak-hand-card {
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    transform 0.15s,
+    margin-left 0.15s;
+}
+.durak-hand-card:hover {
+  transform: translateY(-8px);
+}
+.durak-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #b2c5a426;
+  border-radius: 18px;
+  background: linear-gradient(140deg, #1d2c23f5, #101b16fa);
+}
+.durak-status {
+  font-size: 11px;
+  color: #b7c9b5;
+}
+.durak-buttons {
+  display: flex;
+  gap: 8px;
+}
+/* Disabled slots are display-only: keep table cards fully opaque. */
+.durak-slot:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.durak-own-hand {
+  scrollbar-width: none;
+}
+/* Card motion: deal into the hand, play onto the table, defend over an attack. */
+@keyframes durak-deal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.85);
+  }
+}
+@keyframes durak-play {
+  from {
+    opacity: 0;
+    transform: translateY(70px) scale(0.9) rotate(-6deg);
+  }
+}
+@keyframes durak-defend {
+  from {
+    opacity: 0;
+    transform: translate(10px, -40px) scale(1.1);
+  }
+}
+@keyframes durak-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+.durak-hand-card {
+  animation: durak-deal 0.35s ease-out;
+}
+.durak-slot {
+  animation: durak-play 0.35s ease-out;
+}
+.durak-defense-card {
+  animation: durak-defend 0.35s ease-out;
+}
+.durak-mini-card {
+  animation: durak-pop 0.3s ease-out;
+}
+.durak-table.no-anim * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .durak-table * {
+    animation: none !important;
+  }
+}
+/* Mobile layout */
+@media (max-width: 767px) {
+  .durak-center {
+    top: 36%;
+    gap: 14px;
+  }
+  .durak-battlefield {
+    gap: 8px;
+    width: 94vw;
+    min-height: 80px;
+  }
+  .durak-slot {
+    --card-width: 52px;
+  }
+  .durak-defense-card {
+    left: 10px;
+    top: 10px;
+  }
+  .durak-trump-card {
+    --card-width: 40px;
+  }
+  .durak-table .player-seat {
+    width: 120px;
+    max-width: 34%;
+  }
+  .durak-table .seat-identity {
+    min-width: 0;
+    gap: 5px;
+    margin-top: 4px;
+    padding: 4px 8px 4px 4px;
+  }
+  .durak-table .seat-identity .avatar {
+    width: 24px;
+    height: 24px;
+  }
+  .durak-table .seat-name strong {
+    max-width: 60px;
+    font-size: 10px;
+  }
+  .durak-table .seat-name > span {
+    font-size: 10px;
+  }
+  .durak-hand-back {
+    height: 28px;
+    margin-top: 4px;
+  }
+  .durak-mini-card {
+    width: 20px;
+  }
+  .durak-own-seat {
+    width: 100%;
+    gap: 6px;
+  }
+  .durak-controls {
+    width: calc(100% - 16px);
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    gap: 6px;
+  }
+  .durak-status {
+    text-align: center;
+  }
+  .durak-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .durak-result {
+    top: 24%;
+    padding: 14px 18px;
+    font-size: 14px;
+    max-width: 90vw;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .durak-center {
+    top: 38%;
+    gap: 8px;
+  }
+  .durak-slot {
+    --card-width: 44px;
+  }
+  .durak-own-seat {
+    gap: 4px;
+  }
+}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { assets } from '../../config/assets'
+import ChipPile from './ChipPile.vue'
 import AnimatedChips from './AnimatedChips.vue'
 const props = withDefaults(defineProps<{ amount: number; chipSkin?: string; label?: string }>(), {
   chipSkin: 'classic',
@@ -8,13 +8,11 @@ const props = withDefaults(defineProps<{ amount: number; chipSkin?: string; labe
 const { t } = useI18n()
 </script>
 <template>
-  <span class="chip-stack"
-    ><span class="chip-stack-art" aria-hidden="true"
-      ><img :src="assets.chip(25, chipSkin)" alt="" /><img
-        :src="assets.chip(25, chipSkin)"
-        alt="" /><img :src="assets.chip(25, chipSkin)" alt="" /></span
-    ><span
-      ><small>{{ props.label ?? t('match.hud.bet') }}</small
-      ><strong><AnimatedChips :value="amount" /></strong></span
-  ></span>
+  <span class="chip-stack">
+    <ChipPile :amount="amount" :chip-skin="chipSkin" :max-height="6" class="chip-stack-art" />
+    <span>
+      <small>{{ props.label ?? t('match.hud.bet') }}</small>
+      <strong><AnimatedChips :value="amount" /></strong>
+    </span>
+  </span>
 </template>

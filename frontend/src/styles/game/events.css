@@ -1,0 +1,46 @@
+/* --- Events: Machine Gun ---------------------------------------------------- */
+.machine-gun-panel,
+.event-banner {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--layer-hud);
+  border: 1px solid #d9857a66;
+  border-radius: 16px;
+  background: linear-gradient(140deg, #3a1d1bf2, #1f0f0efa);
+  box-shadow: 0 10px 30px #00000066;
+  text-align: center;
+}
+.machine-gun-panel {
+  bottom: 120px;
+  width: min(360px, calc(100% - 24px));
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+  animation: durak-pop 0.35s ease-out;
+}
+.machine-gun-panel header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.machine-gun-panel header span,
+.machine-gun-options small {
+  font-size: 11px;
+  color: #d8b3ae;
+}
+.machine-gun-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.event-banner {
+  top: 130px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 10px 16px;
+  font-size: 13px;
+  animation: durak-pop 0.35s ease-out;
+}

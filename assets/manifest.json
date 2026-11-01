@@ -1098,6 +1098,324 @@
       ],
       "back": "cards/midnight/back/back.svg",
       "table": "tables/midnight/table.svg"
+    },
+    "fourcolor": {
+      "cards": [
+        {
+          "id": "AC",
+          "rank": "A",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/AC.svg"
+        },
+        {
+          "id": "2C",
+          "rank": "2",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/2C.svg"
+        },
+        {
+          "id": "3C",
+          "rank": "3",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/3C.svg"
+        },
+        {
+          "id": "4C",
+          "rank": "4",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/4C.svg"
+        },
+        {
+          "id": "5C",
+          "rank": "5",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/5C.svg"
+        },
+        {
+          "id": "6C",
+          "rank": "6",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/6C.svg"
+        },
+        {
+          "id": "7C",
+          "rank": "7",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/7C.svg"
+        },
+        {
+          "id": "8C",
+          "rank": "8",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/8C.svg"
+        },
+        {
+          "id": "9C",
+          "rank": "9",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/9C.svg"
+        },
+        {
+          "id": "10C",
+          "rank": "10",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/10C.svg"
+        },
+        {
+          "id": "JC",
+          "rank": "J",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/JC.svg"
+        },
+        {
+          "id": "QC",
+          "rank": "Q",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/QC.svg"
+        },
+        {
+          "id": "KC",
+          "rank": "K",
+          "suit": "clubs",
+          "path": "cards/fourcolor/faces/KC.svg"
+        },
+        {
+          "id": "AD",
+          "rank": "A",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/AD.svg"
+        },
+        {
+          "id": "2D",
+          "rank": "2",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/2D.svg"
+        },
+        {
+          "id": "3D",
+          "rank": "3",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/3D.svg"
+        },
+        {
+          "id": "4D",
+          "rank": "4",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/4D.svg"
+        },
+        {
+          "id": "5D",
+          "rank": "5",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/5D.svg"
+        },
+        {
+          "id": "6D",
+          "rank": "6",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/6D.svg"
+        },
+        {
+          "id": "7D",
+          "rank": "7",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/7D.svg"
+        },
+        {
+          "id": "8D",
+          "rank": "8",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/8D.svg"
+        },
+        {
+          "id": "9D",
+          "rank": "9",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/9D.svg"
+        },
+        {
+          "id": "10D",
+          "rank": "10",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/10D.svg"
+        },
+        {
+          "id": "JD",
+          "rank": "J",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/JD.svg"
+        },
+        {
+          "id": "QD",
+          "rank": "Q",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/QD.svg"
+        },
+        {
+          "id": "KD",
+          "rank": "K",
+          "suit": "diamonds",
+          "path": "cards/fourcolor/faces/KD.svg"
+        },
+        {
+          "id": "AH",
+          "rank": "A",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/AH.svg"
+        },
+        {
+          "id": "2H",
+          "rank": "2",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/2H.svg"
+        },
+        {
+          "id": "3H",
+          "rank": "3",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/3H.svg"
+        },
+        {
+          "id": "4H",
+          "rank": "4",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/4H.svg"
+        },
+        {
+          "id": "5H",
+          "rank": "5",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/5H.svg"
+        },
+        {
+          "id": "6H",
+          "rank": "6",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/6H.svg"
+        },
+        {
+          "id": "7H",
+          "rank": "7",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/7H.svg"
+        },
+        {
+          "id": "8H",
+          "rank": "8",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/8H.svg"
+        },
+        {
+          "id": "9H",
+          "rank": "9",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/9H.svg"
+        },
+        {
+          "id": "10H",
+          "rank": "10",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/10H.svg"
+        },
+        {
+          "id": "JH",
+          "rank": "J",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/JH.svg"
+        },
+        {
+          "id": "QH",
+          "rank": "Q",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/QH.svg"
+        },
+        {
+          "id": "KH",
+          "rank": "K",
+          "suit": "hearts",
+          "path": "cards/fourcolor/faces/KH.svg"
+        },
+        {
+          "id": "AS",
+          "rank": "A",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/AS.svg"
+        },
+        {
+          "id": "2S",
+          "rank": "2",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/2S.svg"
+        },
+        {
+          "id": "3S",
+          "rank": "3",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/3S.svg"
+        },
+        {
+          "id": "4S",
+          "rank": "4",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/4S.svg"
+        },
+        {
+          "id": "5S",
+          "rank": "5",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/5S.svg"
+        },
+        {
+          "id": "6S",
+          "rank": "6",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/6S.svg"
+        },
+        {
+          "id": "7S",
+          "rank": "7",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/7S.svg"
+        },
+        {
+          "id": "8S",
+          "rank": "8",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/8S.svg"
+        },
+        {
+          "id": "9S",
+          "rank": "9",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/9S.svg"
+        },
+        {
+          "id": "10S",
+          "rank": "10",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/10S.svg"
+        },
+        {
+          "id": "JS",
+          "rank": "J",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/JS.svg"
+        },
+        {
+          "id": "QS",
+          "rank": "Q",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/QS.svg"
+        },
+        {
+          "id": "KS",
+          "rank": "K",
+          "suit": "spades",
+          "path": "cards/fourcolor/faces/KS.svg"
+        }
+      ],
+      "back": "cards/fourcolor/back/back.svg",
+      "table": "tables/classic/table.svg"
     }
   }
 }

@@ -27,6 +27,7 @@ async function selectDeck(theme: string) {
     <AppSelect :model-value="preferences.cardTheme" @update:model-value="selectDeck" :disabled="loading" :label="t('cosmetics.cards')" :options="[
       { value: 'classic', label: t('cosmetics.classic') },
       { value: 'midnight', label: t('cosmetics.midnight') },
+      { value: 'fourcolor', label: t('cosmetics.fourcolor') },
     ]" />
     <div class="deck-style-preview" :aria-busy="loading">
       <img :src="assets.card('A','S',preferences.cardTheme)" :alt="t('cosmetics.cards')" />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { DurakPlayerView } from '../../types/match'
-import AppAvatar from '../ui/AppAvatar.vue'
+import SeatIdentity from '../game/SeatIdentity.vue'
 import { assets } from '../../config/assets'
 const props = defineProps<{
   player: DurakPlayerView
@@ -26,14 +26,12 @@ const roleLabel = () =>
     }"
     :aria-label="player.username ?? t('common.player')"
   >
-    <div class="seat-identity">
-      <AppAvatar :name="player.username ?? t('common.player')" :src="player.avatar" />
-      <div class="seat-name">
-        <strong>{{ player.username ?? t('common.player') }}</strong
-        ><span>{{ t('durak.seat.cardCount', { n: player.hand_count }) }}</span>
-      </div>
-      <span v-if="isAttacker || isDefender" class="turn-label">{{ roleLabel() }}</span>
-    </div>
+    <SeatIdentity
+      :name="player.username ?? t('common.player')"
+      :avatar="player.avatar"
+      :tag="isAttacker || isDefender ? roleLabel() : undefined"
+      >{{ t('durak.seat.cardCount', { n: player.hand_count }) }}</SeatIdentity
+    >
     <div class="durak-hand-back">
       <img
         v-for="index in Math.min(player.hand_count, 6)"

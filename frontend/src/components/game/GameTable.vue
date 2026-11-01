@@ -10,7 +10,8 @@ import ChipStack from './ChipStack.vue'
 import DeckStack from './DeckStack.vue'
 const props = defineProps<{ match: BlackjackMatchData; viewerId?: number; phase: PresentationPhase }>()
 const { t } = useI18n()
-const seats = computed(() => arrangeSeats(props.match.game.players, props.viewerId))
+// Clockwise, so the deal (which follows server seat order) travels around the table.
+const seats = computed(() => arrangeSeats(props.match.game.players, props.viewerId, true))
 const own = computed(() => props.match.game.players.find((p) => p.id === props.viewerId))
 const pending = computed(() => props.phase === 'dealing')
 const totalBet = computed(() =>

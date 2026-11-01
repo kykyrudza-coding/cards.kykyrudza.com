@@ -1,5 +1,5 @@
 export default {
-  cosmetics: { title: 'Table & cards', table: 'Table style', cards: 'Card deck', classic: 'Classic', midnight: 'Midnight', sounds: 'Sound preview', turn: 'Your turn', split: 'Split', double: 'Double', push: 'Push', blackjack: 'Blackjack' },
+  cosmetics: { title: 'Table & cards', table: 'Table style', cards: 'Card deck', classic: 'Classic', fourcolor: 'Four colours', midnight: 'Midnight', sounds: 'Sound preview', turn: 'Your turn', split: 'Split', double: 'Double', push: 'Push', blackjack: 'Blackjack' },
   common: {
     stayHere: 'Stay here',
     stay: 'Stay',
@@ -104,6 +104,8 @@ export default {
       players: '1–7 players',
       quickRounds: 'Quick rounds',
       privateRooms: 'Private rooms',
+      durak: { title: 'Durak', description: 'Attack, defend, pass it on.', descriptionLine2: 'The classic card duel.' },
+      poker: { title: 'Texas Hold’em', description: 'Two cards in hand, five on the board.', descriptionLine2: 'Bluff, bet and take the pot.' },
     },
     create: {
       heading: 'Create a lobby',
@@ -132,6 +134,7 @@ export default {
       genericError: 'Could not create lobby.',
       toastCreated: 'Lobby created. Invite your friends.',
     },
+    open: { title: 'Open tables', subtitle: 'Public lobbies with a free seat.', empty: 'No open tables right now. Create one!', join: 'Join', seats: 'seats' },
     join: {
       heading: 'Got an invite?',
       subtitle: 'Your friends saved you a seat.',

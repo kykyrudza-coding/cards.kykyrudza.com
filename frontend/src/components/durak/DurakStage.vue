@@ -15,7 +15,7 @@ const { t } = useI18n()
 <template>
   <div class="game-stage">
     <div class="stage-light" aria-hidden="true" />
-    <div class="stage-table" :data-skin="tableSkin" aria-hidden="true">
+    <div class="stage-table" data-game="durak" :data-skin="tableSkin" aria-hidden="true">
       <div class="table-felt">
         <div class="felt-stitch" />
         <div class="table-wordmark">

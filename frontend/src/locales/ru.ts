@@ -1,7 +1,7 @@
 import type en from './en'
 
 export default {
-  cosmetics: { title: 'Стол и карты', table: 'Стиль стола', cards: 'Колода карт', classic: 'Классика', midnight: 'Полночь', sounds: 'Прослушать звуки', turn: 'Ваш ход', split: 'Разделение', double: 'Удвоение', push: 'Ничья', blackjack: 'Блэкджек' },
+  cosmetics: { title: 'Стол и карты', table: 'Стиль стола', cards: 'Колода карт', classic: 'Классика', fourcolor: 'Четыре цвета', midnight: 'Полночь', sounds: 'Прослушать звуки', turn: 'Ваш ход', split: 'Разделение', double: 'Удвоение', push: 'Ничья', blackjack: 'Блэкджек' },
   common: {
     stayHere: 'Остаться здесь',
     stay: 'Остаться',
@@ -106,6 +106,8 @@ export default {
       players: '1–7 игроков',
       quickRounds: 'Быстрые раунды',
       privateRooms: 'Приватные комнаты',
+      durak: { title: 'Дурак', description: 'Атакуй, отбивайся, переводи.', descriptionLine2: 'Классическая карточная дуэль.' },
+      poker: { title: 'Техасский холдем', description: 'Две карты в руке, пять на столе.', descriptionLine2: 'Блефуй, делай ставки, забирай банк.' },
     },
     create: {
       heading: 'Создать лобби',
@@ -134,6 +136,7 @@ export default {
       genericError: 'Не удалось создать лобби.',
       toastCreated: 'Лобби создано. Пригласи друзей.',
     },
+    open: { title: 'Открытые столы', subtitle: 'Публичные лобби со свободным местом.', empty: 'Сейчас нет открытых столов. Создай свой!', join: 'Присоединиться', seats: 'мест' },
     join: {
       heading: 'Есть приглашение?',
       subtitle: 'Друзья заняли для тебя место.',

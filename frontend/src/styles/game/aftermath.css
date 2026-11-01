@@ -1,0 +1,130 @@
+/* Machine Gun: weapon art, firing effect, aftermath on the hands. */
+.machine-gun-icon {
+  display: block;
+  width: 96px;
+  height: auto;
+}
+.machine-gun-art {
+  align-self: center;
+  color: #f0c9a0;
+  filter: drop-shadow(0 0 10px #ff8a4a88);
+  animation:
+    gun-slide 0.5s cubic-bezier(0.2, 1.2, 0.4, 1),
+    gun-glow 1.8s ease-in-out 0.5s infinite;
+}
+.event-banner-icon {
+  display: inline-block;
+  width: 34px;
+  margin-right: 10px;
+  vertical-align: middle;
+  color: #f0c9a0;
+}
+@keyframes gun-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-60px) rotate(-12deg);
+  }
+}
+@keyframes gun-glow {
+  50% {
+    filter: drop-shadow(0 0 18px #ff6a3acc);
+  }
+}
+.event-fire {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--layer-hud) + 1);
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 55%, #ffd27a00 30%, #a01a1a88 100%);
+  animation: fire-vignette 1.4s ease-out forwards;
+}
+.event-fire i {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 140px;
+  height: 140px;
+  margin: -70px 0 0 -70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6c4, #ffb347 40%, #ff6a3a00 70%);
+  opacity: 0;
+  animation: muzzle-flash 0.18s ease-out infinite;
+}
+.event-fire i:nth-child(2) {
+  transform: translate(-90px, -50px) scale(0.8);
+  animation-delay: 0.06s;
+}
+.event-fire i:nth-child(3) {
+  transform: translate(100px, 40px) scale(0.7);
+  animation-delay: 0.12s;
+}
+@keyframes muzzle-flash {
+  0% {
+    opacity: 1;
+    scale: 0.4;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+@keyframes fire-vignette {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes screen-shake {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-6px, 3px);
+  }
+  40% {
+    transform: translate(5px, -4px);
+  }
+  60% {
+    transform: translate(-4px, -2px);
+  }
+  80% {
+    transform: translate(3px, 4px);
+  }
+}
+.event-shake .game-stage {
+  animation: screen-shake 0.12s linear 8;
+}
+.result-event {
+  color: #f0c97a;
+}
+.result-killed {
+  color: #ff8d7a;
+}
+.hand-result-event {
+  border-color: #e6c46f55;
+  background: #e6c46f0c;
+}
+.hand-result-killed {
+  border-color: #ff6a5a88;
+  background: #b0302410;
+  box-shadow: 0 0 24px #ff4a3a33;
+}
+.hand-result-killed .hand-cards {
+  filter: grayscale(1) brightness(0.6);
+  transition: filter 0.6s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .event-shake .game-stage,
+  .event-fire,
+  .event-fire i,
+  .machine-gun-art {
+    animation: none;
+  }
+  .event-fire {
+    opacity: 0;
+  }
+}
