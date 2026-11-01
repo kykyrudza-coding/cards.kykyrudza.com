@@ -23,7 +23,7 @@ final class HandEvaluator
 
     /**
      * @param  Card[]  $cards  five to seven cards
-     * @return array{score: int[], name: string}
+     * @return array{score: int[], name: string, cards: Card[]}
      */
     public static function best(array $cards): array
     {
@@ -35,15 +35,18 @@ final class HandEvaluator
         }
 
         $best = null;
+        $bestCards = [];
 
         for ($a = 0; $a < $count - 4; $a++) {
             for ($b = $a + 1; $b < $count - 3; $b++) {
                 for ($c = $b + 1; $c < $count - 2; $c++) {
                     for ($d = $c + 1; $d < $count - 1; $d++) {
                         for ($e = $d + 1; $e < $count; $e++) {
-                            $score = self::score([$cards[$a], $cards[$b], $cards[$c], $cards[$d], $cards[$e]]);
+                            $five = [$cards[$a], $cards[$b], $cards[$c], $cards[$d], $cards[$e]];
+                            $score = self::score($five);
                             if ($best === null || self::compare($score, $best) > 0) {
                                 $best = $score;
+                                $bestCards = $five;
                             }
                         }
                     }
@@ -51,7 +54,7 @@ final class HandEvaluator
             }
         }
 
-        return ['score' => $best, 'name' => self::NAMES[$best[0]]];
+        return ['score' => $best, 'name' => self::NAMES[$best[0]], 'cards' => $bestCards];
     }
 
     /**

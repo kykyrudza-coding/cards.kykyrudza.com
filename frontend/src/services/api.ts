@@ -13,6 +13,12 @@ export class ApiError extends Error {
   }
 }
 
+/** Server-relative paths (e.g. avatar URLs) need the API origin in front of them. */
+export function resolveApiUrl(path: string | null | undefined): string | null {
+  if (!path) return null
+  return path.startsWith('/') ? `${API_URL}${path}` : path
+}
+
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_STORAGE_KEY)
@@ -74,5 +80,6 @@ export const api = {
       method: 'PATCH',
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
   health: () => request<{ status: string }>('/api/health'),
 }

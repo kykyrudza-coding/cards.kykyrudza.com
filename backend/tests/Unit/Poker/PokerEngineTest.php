@@ -13,10 +13,13 @@ class PokerEngineTest extends TestCase
 {
     private PokerEngine $engine;
 
+    private int $now = 1_000_000;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->engine = new PokerEngine;
+        $this->now = 1_000_000;
+        $this->engine = new PokerEngine(fn (): int => $this->now);
     }
 
     /**
@@ -235,6 +238,14 @@ class PokerEngineTest extends TestCase
         $state = $this->act($state, 2, 'fold');
         $this->assertSame('hand_finished', $state->phase);
 
+        try {
+            $this->act($state, 1, 'next_hand');
+            $this->fail('The showdown must be given time to play out.');
+        } catch (PokerActionException) {
+            // expected: too early
+        }
+
+        $this->now += 5;
         $state = $this->act($state, 1, 'next_hand');
         $this->assertSame('hand_finished', $state->phase);
         $state = $this->act($state, 2, 'next_hand');

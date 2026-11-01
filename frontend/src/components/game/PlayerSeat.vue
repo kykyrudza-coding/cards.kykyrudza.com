@@ -41,7 +41,7 @@ defineProps<{
       ><strong v-if="confirmedBet !== undefined">{{ formatChips(confirmedBet) }}</strong>
     </div>
     <div class="seat-identity">
-      <AppAvatar :name="player.username ?? t('common.player')" />
+      <AppAvatar :name="player.username ?? t('common.player')" :src="player.avatar" />
       <div class="seat-name">
         <strong
           >{{ player.username ?? t('common.player')

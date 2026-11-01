@@ -7,7 +7,21 @@ const names = ['Ilya', 'Sasha', 'Max', 'Anna', 'Dmytro', 'Olena', 'Alex']
 
 type Phase = PokerMatchData['game']['phase']
 
-function pokerMatch(count: number, phase: Phase = 'flop'): PokerMatchData {
+interface FlowOptions {
+  /** Seconds since the hand ended (hand_finished only). */
+  endedAgo?: number
+  /** Board size when betting closed on an all-in runout. */
+  runoutFrom?: number | null
+  /** Seconds until the turn clock expires (negative = already expired). */
+  deadlineIn?: number
+}
+
+function pokerMatch(
+  count: number,
+  phase: Phase = 'flop',
+  flow: FlowOptions = {},
+): PokerMatchData {
+  const serverTime = Math.floor(Date.now() / 1000)
   const community = { preflop: 0, flop: 3, turn: 4, river: 5, hand_finished: 5, finished: 5 }[phase]
   const board = [
     { rank: 'A', suit: 'spades' },
@@ -44,6 +58,9 @@ function pokerMatch(count: number, phase: Phase = 'flop'): PokerMatchData {
     is_dealer: i === 0,
     is_small_blind: i === 1 % count,
     is_big_blind: i === 2 % count,
+    last_action: i === 1 && !over ? 'raise' : null,
+    last_amount: i === 1 && !over ? 200 : 0,
+    ...(i === 0 && community >= 3 ? { hand_name: 'two_pair' as const } : {}),
   }))
   return {
     id: 77,
@@ -69,9 +86,34 @@ function pokerMatch(count: number, phase: Phase = 'flop'): PokerMatchData {
       current_player_id: over ? null : 1,
       allowed_actions: over ? ['next_hand'] : ['fold', 'call', 'raise', 'all_in'],
       showdown: over,
-      results: over ? [{ user_id: 1, amount: 600, hand: 'two_pair' }] : [],
+      results: over
+        ? [
+            {
+              user_id: 1,
+              amount: 600,
+              hand: 'two_pair',
+              cards: [
+                { rank: 'A', suit: 'hearts' },
+                { rank: 'A', suit: 'spades' },
+                { rank: 'K', suit: 'clubs' },
+                { rank: 'K', suit: 'diamonds' },
+                { rank: '10', suit: 'hearts' },
+              ],
+            },
+          ]
+        : [],
       ready: [],
       winner_id: null,
+      runout_from: flow.runoutFrom ?? null,
+      log: [
+        { user_id: 2, action: 'raise', amount: 200, phase, auto: false },
+        { user_id: 1, action: 'call', amount: 200, phase, auto: false },
+      ],
+      turn_deadline: over ? null : serverTime + (flow.deadlineIn ?? 30),
+      turn_seconds: 45,
+      hand_ended_at: over ? serverTime - (flow.endedAgo ?? 60) : null,
+      next_hand_at: over ? serverTime - (flow.endedAgo ?? 60) + 10 : null,
+      server_time: serverTime,
     },
   }
 }
@@ -300,5 +342,74 @@ test.describe('poker interaction and motion', () => {
     state.match = pokerMatch(3, 'river')
     state.match.version = 2
     await pushUntil(state, page, 5)
+  })
+})
+
+test.describe('poker hand flow', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('an all-in runout reveals the board street by street, then announces the winner', async ({
+    page,
+  }) => {
+    await setup(page, pokerMatch(2, 'hand_finished', { endedAgo: 0, runoutFrom: 0 }))
+    const cards = page.locator('.poker-community .playing-card')
+    const result = page.locator('.poker-result')
+    await page.goto('/match/77')
+    await expect(page.locator('.poker-table')).toBeVisible()
+
+    // Hole cards are already open, but the board is still to come.
+    await expect(cards).toHaveCount(0)
+    await expect(result).toHaveCount(0)
+    await expect(page.locator('.poker-pot small')).toHaveText('Showdown')
+
+    await expect(cards).toHaveCount(3, { timeout: 4000 }) // flop
+    await expect(page.locator('.poker-pot small')).toHaveText('Flop')
+    await expect(cards).toHaveCount(4, { timeout: 4000 }) // turn
+    await expect(cards).toHaveCount(5, { timeout: 4000 }) // river
+    await expect(result).toHaveCount(0)
+
+    await expect(result).toContainText('wins 600 with Two pair', { timeout: 6000 })
+    // The winning five glow, the rest of the board dims.
+    await expect(page.locator('.poker-community .poker-card-win')).toHaveCount(3)
+    await expect(page.locator('.poker-community .poker-card-dim')).toHaveCount(2)
+    await expect(page.locator('.poker-own-info .poker-handname')).toHaveText('Two pair')
+  })
+
+  test('a reloaded page lands straight on the finished showdown', async ({ page }) => {
+    await setup(page, pokerMatch(2, 'hand_finished', { endedAgo: 30, runoutFrom: 0 }))
+    await page.goto('/match/77')
+    await expect(page.locator('.poker-community .playing-card')).toHaveCount(5)
+    await expect(page.locator('.poker-result')).toContainText('Two pair')
+    await expect(page.getByRole('button', { name: /^Next hand/ })).toBeEnabled()
+  })
+
+  test('next hand stays locked while the showdown plays out', async ({ page }) => {
+    await setup(page, pokerMatch(2, 'hand_finished', { endedAgo: 3 }))
+    await page.goto('/match/77')
+    await expect(page.locator('.poker-result')).toBeVisible()
+    const next = page.getByRole('button', { name: /^Next hand/ })
+    await expect(next).toBeDisabled()
+    await expect(next).toBeEnabled({ timeout: 10000 })
+  })
+
+  test('shows what everyone just did and each seat\'s last action', async ({ page }) => {
+    await setup(page, pokerMatch(3, 'flop'))
+    await page.goto('/match/77')
+    await expect(page.locator('.poker-log li').last()).toHaveText('Ilya calls 200')
+    await expect(page.locator('.poker-seat .poker-last').first()).toHaveText('Raise 200')
+    await page.locator('.poker-log').click()
+    await expect(page.locator('.poker-log.open li')).toHaveCount(2)
+  })
+
+  test('an expired turn clock asks the server to time the player out', async ({ page }) => {
+    const state = await setup(page, pokerMatch(3, 'flop', { deadlineIn: -5 }))
+    await page.goto('/match/77')
+    await expect.poll(() => state.posts, { timeout: 8000 }).toContain('/api/matches/77/actions/timeout')
+  })
+
+  test('the turn clock is shown while it is your move', async ({ page }) => {
+    await setup(page, pokerMatch(3, 'flop', { deadlineIn: 20 }))
+    await page.goto('/match/77')
+    await expect(page.locator('.poker-timer--own span')).toBeVisible()
   })
 })

@@ -5,6 +5,7 @@ export type LobbyStatus = 'waiting' | 'started' | 'closed'
 export interface LobbyPlayer {
   id: number
   username: string
+  avatar?: string | null
   seat: number
   is_ready: boolean
   is_host: boolean
@@ -13,6 +14,7 @@ export interface LobbyPlayer {
 export interface LobbyHost {
   id: number
   username: string
+  avatar?: string | null
 }
 
 export interface Lobby {

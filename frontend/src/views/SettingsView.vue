@@ -5,6 +5,8 @@ import { useAuthStore } from '../stores/auth'
 import { usePreferencesStore } from '../stores/preferences'
 import { profileService } from '../services/profile'
 import { ApiError } from '../services/api'
+import { AvatarImageError, fileToAvatarDataUrl } from '../utils/avatarImage'
+import AppAvatar from '../components/ui/AppAvatar.vue'
 import AppInput from '../components/ui/AppInput.vue'
 import AppSelect from '../components/ui/AppSelect.vue'
 import AppButton from '../components/ui/AppButton.vue'
@@ -45,6 +47,41 @@ async function saveUsername() {
     savingUsername.value = false
   }
 }
+const avatarInput = ref<HTMLInputElement>()
+const avatarBusy = ref(false)
+const avatarError = ref('')
+async function pickAvatar(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = '' // allow picking the same file again
+  if (!file || avatarBusy.value) return
+  avatarBusy.value = true
+  avatarError.value = ''
+  try {
+    auth.user = await profileService.setAvatar(await fileToAvatarDataUrl(file))
+  } catch (e) {
+    avatarError.value =
+      e instanceof AvatarImageError
+        ? t(`settings.account.avatarErrors.${e.reason}`)
+        : e instanceof ApiError
+          ? e.message
+          : t('errors.actionFailed')
+  } finally {
+    avatarBusy.value = false
+  }
+}
+async function removeAvatar() {
+  if (avatarBusy.value) return
+  avatarBusy.value = true
+  avatarError.value = ''
+  try {
+    auth.user = await profileService.removeAvatar()
+  } catch (e) {
+    avatarError.value = e instanceof ApiError ? e.message : t('errors.actionFailed')
+  } finally {
+    avatarBusy.value = false
+  }
+}
 </script>
 <template>
   <main class="page">
@@ -73,7 +110,34 @@ async function saveUsername() {
             :model-value="auth.user?.email ?? ''"
             :label="t('settings.account.email')"
             readonly
-          /><AppButton disabled>{{ t('settings.account.uploadAvatar') }}</AppButton>
+          />
+          <div class="avatar-editor">
+            <AppAvatar
+              :name="auth.user?.username ?? t('common.player')"
+              :src="auth.user?.avatar"
+            />
+            <div class="avatar-editor-actions">
+              <AppButton :loading="avatarBusy" @click="avatarInput?.click()">{{
+                auth.user?.avatar ? t('settings.account.changeAvatar') : t('settings.account.uploadAvatar')
+              }}</AppButton
+              ><AppButton
+                v-if="auth.user?.avatar"
+                variant="ghost"
+                :disabled="avatarBusy"
+                @click="removeAvatar"
+                >{{ t('settings.account.removeAvatar') }}</AppButton
+              >
+              <input
+                ref="avatarInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                class="visually-hidden"
+                tabindex="-1"
+                @change="pickAvatar"
+              />
+            </div>
+            <p v-if="avatarError" class="error" role="alert">{{ avatarError }}</p>
+          </div>
           <p class="muted small">{{ t('settings.account.note') }}</p>
         </section>
         <section class="panel settings-section">

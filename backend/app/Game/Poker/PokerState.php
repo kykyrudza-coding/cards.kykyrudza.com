@@ -15,6 +15,10 @@ final class PokerState implements GameState
      * @param  bool  $showdown  Whether the finished hand went to a showdown (reveals hands).
      * @param  array<int, array{user_id: int, amount: int, hand: ?string}>  $results
      * @param  int[]  $ready  userIds who've asked for the next hand.
+     * @param  ?int  $runoutFrom  Board size when betting closed with an all-in runout (the rest is revealed street by street); null otherwise.
+     * @param  array<int, array<string, mixed>>  $log  This hand's actions, oldest first.
+     * @param  ?int  $turnDeadline  Unix time the player to act must act by.
+     * @param  ?int  $nextHandAt  Unix time before which the next hand can't be requested (lets everyone watch the showdown).
      */
     public function __construct(
         public string $phase,
@@ -31,6 +35,12 @@ final class PokerState implements GameState
         public array $results = [],
         public array $ready = [],
         public ?int $winnerId = null,
+        public ?int $runoutFrom = null,
+        public array $log = [],
+        public ?int $turnDeadline = null,
+        public int $turnSeconds = 45,
+        public ?int $handEndedAt = null,
+        public ?int $nextHandAt = null,
     ) {}
 
     /**
@@ -53,6 +63,12 @@ final class PokerState implements GameState
             'results' => $this->results,
             'ready' => $this->ready,
             'winner_id' => $this->winnerId,
+            'runout_from' => $this->runoutFrom,
+            'log' => $this->log,
+            'turn_deadline' => $this->turnDeadline,
+            'turn_seconds' => $this->turnSeconds,
+            'hand_ended_at' => $this->handEndedAt,
+            'next_hand_at' => $this->nextHandAt,
         ];
     }
 
@@ -76,6 +92,12 @@ final class PokerState implements GameState
             $data['results'],
             $data['ready'],
             $data['winner_id'],
+            $data['runout_from'] ?? null,
+            $data['log'] ?? [],
+            $data['turn_deadline'] ?? null,
+            $data['turn_seconds'] ?? 45,
+            $data['hand_ended_at'] ?? null,
+            $data['next_hand_at'] ?? null,
         );
     }
 }

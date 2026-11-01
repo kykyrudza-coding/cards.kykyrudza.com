@@ -1740,3 +1740,40 @@ input[aria-invalid='true'] {
   transition: none !important;
   scroll-behavior: auto !important;
 }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.avatar-editor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.avatar-editor .avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  font-size: 22px;
+}
+.avatar-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.avatar-editor .error {
+  flex-basis: 100%;
+  margin: 0;
+}
+.poker-own-info .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}

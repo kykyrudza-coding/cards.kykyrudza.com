@@ -19,6 +19,8 @@ final class PokerPlayer
         public int $bet = 0,
         public int $totalBet = 0,
         public bool $acted = false,
+        public ?string $lastAction = null,
+        public int $lastAmount = 0,
     ) {}
 
     /**
@@ -35,6 +37,8 @@ final class PokerPlayer
             'bet' => $this->bet,
             'total_bet' => $this->totalBet,
             'acted' => $this->acted,
+            'last_action' => $this->lastAction,
+            'last_amount' => $this->lastAmount,
         ];
     }
 
@@ -52,6 +56,8 @@ final class PokerPlayer
             $data['bet'],
             $data['total_bet'],
             $data['acted'],
+            $data['last_action'] ?? null,
+            $data['last_amount'] ?? 0,
         );
     }
 }

@@ -26,6 +26,7 @@ class LobbyResource extends JsonResource
             'host' => [
                 'id' => $this->host->id,
                 'username' => $this->host->username,
+                'avatar' => $this->host->avatar,
             ],
             'players' => LobbyPlayerResource::collection($this->whenLoaded('players')),
         ];

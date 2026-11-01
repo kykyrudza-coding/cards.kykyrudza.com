@@ -118,6 +118,11 @@ export const useMatchStore = defineStore('match', {
       await this.runAction(() => matchService.allIn(this.requireId()))
     },
 
+    /** Clock expired for the player to act (or a stalled next hand): anyone may nudge the server. */
+    async timeout() {
+      await this.runAction(() => matchService.timeout(this.requireId()))
+    },
+
     async nextHand() {
       await this.runAction(() => matchService.nextHand(this.requireId()))
     },

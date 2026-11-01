@@ -15,6 +15,7 @@ class LobbyPlayerResource extends JsonResource
         return [
             'id' => $this->user_id,
             'username' => $this->user->username,
+            'avatar' => $this->user->avatar,
             'seat' => $this->seat,
             'is_ready' => (bool) $this->is_ready,
             'is_host' => $this->user_id === $this->lobby->host_id,

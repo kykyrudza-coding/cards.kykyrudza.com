@@ -10,7 +10,7 @@ const { t } = useI18n()
 <template>
   <article class="lobby-player" :class="{ 'is-ready': player?.is_ready, 'is-empty': !player }">
     <template v-if="player"
-      ><AppAvatar :name="player.username" />
+      ><AppAvatar :name="player.username" :src="player.avatar" />
       <div class="player-info">
         <strong
           >{{ player.username }}

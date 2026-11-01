@@ -20,13 +20,28 @@ final class PokerEngine implements GameEngine
 {
     private const array STREETS = ['preflop', 'flop', 'turn', 'river'];
 
+    /** Seconds after a hand ends before a stalled table is dealt on without the missing players confirming. */
+    private const int NEXT_HAND_GRACE = 20;
+
+    /** @var \Closure(): int */
+    private \Closure $clock;
+
+    /**
+     * @param  \Closure(): int|null  $clock  Unix-time source; inject a fake one in tests.
+     */
+    public function __construct(?\Closure $clock = null)
+    {
+        // Carbon (not time()) so Laravel's travel()/freezeTime() helpers drive the clock in tests.
+        $this->clock = $clock ?? fn (): int => \Illuminate\Support\Carbon::now()->getTimestamp();
+    }
+
     /**
      * @param  array<int, array{user_id: int, seat: int, chips: int}>  $matchPlayers
      * @param  Deck|null  $deck  Inject a predefined deck for deterministic tests; omit for real play.
      *                           Drawn in order: 2 hole cards per player starting at the small blind
      *                           (two passes), then flop (3), turn, river.
      */
-    public function deal(array $matchPlayers, int $bigBlind, ?Deck $deck = null): PokerState
+    public function deal(array $matchPlayers, int $bigBlind, ?Deck $deck = null, int $turnSeconds = 45): PokerState
     {
         $players = array_map(
             fn (array $p) => new PokerPlayer($p['user_id'], $p['seat'], $p['chips']),
@@ -49,6 +64,7 @@ final class PokerEngine implements GameEngine
             minRaise: $bigBlind,
             bigBlind: $bigBlind,
             round: 0,
+            turnSeconds: $turnSeconds,
         );
 
         $this->startHand($state, $deck);
@@ -68,6 +84,12 @@ final class PokerEngine implements GameEngine
             return $state;
         }
 
+        if ($action === 'timeout') {
+            $this->applyTimeout($state, $userId);
+
+            return $state;
+        }
+
         if (! in_array($state->phase, self::STREETS, true)) {
             throw new PokerActionException('The hand is over — wait for the next one.');
         }
@@ -80,7 +102,7 @@ final class PokerEngine implements GameEngine
         $player = $state->players[$index];
 
         match ($action) {
-            'fold' => $this->applyFold($player),
+            'fold' => $this->applyFold($state, $player),
             'check' => $this->applyCheck($state, $player),
             'call' => $this->applyCall($state, $player),
             'raise' => $this->applyRaise($state, $player, $payload),
@@ -151,10 +173,16 @@ final class PokerEngine implements GameEngine
                 'is_dealer' => $i === $state->dealerIndex,
                 'is_small_blind' => $i === $smallBlindIndex,
                 'is_big_blind' => $i === $bigBlindIndex,
+                'last_action' => $player->lastAction,
+                'last_amount' => $player->lastAmount,
             ];
             $revealed = $state->showdown && $handOver && in_array($player->status, ['active', 'all_in'], true);
             if ($player->userId === $viewerId || $revealed) {
                 $entry['hand'] = array_map(fn (Card $c) => $c->toArray(), $player->hand);
+                // The name of the best made hand, once there is a board to judge it on.
+                if (count($player->hand) === 2 && count($state->community) >= 3 && in_array($player->status, ['active', 'all_in'], true)) {
+                    $entry['hand_name'] = HandEvaluator::best([...$player->hand, ...$state->community])['name'];
+                }
             }
             $players[] = $entry;
         }
@@ -183,24 +211,33 @@ final class PokerEngine implements GameEngine
             'results' => $state->results,
             'ready' => $state->ready,
             'winner_id' => $state->winnerId,
+            'runout_from' => $state->runoutFrom,
+            'log' => array_slice($state->log, -14),
+            'turn_deadline' => $state->turnDeadline,
+            'turn_seconds' => $state->turnSeconds,
+            'hand_ended_at' => $state->handEndedAt,
+            'next_hand_at' => $state->nextHandAt,
+            'server_time' => $this->now(),
         ];
     }
 
     // --- actions -----------------------------------------------------------
 
-    private function applyFold(PokerPlayer $player): void
+    private function applyFold(PokerState $state, PokerPlayer $player, bool $auto = false): void
     {
         $player->status = 'folded';
         $player->acted = true;
+        $this->record($state, $player, 'fold', 0, $auto);
     }
 
-    private function applyCheck(PokerState $state, PokerPlayer $player): void
+    private function applyCheck(PokerState $state, PokerPlayer $player, bool $auto = false): void
     {
         if ($player->bet < $state->currentBet) {
             throw new PokerActionException('You cannot check — call, raise or fold.');
         }
 
         $player->acted = true;
+        $this->record($state, $player, 'check', 0, $auto);
     }
 
     private function applyCall(PokerState $state, PokerPlayer $player): void
@@ -212,6 +249,7 @@ final class PokerEngine implements GameEngine
 
         $this->commit($player, $toCall);
         $player->acted = true;
+        $this->record($state, $player, $player->status === 'all_in' ? 'all_in' : 'call', $player->bet);
     }
 
     private function applyRaise(PokerState $state, PokerPlayer $player, array $payload): void
@@ -249,6 +287,7 @@ final class PokerEngine implements GameEngine
     private function raiseTo(PokerState $state, PokerPlayer $player, int $to): void
     {
         $size = $to - $state->currentBet;
+        $opening = $state->currentBet === 0;
         $this->commit($player, $to - $player->bet);
 
         if ($to > $state->currentBet) {
@@ -266,12 +305,16 @@ final class PokerEngine implements GameEngine
         }
 
         $player->acted = true;
+        $this->record($state, $player, $player->status === 'all_in' ? 'all_in' : ($opening ? 'bet' : 'raise'), $player->bet);
     }
 
     private function applyNextHand(PokerState $state, int $userId): void
     {
         if ($state->phase !== 'hand_finished') {
             throw new PokerActionException('The current hand is still in progress.');
+        }
+        if ($state->nextHandAt !== null && $this->now() < $state->nextHandAt) {
+            throw new PokerActionException('Wait for the showdown to finish.');
         }
 
         $player = $state->players[$this->requirePlayerIndex($state, $userId)];
@@ -292,6 +335,42 @@ final class PokerEngine implements GameEngine
         }
     }
 
+    /**
+     * Anyone at the table may call this once a clock has run out: the player
+     * to act is checked (or folded if there is a bet to face), or - after a
+     * hand - the next one is dealt without waiting on players who have left.
+     */
+    private function applyTimeout(PokerState $state, int $userId): void
+    {
+        $this->requirePlayerIndex($state, $userId);
+
+        if ($state->phase === 'hand_finished') {
+            if ($state->nextHandAt === null || $this->now() < $state->nextHandAt + self::NEXT_HAND_GRACE) {
+                throw new PokerActionException('Players are still getting ready.');
+            }
+            $this->startHand($state);
+
+            return;
+        }
+
+        if (! in_array($state->phase, self::STREETS, true)
+            || $state->turnDeadline === null
+            || $this->now() < $state->turnDeadline
+        ) {
+            throw new PokerActionException('The turn timer has not run out.');
+        }
+
+        $index = $state->currentIndex;
+        $player = $state->players[$index];
+        if ($player->bet >= $state->currentBet) {
+            $this->applyCheck($state, $player, auto: true);
+        } else {
+            $this->applyFold($state, $player, auto: true);
+        }
+
+        $this->settleBetting($state, $index + 1);
+    }
+
     // --- hand flow ---------------------------------------------------------
 
     private function startHand(PokerState $state, ?Deck $deck = null): void
@@ -302,6 +381,8 @@ final class PokerEngine implements GameEngine
             $player->bet = 0;
             $player->totalBet = 0;
             $player->acted = false;
+            $player->lastAction = null;
+            $player->lastAmount = 0;
         }
 
         $state->deck = $deck ?? Deck::standard()->shuffle();
@@ -309,6 +390,11 @@ final class PokerEngine implements GameEngine
         $state->showdown = false;
         $state->results = [];
         $state->ready = [];
+        $state->runoutFrom = null;
+        $state->log = [];
+        $state->turnDeadline = null;
+        $state->handEndedAt = null;
+        $state->nextHandAt = null;
         $state->round++;
         $state->dealerIndex = $this->nextIndexWhere($state, $state->dealerIndex + 1, fn (PokerPlayer $p) => $p->status !== 'out');
 
@@ -330,6 +416,8 @@ final class PokerEngine implements GameEngine
 
         $this->commit($state->players[$smallBlind], intdiv($state->bigBlind, 2));
         $this->commit($state->players[$bigBlind], $state->bigBlind);
+        $this->record($state, $state->players[$smallBlind], 'small_blind', $state->players[$smallBlind]->bet);
+        $this->record($state, $state->players[$bigBlind], 'big_blind', $state->players[$bigBlind]->bet);
 
         $state->phase = 'preflop';
         $state->currentBet = max(array_map(fn (PokerPlayer $p) => $p->bet, $state->players));
@@ -355,11 +443,15 @@ final class PokerEngine implements GameEngine
         $next = $this->findNeedingAction($state, $startIndex);
         if ($next !== null) {
             $state->currentIndex = $next;
+            $this->armTimer($state);
 
             return;
         }
 
         if ($state->phase === 'river' || $this->activeCount($state) <= 1) {
+            // Remember how much of the board was out when betting closed so
+            // clients can reveal the rest street by street, as at a real table.
+            $state->runoutFrom = count($state->community);
             while (count($state->community) < 5) {
                 $state->community[] = $state->deck->draw();
             }
@@ -386,11 +478,15 @@ final class PokerEngine implements GameEngine
         foreach ($state->players as $player) {
             $player->bet = 0;
             $player->acted = false;
+            $player->lastAction = null;
+            $player->lastAmount = 0;
         }
         $state->currentBet = 0;
         $state->minRaise = $state->bigBlind;
+        $state->log[] = ['action' => 'street', 'phase' => $state->phase];
 
         $state->currentIndex = $this->findNeedingAction($state, $state->dealerIndex + 1) ?? $state->dealerIndex;
+        $this->armTimer($state);
     }
 
     private function finishHand(PokerState $state, bool $showdown): void
@@ -404,6 +500,9 @@ final class PokerEngine implements GameEngine
         }
 
         $state->phase = 'hand_finished';
+        $state->turnDeadline = null;
+        $state->handEndedAt = $this->now();
+        $state->nextHandAt = $state->handEndedAt + $this->presentationSeconds($state, $showdown);
 
         $stacked = array_values(array_filter($state->players, fn (PokerPlayer $p) => $p->chips > 0));
         if (count($stacked) <= 1) {
@@ -430,6 +529,7 @@ final class PokerEngine implements GameEngine
         $scores = [];
         $payouts = [];
         $handNames = [];
+        $handCards = [];
         $previous = 0;
 
         foreach ($levels as $level) {
@@ -480,7 +580,8 @@ final class PokerEngine implements GameEngine
             foreach ($winners as $i => $winner) {
                 $payouts[$winner->userId] = ($payouts[$winner->userId] ?? 0) + $share + ($i < $remainder ? 1 : 0);
                 if ($showdown && count($eligible) > 1) {
-                    $handNames[$winner->userId] = $scores[$winner->userId]['name'];
+                    $handNames[$winner->userId] ??= $scores[$winner->userId]['name'];
+                    $handCards[$winner->userId] ??= array_map(fn (Card $c) => $c->toArray(), $scores[$winner->userId]['cards']);
                 }
             }
 
@@ -492,7 +593,12 @@ final class PokerEngine implements GameEngine
             $won = $payouts[$player->userId] ?? 0;
             if ($won > 0) {
                 $player->chips += $won;
-                $results[] = ['user_id' => $player->userId, 'amount' => $won, 'hand' => $handNames[$player->userId] ?? null];
+                $results[] = [
+                    'user_id' => $player->userId,
+                    'amount' => $won,
+                    'hand' => $handNames[$player->userId] ?? null,
+                    'cards' => $handCards[$player->userId] ?? [],
+                ];
             }
         }
 
@@ -500,6 +606,43 @@ final class PokerEngine implements GameEngine
     }
 
     // --- helpers -----------------------------------------------------------
+
+    private function now(): int
+    {
+        return ($this->clock)();
+    }
+
+    private function armTimer(PokerState $state): void
+    {
+        $state->turnDeadline = $state->turnSeconds > 0 ? $this->now() + $state->turnSeconds : null;
+    }
+
+    /**
+     * How long clients need to play out the end of a hand (reveal the runout
+     * street by street, show the winners) before the next one may be dealt.
+     */
+    private function presentationSeconds(PokerState $state, bool $showdown): int
+    {
+        if (! $showdown) {
+            return 2;
+        }
+
+        $streets = match (true) {
+            $state->runoutFrom === null || $state->runoutFrom >= 5 => 0,
+            $state->runoutFrom < 3 => 3,
+            default => 5 - $state->runoutFrom,
+        };
+
+        return (int) ceil(4 + 1.8 * $streets);
+    }
+
+    private function record(PokerState $state, PokerPlayer $player, string $action, int $amount, bool $auto = false): void
+    {
+        $player->lastAction = $action;
+        $player->lastAmount = $amount;
+        $state->log[] = ['user_id' => $player->userId, 'action' => $action, 'amount' => $amount, 'phase' => $state->phase, 'auto' => $auto];
+        $state->log = array_slice($state->log, -80);
+    }
 
     private function commit(PokerPlayer $player, int $amount): void
     {
@@ -613,7 +756,7 @@ final class PokerEngine implements GameEngine
     {
         $context ??= [];
 
-        return $this->deal($context['players'] ?? [], $context['big_blind'] ?? 100);
+        return $this->deal($context['players'] ?? [], $context['big_blind'] ?? 100, null, $context['turn_seconds'] ?? 45);
     }
 
     public function handleAction(mixed $state, int $userId, string $action, array $payload = []): mixed

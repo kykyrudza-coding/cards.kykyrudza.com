@@ -27,5 +27,6 @@ export const matchService = {
   raise: (id: number, amount: number) =>
     api.post<MatchData>(`/api/matches/${id}/actions/raise`, { amount }),
   allIn: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/all-in`),
+  timeout: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/timeout`),
   nextHand: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/next-hand`),
 }

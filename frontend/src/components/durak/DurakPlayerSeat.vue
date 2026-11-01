@@ -27,7 +27,7 @@ const roleLabel = () =>
     :aria-label="player.username ?? t('common.player')"
   >
     <div class="seat-identity">
-      <AppAvatar :name="player.username ?? t('common.player')" />
+      <AppAvatar :name="player.username ?? t('common.player')" :src="player.avatar" />
       <div class="seat-name">
         <strong>{{ player.username ?? t('common.player') }}</strong
         ><span>{{ t('durak.seat.cardCount', { n: player.hand_count }) }}</span>

@@ -37,6 +37,7 @@ export interface BlackjackHandView {
 export interface BlackjackPlayerView {
   id: number
   username: string | null
+  avatar?: string | null
   seat: number
   chips: number
   status: 'active' | 'out'
@@ -97,6 +98,7 @@ export interface DurakTableSlot {
 export interface DurakPlayerView {
   id: number
   username: string | null
+  avatar?: string | null
   seat: number
   status: 'active' | 'safe'
   hand_count: number
@@ -127,7 +129,17 @@ export interface DurakMatchData extends MatchBase {
 
 export type PokerPhase = 'preflop' | 'flop' | 'turn' | 'river' | 'hand_finished' | 'finished'
 
-export type PokerAction = 'fold' | 'check' | 'call' | 'raise' | 'all_in' | 'next_hand'
+export type PokerAction = 'fold' | 'check' | 'call' | 'raise' | 'all_in' | 'next_hand' | 'timeout'
+
+export type PokerLogAction =
+  | 'small_blind'
+  | 'big_blind'
+  | 'fold'
+  | 'check'
+  | 'call'
+  | 'bet'
+  | 'raise'
+  | 'all_in'
 
 export type PokerHandName =
   | 'high_card'
@@ -143,6 +155,7 @@ export type PokerHandName =
 export interface PokerPlayerView {
   id: number
   username: string | null
+  avatar?: string | null
   seat: number
   status: 'active' | 'folded' | 'all_in' | 'out'
   chips: number
@@ -155,13 +168,23 @@ export interface PokerPlayerView {
   is_dealer: boolean
   is_small_blind: boolean
   is_big_blind: boolean
+  last_action: PokerLogAction | null
+  last_amount: number
+  /** Best made hand — your own, or everyone's still in at a showdown. */
+  hand_name?: PokerHandName
 }
 
 export interface PokerResult {
   user_id: number
   amount: number
   hand: PokerHandName | null
+  /** The winning five cards (showdown only). */
+  cards: PlayingCard[]
 }
+
+export type PokerLogEntry =
+  | { action: 'street'; phase: PokerPhase }
+  | { user_id: number; action: PokerLogAction; amount: number; phase: PokerPhase; auto: boolean }
 
 export interface PokerGameState {
   phase: PokerPhase
@@ -182,6 +205,14 @@ export interface PokerGameState {
   results: PokerResult[]
   ready: number[]
   winner_id: number | null
+  /** Board size when betting closed on an all-in runout; the rest is revealed street by street. */
+  runout_from: number | null
+  log: PokerLogEntry[]
+  turn_deadline: number | null
+  turn_seconds: number
+  hand_ended_at: number | null
+  next_hand_at: number | null
+  server_time: number
 }
 
 export interface PokerMatchData extends MatchBase {

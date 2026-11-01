@@ -134,7 +134,10 @@ onUnmounted(() => {
           ><RouterLink to="/settings" class="icon-button" :aria-label="t('nav.settings')"
             ><AppIcon name="settings" /></RouterLink
           ><RouterLink to="/profile" :aria-label="t('profile.title')"
-            ><AppAvatar :name="auth.user?.username ?? t('common.player')" /></RouterLink></template
+            ><AppAvatar
+              :name="auth.user?.username ?? t('common.player')"
+              :src="auth.user?.avatar"
+          /></RouterLink></template
         ><template v-else
           ><RouterLink to="/login" class="text-link">{{ t('nav.signIn') }}</RouterLink
           ><RouterLink to="/register" class="btn btn-secondary"

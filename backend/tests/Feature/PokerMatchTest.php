@@ -88,6 +88,13 @@ class PokerMatchTest extends TestCase
             ->assertJsonPath('game.phase', 'hand_finished')
             ->assertJsonPath('game.results.0.user_id', $host->id);
 
+        // The showdown needs a moment to play out before the next deal.
+        $this->actingAs($host, 'sanctum')
+            ->postJson("/api/matches/{$matchId}/actions/next-hand")
+            ->assertUnprocessable();
+
+        $this->travel(10)->seconds();
+
         $this->actingAs($host, 'sanctum')
             ->postJson("/api/matches/{$matchId}/actions/next-hand")
             ->assertOk()

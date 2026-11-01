@@ -121,6 +121,11 @@ class MatchController extends Controller
         return $this->act($request, $match, 'next_hand');
     }
 
+    public function timeout(Request $request, GameMatch $match)
+    {
+        return $this->act($request, $match, 'timeout');
+    }
+
     public function placeBet(Request $request, GameMatch $match)
     {
         $this->authorizeParticipant($request, $match);

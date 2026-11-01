@@ -24,9 +24,11 @@ class MatchResource extends JsonResource
         $game = $engine->publicState($state, $this->viewerId);
 
         $usernames = $this->matchPlayers->pluck('user.username', 'user_id');
+        $avatars = $this->matchPlayers->pluck('user.avatar', 'user_id');
 
-        $game['players'] = array_map(function (array $player) use ($usernames) {
+        $game['players'] = array_map(function (array $player) use ($usernames, $avatars) {
             $player['username'] = $usernames[$player['id']] ?? null;
+            $player['avatar'] = $avatars[$player['id']] ?? null;
 
             return $player;
         }, $game['players']);

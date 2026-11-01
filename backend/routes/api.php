@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->prefix('matches')->group(function () {
     Route::post('/{match}/actions/raise', [MatchController::class, 'raise']);
     Route::post('/{match}/actions/all-in', [MatchController::class, 'allIn']);
     Route::post('/{match}/actions/next-hand', [MatchController::class, 'nextHand']);
+    Route::post('/{match}/actions/timeout', [MatchController::class, 'timeout']);
     Route::post('/{match}/bet', [MatchController::class, 'placeBet']);
     Route::post('/{match}/next-round', [MatchController::class, 'nextRound']);
     Route::post('/{match}/finish', [MatchController::class, 'finish']);
@@ -56,7 +57,12 @@ Route::middleware('auth:sanctum')->prefix('matches')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar']);
     Route::get('/statistics', [StatisticsController::class, 'show']);
     Route::get('/achievements', [AchievementController::class, 'index']);
     Route::get('/achievements/unseen', [AchievementController::class, 'unseen']);
 });
+
+// Public: avatars are plain <img> sources and carry no bearer token.
+Route::get('/users/{user}/avatar', [ProfileController::class, 'showAvatar']);
