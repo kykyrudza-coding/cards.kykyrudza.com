@@ -58,6 +58,15 @@ async function load() {
   }
 }
 watch(id, load, { immediate: true })
+// A rematch was started from this finished table: follow everyone to the new game.
+let followTimer: ReturnType<typeof setTimeout> | undefined
+watch(
+  () => match.value?.next_match_id,
+  (next) => {
+    clearTimeout(followTimer)
+    if (next) followTimer = setTimeout(() => void router.push(`/match/${next}`), 900)
+  },
+)
 async function act(action: BlackjackAction) {
   const current = blackjackMatch.value
   if (
@@ -110,6 +119,7 @@ function shortcut(event: KeyboardEvent) {
 }
 onMounted(() => window.addEventListener('keydown', shortcut))
 onUnmounted(() => {
+  clearTimeout(followTimer)
   store.disconnectRealtime()
   window.removeEventListener('keydown', shortcut)
 })

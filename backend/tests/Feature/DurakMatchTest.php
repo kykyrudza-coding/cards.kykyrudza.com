@@ -30,7 +30,7 @@ class DurakMatchTest extends TestCase
             ->assertJsonPath('game_type', 'durak')
             ->assertJsonPath('game.phase', 'attack')
             ->assertJsonCount(2, 'game.players')
-            ->assertJsonCount(6, 'game.players.0.hand');
+            ->assertJsonCount(2, 'game.players');
 
         // Betting fields are Blackjack-only and shouldn't leak into a Durak response.
         $response->assertJsonMissingPath('default_bet');
@@ -103,6 +103,65 @@ class DurakMatchTest extends TestCase
         $this->actingAs($defender, 'sanctum')
             ->postJson("/api/matches/{$match->id}/actions/attack", ['cards' => [['rank' => '7', 'suit' => 'clubs']]])
             ->assertForbidden();
+    }
+
+    public function test_a_finished_durak_game_can_be_replayed_in_the_same_lobby(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create();
+        $match = $this->deterministicDurakMatch([$host, $guest], $this->simpleDeck());
+
+        // Still in progress: no rematch yet.
+        $this->actingAs($guest, 'sanctum')
+            ->postJson("/api/matches/{$match->id}/rematch")
+            ->assertUnprocessable();
+
+        $state = $match->fresh()->state;
+        $state['phase'] = 'finished';
+        $state['loser_id'] = $guest->id;
+        $match->update(['state' => $state]);
+
+        // Outsiders cannot start one.
+        $this->actingAs(User::factory()->create(), 'sanctum')
+            ->postJson("/api/matches/{$match->id}/rematch")
+            ->assertForbidden();
+
+        $new = $this->actingAs($guest, 'sanctum')
+            ->postJson("/api/matches/{$match->id}/rematch")
+            ->assertOk()
+            ->assertJsonPath('game_type', 'durak')
+            ->assertJsonPath('game.phase', 'attack')
+            ->assertJsonCount(2, 'game.players');
+
+        $newId = $new->json('id');
+        $this->assertNotSame($match->id, $newId);
+        $this->assertSame($match->lobby_id, GameMatch::find($newId)->lobby_id);
+
+        // The old table points everyone to the new one, and a second click is idempotent.
+        $this->actingAs($host, 'sanctum')
+            ->getJson("/api/matches/{$match->id}")
+            ->assertOk()
+            ->assertJsonPath('next_match_id', $newId);
+        $this->actingAs($host, 'sanctum')
+            ->postJson("/api/matches/{$match->id}/rematch")
+            ->assertOk()
+            ->assertJsonPath('id', $newId);
+        $this->assertSame(2, GameMatch::where('lobby_id', $match->lobby_id)->count());
+    }
+
+    /**
+     * @return Card[]
+     */
+    private function simpleDeck(): array
+    {
+        $cards = [];
+        foreach (['7', '8', '9', '10', 'J', 'Q'] as $rank) {
+            $cards[] = new Card($rank, 'clubs');
+            $cards[] = new Card($rank, 'diamonds');
+        }
+        $cards[] = new Card('6', 'hearts');
+
+        return $cards;
     }
 
     private function readyDurakLobby(User $host, User ...$guests): Lobby

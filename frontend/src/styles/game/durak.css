@@ -1,222 +1,625 @@
-/* --- Дурак (Durak) --------------------------------------------------------- */
+/* --- Дурак (Durak) ---------------------------------------------------------
+   Players sit in a circle, the viewer at the bottom; turns pass clockwise.
+   Hand: sorted, with playable cards lit and the rest dimmed.
+   ------------------------------------------------------------------------- */
 .durak-table {
   position: absolute;
   inset: 0;
   z-index: var(--layer-seats);
+  pointer-events: none;
 }
+.durak-table > * {
+  pointer-events: auto;
+}
+
+/* --- Opponents on the arc -------------------------------------------------- */
+.durak-opponents {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.durak-opponents .player-seat {
+  left: var(--sx);
+  top: var(--sy);
+  width: 190px;
+  max-width: 24%;
+}
+.durak-hand-back {
+  position: relative;
+  display: flex;
+  order: 3;
+  margin-top: 16px;
+  height: 46px;
+  padding-left: 14px;
+}
+.durak-mini-card {
+  width: 30px;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px #00000066;
+  transform-origin: 50% 100%;
+}
+.hand-more {
+  align-self: center;
+  margin-left: -4px;
+  font-size: 11px;
+  color: #b3be8f;
+}
+.durak-seat.seat-safe {
+  opacity: 0.55;
+}
+.durak-seat .turn-label {
+  bottom: -13px;
+}
+
+/* Roles read at a glance: colour of the tag and a soft glow on the plate. */
+.durak-seat[data-role='attacking'] .turn-label {
+  background: linear-gradient(180deg, #ffc0a8, #e07a5f);
+  color: #3a1308;
+}
+.durak-seat[data-role='defending'] .turn-label,
+.durak-seat[data-role='taking'] .turn-label {
+  background: linear-gradient(180deg, #a9d3ff, #5b93d6);
+  color: #0b2038;
+}
+.durak-seat[data-role='taking'] .turn-label {
+  background: linear-gradient(180deg, #ffd49a, #e09a42);
+  color: #3a2208;
+}
+.durak-seat[data-role='throwing'] .turn-label {
+  background: linear-gradient(180deg, #c9f0c3, #7fc88a);
+  color: #0f2a14;
+}
+.durak-seat[data-role='passed'] .turn-label,
+.durak-seat[data-role='safe'] .turn-label {
+  background: #ffffff26;
+  color: #d8e2d6;
+}
+.durak-seat[data-role='attacking'] .seat-identity {
+  border-color: #e07a5f77;
+}
+.durak-seat[data-role='defending'] .seat-identity,
+.durak-seat[data-role='taking'] .seat-identity {
+  border-color: #5b93d677;
+}
+.seat-low {
+  --ring: #ee7d68;
+}
+
+/* --- Centre: piles + battlefield --------------------------------------------- */
 .durak-center {
   position: absolute;
   left: 50%;
-  top: 40%;
+  top: 43%;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  z-index: var(--layer-seats);
+  gap: 16px;
+  width: min(760px, 94vw);
 }
-.durak-trump-deck {
-  position: relative;
+.durak-piles {
   display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.durak-trump-card {
-  position: relative;
-  --card-width: 54px;
-}
-.durak-trump-card .playing-card {
-  transform: rotate(-90deg);
-}
-.durak-deck-count {
-  position: absolute;
-  bottom: -16px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: #b3be8f;
-  white-space: nowrap;
-}
-.durak-hand-back {
-  display: flex;
-  order: 3;
-  margin-top: 8px;
-  height: 40px;
-}
-.durak-mini-card {
-  width: 28px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px #00000055;
-}
-.durak-battlefield {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: center;
-  gap: 14px;
-  width: min(640px, 86vw);
-  min-height: 100px;
+  gap: 30px;
 }
-.durak-slot {
-  position: relative;
-  display: inline-flex;
-  padding: 0;
-  border: none;
-  background: none;
-  --card-width: 72px;
-}
-.durak-slot:not(:disabled) {
-  cursor: pointer;
-}
-.durak-slot.targeted .card-face {
-  outline: 2px solid var(--accent);
-}
-.durak-defense-card {
-  position: absolute;
-  left: 16px;
-  top: 16px;
-}
-.durak-result {
-  position: absolute;
-  left: 50%;
-  top: 30%;
-  transform: translate(-50%, -50%);
-  padding: 20px 28px;
-  text-align: center;
-  font-size: 16px;
-  z-index: var(--layer-hud);
-}
-.durak-own-seat {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: min(720px, 96%);
-  pointer-events: auto;
-}
-.durak-own-hand {
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  padding: 10px 4px 4px;
-  --card-width: 78px;
-}
-.durak-hand-card {
-  cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    transform 0.15s,
-    margin-left 0.15s;
-}
-.durak-hand-card:hover {
-  transform: translateY(-8px);
-}
-.durak-controls {
+.pile {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  font-size: 11px;
+  color: #b3be8f;
+  letter-spacing: 0.4px;
+}
+.pile small b {
+  margin-left: 4px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.pile-cards {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 78px;
+}
+.discard-pile-new .pile-cards {
+  border: 1px dashed #d5c69140;
+  border-radius: 8px;
+}
+.discard-pile-new .pile-cards img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: 7px;
+  opacity: 0.65;
+  filter: saturate(0.6);
+  transform: rotate(-6deg);
+}
+.trump-wrap {
+  width: 96px;
+}
+.trump-card {
+  position: absolute;
+  left: 38px;
+  top: 12px;
+  --card-width: 54px;
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+}
+.deck-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 54px;
+  border-radius: 6px;
+  box-shadow:
+    3px 3px 0 #0b1511,
+    6px 6px 0 #1b2f26,
+    0 10px 16px #0008;
+}
+.trump-badge-only {
+  font-size: 40px;
+  color: var(--gold);
+}
+.trump-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #b3be8f;
+}
+.trump-chip span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  font-size: 26px;
+  line-height: 1;
+  color: #1d2a1f;
+  background: radial-gradient(circle at 35% 28%, #fff, #ece5cf 60%, #b9ae86);
+  box-shadow:
+    0 4px 10px #000a,
+    inset 0 -3px 4px #0003;
+}
+.trump-chip[data-suit='hearts'] span,
+.trump-chip[data-suit='diamonds'] span {
+  color: #b83f43;
+}
+
+.battlefield {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 152px;
+  padding: 10px 8px;
+  border-radius: 24px;
+  border: 1px dashed transparent;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.battlefield.dragging {
+  border-color: #d1c38a66;
+  background: #d1c38a0d;
+}
+.battlefield-empty {
+  position: absolute;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #d5c69166;
+  text-transform: uppercase;
+}
+.battlefield-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 22px;
+}
+.bf-slot {
+  position: relative;
+  --card-width: 74px;
+  padding: 4px 22px 22px 4px;
+  border-radius: 12px;
+  transition:
+    transform 0.18s,
+    filter 0.18s;
+}
+.bf-slot .defense-card {
+  position: absolute;
+  left: 26px;
+  top: 20px;
+  transform: rotate(7deg);
+  filter: drop-shadow(0 6px 8px #0008);
+}
+.bf-slot.beaten .attack-card {
+  filter: brightness(0.9);
+}
+.bf-slot.outstanding {
+  filter: drop-shadow(0 0 12px #f0c97a55);
+}
+.bf-slot.clickable {
+  cursor: pointer;
+}
+.bf-slot.clickable:hover {
+  transform: translateY(-4px);
+}
+.bf-slot.target {
+  animation: slot-target 1s ease-in-out infinite;
+}
+.bf-slot.picked {
+  filter: drop-shadow(0 0 14px #ffe7a0);
+  transform: translateY(-6px);
+}
+@keyframes slot-target {
+  50% {
+    filter: drop-shadow(0 0 16px #ffe7a0cc);
+    transform: translateY(-5px);
+  }
+}
+.taking .bf-slot {
+  filter: drop-shadow(0 0 12px #e09a4288);
+}
+.taking-banner,
+.limit-chip {
+  margin: 0;
+  font-size: 12px;
+}
+.taking-banner {
+  padding: 5px 14px;
+  border-radius: 999px;
+  color: #3a2208;
+  font-weight: 600;
+  background: linear-gradient(180deg, #ffd49a, #e09a42);
+  box-shadow: 0 6px 14px #0007;
+}
+.limit-chip {
+  color: #b3be8f;
+  letter-spacing: 0.4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Log --------------------------------------------------------------------- */
+.durak-log {
+  position: absolute;
+  left: 22px;
+  bottom: 150px;
+  width: 230px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: #cfe0cd;
+  pointer-events: none;
+}
+.durak-log li {
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #0d1612cc;
+  border-left: 3px solid #ffffff22;
+}
+.durak-log li:nth-last-child(n + 3) {
+  opacity: 0.5;
+}
+.durak-log li[data-action='attack'] {
+  border-left-color: #e07a5f;
+}
+.durak-log li[data-action='defend'] {
+  border-left-color: #5b93d6;
+}
+.durak-log li[data-action='take'] {
+  border-left-color: #e09a42;
+}
+.durak-log li[data-action='bito'] {
+  border-left-color: #7fc88a;
+}
+.log-enter-active,
+.log-leave-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.log-enter-from {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+.log-leave-to {
+  opacity: 0;
+}
+
+/* --- The viewer's seat: sets, hand, controls ----------------------------------- */
+.durak-own-seat {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(820px, 98%);
+}
+.rank-groups {
+  display: flex;
+  gap: 8px;
+}
+.rank-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1px solid #d1c38a88;
+  border-radius: 999px;
+  color: #f4ecc6;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(180deg, #2a3a2f, #17241c);
+  box-shadow: 0 6px 14px #0007;
+}
+.rank-group:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--gold-strong);
+}
+.rank-group-rank {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--gold-strong);
+}
+
+.durak-hand {
+  --card-width: 82px;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+}
+.hand-row {
+  display: flex;
+  justify-content: center;
+  padding: 26px 8px 4px;
+}
+.hand-card {
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.16s,
+    margin-left 0.2s;
+}
+.hand-card.playable {
+  transform: translateY(-12px);
+  filter: drop-shadow(0 0 8px #ffe7a066);
+}
+.hand-card.playable:hover {
+  transform: translateY(-22px) scale(1.03);
+  z-index: 2;
+}
+.hand-card.dim {
+  filter: brightness(0.5) saturate(0.7);
+  cursor: default;
+}
+.hand-card.chosen {
+  transform: translateY(-28px);
+  z-index: 3;
+  filter: drop-shadow(0 0 12px #ffe7a0);
+}
+.hand-card.chosen .card-face {
+  outline: 2px solid var(--gold-strong);
+  outline-offset: -1px;
+}
+.hand-card.shake {
+  animation: hand-shake 0.4s;
+}
+@keyframes hand-shake {
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+.hand-enter-active {
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s;
+}
+.hand-enter-from {
+  opacity: 0;
+  transform: translateY(60px) scale(0.85);
+}
+.hand-leave-active {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.hand-move {
+  transition: transform 0.3s;
+}
+.slot-enter-active {
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s;
+}
+.slot-enter-from {
+  opacity: 0;
+  transform: translateY(70px) scale(0.9) rotate(-6deg);
+}
+.slot-leave-active {
+  transition: opacity 0.25s;
+}
+.slot-leave-to {
+  opacity: 0;
+}
+
+.durak-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(720px, 98%);
   padding: 10px 16px;
   border: 1px solid #b2c5a426;
   border-radius: 18px;
   background: linear-gradient(140deg, #1d2c23f5, #101b16fa);
+  box-shadow:
+    0 12px 28px #0008,
+    inset 0 1px #ffffff0d;
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.durak-controls.acting {
+  border-color: #d1c38a77;
+  box-shadow:
+    0 12px 28px #0008,
+    0 0 22px #d1c38a22,
+    inset 0 1px #ffffff0d;
+}
+.own-plate {
+  margin: 0;
+  flex-shrink: 0;
+  min-width: 0;
+}
+.controls-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
 }
 .durak-status {
-  font-size: 11px;
-  color: #b7c9b5;
+  font-size: 13px;
+  color: #cfe0cd;
+}
+.durak-status.flash {
+  color: #ffd49a;
+}
+.durak-timer {
+  height: 4px;
+  border-radius: 2px;
+  background: #ffffff14;
+  overflow: hidden;
+  opacity: 0.55;
+}
+.durak-timer.mine {
+  opacity: 1;
+}
+.durak-timer span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #7fc88a, #ffe7a0);
+  transition: width 0.2s linear;
+}
+.durak-timer.low span {
+  background: #ee7d68;
 }
 .durak-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
-/* Disabled slots are display-only: keep table cards fully opaque. */
-.durak-slot:disabled {
-  opacity: 1;
-  cursor: default;
+.durak-buttons kbd {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px solid #ffffff2e;
+  border-radius: 5px;
+  font-size: 10px;
+  opacity: 0.7;
 }
-.durak-own-hand {
-  scrollbar-width: none;
+
+/* --- Result -------------------------------------------------------------------- */
+.durak-result {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 34px;
+  text-align: center;
+  z-index: var(--layer-hud);
+  border: 1px solid var(--gold-line);
+  background: linear-gradient(160deg, #20402fef, #112a1def);
+  box-shadow:
+    var(--shadow-float),
+    0 0 40px #d1c38a22;
 }
-/* Card motion: deal into the hand, play onto the table, defend over an attack. */
-@keyframes durak-deal {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.85);
-  }
+.durak-result h2 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--gold-strong);
 }
-@keyframes durak-play {
-  from {
-    opacity: 0;
-    transform: translateY(70px) scale(0.9) rotate(-6deg);
-  }
+.result-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 3px #00000055,
+    0 0 0 5px var(--gold);
 }
-@keyframes durak-defend {
-  from {
-    opacity: 0;
-    transform: translate(10px, -40px) scale(1.1);
-  }
+.result-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
-@keyframes durak-pop {
-  from {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-}
-.durak-hand-card {
-  animation: durak-deal 0.35s ease-out;
-}
-.durak-slot {
-  animation: durak-play 0.35s ease-out;
-}
-.durak-defense-card {
-  animation: durak-defend 0.35s ease-out;
-}
-.durak-mini-card {
-  animation: durak-pop 0.3s ease-out;
-}
-.durak-table.no-anim * {
-  animation: none !important;
-  transition: none !important;
-}
+
 @media (prefers-reduced-motion: reduce) {
-  .durak-table * {
-    animation: none !important;
+  .bf-slot.target,
+  .hand-card.shake {
+    animation: none;
+  }
+  .hand-enter-active,
+  .slot-enter-active,
+  .hand-card,
+  .bf-slot {
+    transition: none;
   }
 }
-/* Mobile layout */
-@media (max-width: 767px) {
-  .durak-center {
-    top: 36%;
-    gap: 14px;
+
+/* --- Phones, portrait ------------------------------------------------------------ */
+@media (max-width: 767px) and (orientation: portrait) {
+  .durak-opponents {
+    inset: auto;
+    left: 0;
+    right: 0;
+    top: 14%;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 6px;
+    pointer-events: auto;
   }
-  .durak-battlefield {
-    gap: 8px;
-    width: 94vw;
-    min-height: 80px;
-  }
-  .durak-slot {
-    --card-width: 52px;
-  }
-  .durak-defense-card {
-    left: 10px;
-    top: 10px;
-  }
-  .durak-trump-card {
-    --card-width: 40px;
-  }
-  .durak-table .player-seat {
-    width: 120px;
-    max-width: 34%;
+  .durak-opponents .player-seat {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: 120px;
   }
   .durak-table .seat-identity {
     min-width: 0;
+    width: 100%;
+    justify-content: center;
     gap: 5px;
     margin-top: 4px;
     padding: 4px 8px 4px 4px;
@@ -225,157 +628,149 @@
     width: 24px;
     height: 24px;
   }
+  .durak-opponents:has(.durak-seat:nth-child(4)) .avatar {
+    display: none;
+  }
   .durak-table .seat-name strong {
-    max-width: 60px;
+    max-width: 100%;
     font-size: 10px;
   }
   .durak-table .seat-name > span {
     font-size: 10px;
   }
   .durak-hand-back {
-    height: 28px;
-    margin-top: 4px;
+    height: 30px;
+    margin-top: 12px;
   }
   .durak-mini-card {
     width: 20px;
   }
+  .durak-center {
+    top: 45%;
+    gap: 10px;
+  }
+  .durak-piles {
+    gap: 18px;
+  }
+  .pile-cards {
+    width: 42px;
+    height: 58px;
+  }
+  .trump-wrap {
+    width: 74px;
+  }
+  .trump-card {
+    --card-width: 40px;
+    left: 28px;
+    top: 9px;
+  }
+  .deck-top {
+    width: 40px;
+  }
+  .trump-chip span {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  .battlefield {
+    min-height: 118px;
+  }
+  .battlefield-slots {
+    gap: 8px 14px;
+  }
+  .bf-slot {
+    --card-width: 54px;
+    padding: 2px 14px 14px 2px;
+  }
+  .bf-slot .defense-card {
+    left: 16px;
+    top: 14px;
+  }
+  .durak-log {
+    display: none;
+  }
   .durak-own-seat {
     width: 100%;
-    gap: 6px;
+    gap: 4px;
+  }
+  .durak-hand {
+    --card-width: 60px;
+  }
+  .own-plate {
+    display: none;
   }
   .durak-controls {
     width: calc(100% - 16px);
+    margin-bottom: 6px;
     padding: 8px 10px;
-    margin-bottom: 8px;
-    gap: 6px;
-  }
-  .durak-status {
-    text-align: center;
   }
   .durak-buttons {
-    flex-wrap: wrap;
     justify-content: center;
   }
-  .durak-result {
-    top: 24%;
-    padding: 14px 18px;
-    font-size: 14px;
-    max-width: 90vw;
-  }
-}
-@media (max-height: 550px) and (orientation: landscape) {
-  .durak-center {
-    top: 38%;
-    gap: 8px;
-  }
-  .durak-slot {
-    --card-width: 44px;
-  }
-  .durak-own-seat {
-    gap: 4px;
-  }
-}
-
-/* --- Layout fixes: trump/deck row, seat tags, controls and the phone strip --- */
-.durak-trump-deck {
-  gap: 18px;
-}
-.durak-trump-deck .deck-area {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.durak-trump-deck .deck-stack {
-  position: relative;
-  left: auto;
-  width: 40px;
-  aspect-ratio: 5 / 7;
-}
-.durak-trump-deck .discard-pile {
-  display: none;
-}
-.durak-trump-card {
-  /* Rotated 90°, so the box is as wide as the card is tall. */
-  width: calc(var(--card-width) * 1.4);
-  height: var(--card-width);
-  margin: 12px 0;
-}
-.durak-trump-card .playing-card {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-}
-.durak-deck-count {
-  position: static;
-  transform: none;
-  margin-left: 6px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: #101b16e0;
-  border: 1px solid var(--gold-soft);
-  color: var(--gold);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-.durak-trump-card {
-  display: flex;
-  align-items: center;
-}
-.durak-seat .turn-label {
-  bottom: -13px;
-}
-.durak-seat .durak-hand-back {
-  margin-top: 14px;
-}
-.durak-own-seat {
-  bottom: 10px;
-}
-.stage-table[data-game='durak'] .table-wordmark {
-  top: 72%;
-}
-@media (max-width: 767px) and (orientation: portrait) {
-  .durak-table .opponent-seats {
-    top: 14%;
-  }
-  .durak-center {
-    top: 47%;
-  }
-  .stage-table[data-game='durak'] .table-wordmark {
-    top: 80%;
-  }
-}
-
-/* The deck size sits right of the trump card; on phones every opponent is visible at once. */
-.durak-deck-count {
-  position: absolute;
-  left: calc(100% + 6px);
-  top: 50%;
-  margin-left: 0;
-  transform: translateY(-50%);
-}
-@media (max-width: 767px) and (orientation: portrait) {
-  .durak-table .opponent-seats {
-    overflow: visible;
-    padding: 8px 6px 12px;
-    gap: 5px;
-  }
-  .durak-table .opponent-seats .player-seat {
-    flex: 1 1 0;
-    width: auto;
-    min-width: 0;
-    max-width: none;
-  }
-  .durak-table .opponent-seats .seat-identity {
-    min-width: 0;
-    max-width: none;
-    width: 100%;
-    justify-content: center;
-  }
-  .durak-table .opponent-seats:has(.durak-seat:nth-child(4)) .avatar {
+  .durak-buttons kbd {
     display: none;
   }
-  .durak-table .opponent-seats .seat-name strong {
-    max-width: 100%;
+  .durak-result {
+    top: 28%;
+    max-width: 92vw;
+    padding: 18px 20px;
+  }
+}
+
+/* --- Short landscape screens ------------------------------------------------------ */
+@media (max-height: 550px) and (orientation: landscape) {
+  .durak-center {
+    top: 40%;
+    gap: 6px;
+  }
+  .durak-piles,
+  .limit-chip,
+  .durak-log {
+    display: none;
+  }
+  .bf-slot {
+    --card-width: 44px;
+    padding: 2px 10px 10px 2px;
+  }
+  .bf-slot .defense-card {
+    left: 12px;
+    top: 10px;
+  }
+  .durak-hand {
+    --card-width: 54px;
+  }
+  .hand-row {
+    padding-top: 14px;
+  }
+  .own-plate {
+    display: none;
+  }
+  .durak-opponents .player-seat {
+    max-width: 18%;
+  }
+  .durak-hand-back {
+    display: none;
+  }
+}
+
+/* Trump card sits fully inside its pile; the wordmark stays below the action. */
+.trump-wrap {
+  height: 84px;
+}
+.trump-card {
+  top: 8px;
+}
+.stage-table[data-game='durak'] .table-wordmark {
+  top: 76%;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .trump-wrap {
+    height: 62px;
+  }
+  .trump-card {
+    top: 4px;
+  }
+  .stage-table[data-game='durak'] .table-wordmark {
+    top: 82%;
   }
 }

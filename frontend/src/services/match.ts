@@ -16,7 +16,9 @@ export const matchService = {
     api.post<MatchData>(`/api/matches/${id}/actions/machine-gun`, { mode, target_id: targetId }),
   attack: (id: number, cards: PlayingCard[]) =>
     api.post<MatchData>(`/api/matches/${id}/actions/attack`, { cards }),
-  translate: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/translate`),
+  translate: (id: number, cards?: PlayingCard[]) =>
+    api.post<MatchData>(`/api/matches/${id}/actions/translate`, cards ? { cards } : undefined),
+  rematch: (id: number) => api.post<MatchData>(`/api/matches/${id}/rematch`),
   defend: (id: number, attack: PlayingCard, defense: PlayingCard) =>
     api.post<MatchData>(`/api/matches/${id}/actions/defend`, { attack, defense }),
   take: (id: number) => api.post<MatchData>(`/api/matches/${id}/actions/take`),

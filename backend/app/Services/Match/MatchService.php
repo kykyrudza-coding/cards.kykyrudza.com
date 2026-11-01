@@ -101,6 +101,49 @@ class MatchService
         });
     }
 
+    /**
+     * Starts a fresh game for the same lobby once this one is over, so nobody
+     * has to leave and re-join. Idempotent: if a newer match already exists
+     * (someone else clicked first) that one is returned.
+     */
+    public function rematch(GameMatch $match, User $user): GameMatch
+    {
+        return DB::transaction(function () use ($match, $user) {
+            $locked = GameMatch::query()->lockForUpdate()->findOrFail($match->id);
+
+            abort_unless(
+                $locked->matchPlayers()->where('user_id', $user->id)->exists(),
+                403,
+                'You are not a participant in this match.'
+            );
+
+            $newer = GameMatch::query()
+                ->where('lobby_id', $locked->lobby_id)
+                ->where('id', '>', $locked->id)
+                ->orderBy('id')
+                ->first();
+            if ($newer) {
+                return $newer->fresh(self::RELATIONS);
+            }
+
+            $state = $this->hydrateState($locked);
+            $over = $locked->status === 'finished'
+                || (in_array($locked->game_type, ['durak', 'poker'], true) && $state->phase === 'finished');
+            abort_unless($over, 422, 'The game is still in progress.');
+
+            if ($locked->status === 'active') {
+                $locked->update(['status' => 'finished', 'finished_at' => now()]);
+            }
+
+            $fresh = $this->createForLobby($locked->lobby);
+
+            // Everyone still looking at the old table learns where the new game is.
+            MatchUpdated::dispatch($locked->fresh(self::RELATIONS));
+
+            return $fresh;
+        });
+    }
+
     public function placeBet(GameMatch $match, User $user, int $amount, int $expectedRound): GameMatch
     {
         return DB::transaction(function () use ($match, $user, $amount, $expectedRound) {

@@ -62,7 +62,13 @@ class MatchController extends Controller
 
     public function translate(Request $request, GameMatch $match)
     {
-        return $this->act($request, $match, 'translate');
+        $validated = $request->validate([
+            'cards' => ['sometimes', 'array'],
+            'cards.*.rank' => ['required', 'string'],
+            'cards.*.suit' => ['required', 'string'],
+        ]);
+
+        return $this->act($request, $match, 'translate', $validated);
     }
 
     public function defend(Request $request, GameMatch $match)
@@ -144,6 +150,13 @@ class MatchController extends Controller
         $match = $this->matchService->nextRound($match, $request->user(), $validated['expected_round'] ?? null);
 
         return new MatchResource($match, $request->user()->id);
+    }
+
+    public function rematch(Request $request, GameMatch $match)
+    {
+        $next = $this->matchService->rematch($match, $request->user());
+
+        return new MatchResource($next, $request->user()->id);
     }
 
     public function finish(Request $request, GameMatch $match)

@@ -11,6 +11,10 @@ final class DurakState implements GameState
      * @param  DurakPlayer[]  $players
      * @param  array<int, array{attack: Card, defense: ?Card}>  $table  Cards currently in play this turn.
      * @param  int[]  $passed  userIds who've declared they have nothing more to throw in, this turn.
+     * @param  bool  $taking  The defender has given up and will pick the table up; attackers may still add cards.
+     * @param  int  $discardCount  Cards beaten off ("bito") so far.
+     * @param  array<int, array<string, mixed>>  $log  Recent events, oldest first.
+     * @param  ?int  $turnDeadline  Unix time by which someone has to act.
      */
     public function __construct(
         public string $phase,
@@ -25,6 +29,11 @@ final class DurakState implements GameState
         public int $round,
         public array $passed = [],
         public ?int $loserId = null,
+        public bool $taking = false,
+        public int $discardCount = 0,
+        public array $log = [],
+        public ?int $turnDeadline = null,
+        public int $turnSeconds = 60,
     ) {}
 
     /**
@@ -48,6 +57,11 @@ final class DurakState implements GameState
             'round' => $this->round,
             'passed' => $this->passed,
             'loser_id' => $this->loserId,
+            'taking' => $this->taking,
+            'discard_count' => $this->discardCount,
+            'log' => $this->log,
+            'turn_deadline' => $this->turnDeadline,
+            'turn_seconds' => $this->turnSeconds,
         ];
     }
 
@@ -72,6 +86,11 @@ final class DurakState implements GameState
             $data['round'],
             $data['passed'] ?? [],
             $data['loser_id'] ?? null,
+            $data['taking'] ?? false,
+            $data['discard_count'] ?? 0,
+            $data['log'] ?? [],
+            $data['turn_deadline'] ?? null,
+            $data['turn_seconds'] ?? 60,
         );
     }
 }

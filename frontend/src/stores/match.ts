@@ -82,8 +82,23 @@ export const useMatchStore = defineStore('match', {
       await this.runAction(() => matchService.attack(this.requireId(), cards))
     },
 
-    async translate() {
-      await this.runAction(() => matchService.translate(this.requireId()))
+    async translate(cards?: PlayingCard[]) {
+      await this.runAction(() => matchService.translate(this.requireId(), cards))
+    },
+
+    /** Starts a new game in the same lobby; resolves to the new match id. */
+    async rematch(): Promise<number> {
+      const id = this.requireId()
+      this.actionLoading = true
+      this.error = null
+      try {
+        return (await matchService.rematch(id)).id
+      } catch (err) {
+        this.error = err instanceof ApiError ? err.message : t('errors.actionFailed')
+        throw err
+      } finally {
+        this.actionLoading = false
+      }
     },
 
     async defend(attack: PlayingCard, defense: PlayingCard) {

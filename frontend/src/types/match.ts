@@ -14,6 +14,8 @@ interface MatchBase {
   version: number
   host_id: number
   lobby_code?: string
+  /** Set once a rematch was started from this finished match. */
+  next_match_id?: number | null
 }
 
 // --- Blackjack --------------------------------------------------------------
@@ -90,6 +92,23 @@ export type DurakPhase = 'attack' | 'throw_in' | 'finished'
 
 export type DurakAction = 'attack' | 'translate' | 'defend' | 'take' | 'pass'
 
+export type DurakLogAction = 'attack' | 'defend' | 'take' | 'pass' | 'translate' | 'bito'
+
+export interface DurakLogEntry {
+  user_id: number
+  action: DurakLogAction
+  cards: PlayingCard[]
+  auto: boolean
+  round: number
+}
+
+/** What the viewer can do with their cards right now — computed by the server. */
+export interface DurakHints {
+  playable: PlayingCard[]
+  defenses: { attack: PlayingCard; with: PlayingCard[] }[]
+  translate: PlayingCard[]
+}
+
 export interface DurakTableSlot {
   attack: PlayingCard
   defense: PlayingCard | null
@@ -118,6 +137,18 @@ export interface DurakGameState {
   defender_id: number
   allowed_actions: DurakAction[]
   loser_id: number | null
+  discard_count: number
+  /** The players next to the defender, who may add cards. */
+  throwers: number[]
+  passed: number[]
+  /** The defender gave up; the neighbours may still add before the pile is taken. */
+  taking: boolean
+  attack_limit: number
+  hints: DurakHints
+  log: DurakLogEntry[]
+  turn_deadline: number | null
+  turn_seconds: number
+  server_time: number
 }
 
 export interface DurakMatchData extends MatchBase {

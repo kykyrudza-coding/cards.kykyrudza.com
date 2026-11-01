@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Game\Blackjack\BlackjackState;
 use App\Game\GameCatalog;
+use App\Models\GameMatch;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -41,6 +42,12 @@ class MatchResource extends JsonResource
             'version' => $this->version,
             'host_id' => $this->lobby->host_id,
             'lobby_code' => $this->lobby->code,
+            // Set once a rematch has been started from this (finished) match.
+            'next_match_id' => GameMatch::query()
+                ->where('lobby_id', $this->lobby_id)
+                ->where('id', '>', $this->id)
+                ->orderBy('id')
+                ->value('id'),
             'game' => $game,
         ];
 

@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->prefix('matches')->group(function () {
     Route::post('/{match}/actions/timeout', [MatchController::class, 'timeout']);
     Route::post('/{match}/bet', [MatchController::class, 'placeBet']);
     Route::post('/{match}/next-round', [MatchController::class, 'nextRound']);
+    Route::post('/{match}/rematch', [MatchController::class, 'rematch']);
     Route::post('/{match}/finish', [MatchController::class, 'finish']);
 });
 
